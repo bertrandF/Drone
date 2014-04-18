@@ -73,7 +73,8 @@ void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
 
 void DCPServerBackendRemote::sayHello(QString description)
 {
-    this->status = SayingHello;
+    this->setStatus(SayingHello);
+    this->handler = new DCPPacketHandlerHelloFromCS(this);
     DCPCommandHello *hello =
             new DCPCommandHello(this->sessIdCentralStation,
                                 HelloFromRemoteNode);

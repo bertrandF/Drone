@@ -25,7 +25,7 @@ DCPServerBackendCentral::DCPServerBackendCentral() :
     sessID(DCP_SESSIDCENTRAL),
     myID(DCP_IDCENTRAL)
 {
-
+    this->handler = new DCPPacketHandlerWelcome(this);
 }
 
 void DCPServerBackendCentral::registerWithServer(DCPServer *srv)
