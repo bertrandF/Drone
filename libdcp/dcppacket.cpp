@@ -29,7 +29,7 @@ DCPPacket::DCPPacket(qint8 cmdID, qint8 sessID, qint32 timestamp) :
 
 QByteArray DCPPacket::buildHeader()
 {
-    char h[DCP_HEADERSIZE];
+    char *h = new char[DCP_HEADERSIZE];
     this->header.clear();
 
     h[0] = (this->cmdID & 0x0F)<<4 | (this->sessID & 0x0F);
@@ -52,7 +52,7 @@ QByteArray* DCPPacket::packetToData()
     QByteArray *data = new QByteArray();
 
     this->buildHeader();
-    data->append(this->header, DCP_HEADERSIZE);
+    data->append(this->header.data(), DCP_HEADERSIZE);
     this->buildPayload();
     data->append(this->payload.data(), this->getPayloadLength());
 
@@ -63,7 +63,7 @@ DCPPacket* DCPPacket::dataToPacket(char *data, int len)
 {
     DCPPacket *packet = new DCPPacket();
 
-    packet->cmdID = (4>>data[0]) & (qint8)0x0F;
+    packet->cmdID = (data[0]>>4) & (qint8)0x0F;
     packet->sessID = (data[0] & (qint8)0x0F);
     packet->timestamp = ((qint32)((qint32)data[1]<<16) & (qint32)0x00FF0000) |
             ((qint32)((qint32)data[1]<<8) & (qint32)0x0000FF00) |

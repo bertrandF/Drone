@@ -28,7 +28,6 @@
 #include <dcp.h>
 #include <dcppackethandlerinterface.h>
 
-class DCPPacketHandlerInterface;
 
 
 
