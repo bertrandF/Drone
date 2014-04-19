@@ -315,7 +315,7 @@ void DCPCommandUnconnectFromDrone::unbuildPayload()
  * */
 DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
 {
-    qint8 cmdID     = 4>>(data[0] & 0xF0);
+    qint8 cmdID     = (data[0]>>4) & (qint8)0x0F;
     qint8 sessID    = (data[0] & 0x0F);
 
     DCPPacket* packet;

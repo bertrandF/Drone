@@ -26,11 +26,9 @@
 #include <QString>
 
 #include <dcppacket.h>
-#include <dcppackethandlerinterface.h>
 
 class DCPPacket;
 class DCPPacketHandlerInterface;
-
 
 
 /*
