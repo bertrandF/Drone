@@ -46,6 +46,7 @@ public:
 
     // TODO: Make avaliable only to friends
     void            setMyId(qint8 myID);
+    void            setHandler(DCPPacketHandlerInterface *handler);
 
 public slots:
     void sendPacket(DCPPacket* packet);

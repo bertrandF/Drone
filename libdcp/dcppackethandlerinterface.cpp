@@ -139,12 +139,15 @@ void DCPPacketHandlerHelloFromCS::handleCommandHello(DCPPacket *packet)
             DCPCommandAck *ack =
                     new DCPCommandAck(packet->getSessionID());
             ack->setTimestamp(packet->getTimestamp());
+            ack->setAddrDst(packet->getAddrDst());
+            ack->setPortDst(packet->getPortDst());
             remote->sendPacket(ack);
 
             remote->setMyId(IDRemoteNode);
             remote->setSessionIdCentralStation(
                         sessIDWithCentralStation);
             remote->setStatus(NotConnected);
+            remote->setHandler(new DCPPacketHandlerSelectDrone(remote));
         }
     }
 }

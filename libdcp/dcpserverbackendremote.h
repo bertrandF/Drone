@@ -25,6 +25,7 @@
 #include <QHostAddress>
 #include <QString>
 #include <QMutex>
+#include <QWaitCondition>
 
 #include <dcpserverbackend.h>
 
@@ -60,6 +61,8 @@ public:
     void            registerWithServer(DCPServer* srv);
     void            sayHello(QString description);
 
+    enum DCPServerBackendRemoteStatus   waitStatusChanged();
+
 protected:
     qint8           sessIdDrone;
     qint8           sessIdCentralStation;
@@ -70,6 +73,7 @@ protected:
 
     enum DCPServerBackendRemoteStatus status;
     QMutex                      statusMutex;
+    QWaitCondition              statusChanged;
 };
 
 #endif // DCPSERVERBACKENDREMOTE_H

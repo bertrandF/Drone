@@ -18,8 +18,6 @@
  *
  * */
 
-#include <QWaitCondition>
-
 #include "dcpserverbackendremote.h"
 #include "dcpcommands.h"
 #include "dcpserver.h"
@@ -62,6 +60,7 @@ void DCPServerBackendRemote::setStatus(DCPServerBackendRemoteStatus status)
     this->statusMutex.lock();
     this->status = status;
     this->statusMutex.unlock();
+    this->statusChanged.wakeAll();
 }
 
 void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
@@ -85,13 +84,11 @@ void DCPServerBackendRemote::sayHello(QString description)
     this->time.start();
     hello->setTimestamp(this->time.elapsed());
     this->sendPacket(hello);
+}
 
-    QWaitCondition statusChanged;
+enum DCPServerBackendRemoteStatus DCPServerBackendRemote::waitStatusChanged()
+{
     this->statusMutex.lock();
-    while(this->status == SayingHello)
-        statusChanged.wait(&(this->statusMutex));
+    this->statusChanged.wait(&(this->statusMutex));
     this->statusMutex.unlock();
-
-    if(this->getStatus() == NotConnected)
-        this->handler = new DCPPacketHandlerSelectDrone(this);
 }

@@ -67,3 +67,8 @@ DCPPacket* DCPServerBackend::findInAckQueue(qint32 timestamp)
     this->ackMutex.unlock();
     return NULL;
 }
+
+void DCPServerBackend::setHandler(DCPPacketHandlerInterface *handler)
+{
+    this->handler = handler;
+}
