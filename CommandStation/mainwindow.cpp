@@ -36,8 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->confPanel = new ConfigurationPanel(this->centralWidget());
     this->cmdPanel  = NULL;
 
-    connect(this->confPanel, SIGNAL(signal_configuration_done(CommandStationParameters)),\
-                this, SLOT(doneConfiguration(CommandStationParameters)));
+    connect(this->confPanel, SIGNAL(signal_configuration_done(CommandStationParameters*)),\
+                this, SLOT(doneConfiguration(CommandStationParameters*)));
 }
 
 MainWindow::~MainWindow()
@@ -70,7 +70,7 @@ void MainWindow::on_actionAbout_triggered()
     msgBox.exec();
 }
 
-void MainWindow::doneConfiguration(CommandStationParameters cmdP)
+void MainWindow::doneConfiguration(CommandStationParameters *cmdP)
 {
     delete this->confPanel;
     this->confPanel = NULL;

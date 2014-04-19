@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow
 
 public slots:
     void    on_actionAbout_triggered    ();
-    void    doneConfiguration           (CommandStationParameters cmdP);
+    void    doneConfiguration           (CommandStationParameters *cmdP);
 
 public:
     explicit MainWindow(QWidget *parent = 0);

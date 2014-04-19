@@ -38,7 +38,7 @@ public slots:
     void confUpdate(QString);
 
 signals:
-    void signal_configuration_done(CommandStationParameters cmdP);
+    void signal_configuration_done(CommandStationParameters *cmdP);
 
 public:
     explicit ConfigurationPanel(QWidget *parent = 0);

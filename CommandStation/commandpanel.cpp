@@ -32,7 +32,7 @@
 #include <dcpserver.h>
 
 
-CommandPanel::CommandPanel(CommandStationParameters cmdP, QWidget *parent) :
+CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommandPanel),
     cmdP(cmdP)
@@ -50,7 +50,7 @@ CommandPanel::CommandPanel(CommandStationParameters cmdP, QWidget *parent) :
     // The following line spams the log text box, so unconnected.
     //connect(this->mpw, SIGNAL(readyReadStandardOutput()), this, SLOT(mplayerReadyReadOutput()));
     //this->mpw->setMediaFile(QUrl::fromLocalFile("/home/bertrand/Desktop/Goodfellas.avi"));
-    this->mpw->setMediaFile(cmdP.frontVideoFeed);
+    this->mpw->setMediaFile(cmdP->frontVideoFeed);
     this->mpw->start();
 
     this->show(); // Need this to raise the panel at the foreground !!!
@@ -62,22 +62,24 @@ CommandPanel::CommandPanel(CommandStationParameters cmdP, QWidget *parent) :
 
     /* ----- DCP SERVER ----- */
     QUdpSocket *sock = new QUdpSocket();
-    qDebug() << "bind= " << sock->bind(cmdP.dcpServerHost, cmdP.dcpServerPort);
+    qDebug() << "bind= " << sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
+    qDebug() << cmdP->centralStationHost.protocol();
     this->dcpServer = new DCPServer(sock);
     DCPServerBackendRemote *srvBack = new DCPServerBackendRemote();
     srvBack->registerWithServer(this->dcpServer);
-    srvBack->setCentralStationHost(cmdP.centralStationHost,
-                                   cmdP.centralStationPort);
+    srvBack->setCentralStationHost(cmdP->centralStationHost,
+                                   cmdP->centralStationPort);
+    QThread::sleep(5);
     srvBack->sayHello("Welcome to my world !");
 
 
     /* ----- DB SERVER ----- */
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
-    db.setHostName(cmdP.dbServerHost.toString());
-    db.setPort(cmdP.dbServerPort);
-    db.setDatabaseName(cmdP.dbName);
-    db.setUserName(cmdP.dbUserName);
-    db.setPassword(cmdP.dbUserPassword);
+    db.setHostName(cmdP->dbServerHost.toString());
+    db.setPort(cmdP->dbServerPort);
+    db.setDatabaseName(cmdP->dbName);
+    db.setUserName(cmdP->dbUserName);
+    db.setPassword(cmdP->dbUserPassword);
 
     if(db.open())
     {

@@ -52,7 +52,7 @@ void ConfigurationPanel::confUpdate(QString)
 
 void ConfigurationPanel::on_nextButton_clicked()
 {
-    CommandStationParameters cmdP;
+    CommandStationParameters *cmdP = new CommandStationParameters();
 
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
@@ -77,7 +77,7 @@ void ConfigurationPanel::on_nextButton_clicked()
             msgBox.exec();
             return;
         }
-        cmdP.frontVideoFeed = QUrl(this->ui->frontVideoUrl->text());
+        cmdP->frontVideoFeed = QUrl(this->ui->frontVideoUrl->text());
     }
 
     // ---- DCP Server setup ----
@@ -97,8 +97,8 @@ void ConfigurationPanel::on_nextButton_clicked()
             msgBox.exec();
             return;
         }
-        cmdP.dcpServerHost = info.addresses().first();
-        cmdP.dcpServerPort = this->ui->dcpServerPort->value();
+        cmdP->dcpServerHost = info.addresses().first();
+        cmdP->dcpServerPort = this->ui->dcpServerPort->value();
     }
 
     // ---- DB Server setup ----
@@ -118,8 +118,8 @@ void ConfigurationPanel::on_nextButton_clicked()
             msgBox.exec();
             return;
         }
-        cmdP.dbServerHost = info.addresses().first();
-        cmdP.dbServerPort = this->ui->dbServerPort->value();
+        cmdP->dbServerHost = info.addresses().first();
+        cmdP->dbServerPort = this->ui->dbServerPort->value();
     }
     // DB Name
     if(this->ui->dbName->text().isEmpty())
@@ -130,7 +130,7 @@ void ConfigurationPanel::on_nextButton_clicked()
     }
     else
     {
-        cmdP.dbName = this->ui->dbName->text();
+        cmdP->dbName = this->ui->dbName->text();
     }
     // User name
     if(this->ui->dbUserName->text().isEmpty())
@@ -141,7 +141,7 @@ void ConfigurationPanel::on_nextButton_clicked()
     }
     else
     {
-        cmdP.dbUserName = this->ui->dbUserName->text();
+        cmdP->dbUserName = this->ui->dbUserName->text();
     }
     // User Password
     if(this->ui->dbUserPassword->text().isEmpty())
@@ -152,7 +152,7 @@ void ConfigurationPanel::on_nextButton_clicked()
     }
     else
     {
-        cmdP.dbUserPassword = this->ui->dbUserPassword->text();
+        cmdP->dbUserPassword = this->ui->dbUserPassword->text();
     }
 
     // ---- Central Station setup ----
@@ -171,8 +171,8 @@ void ConfigurationPanel::on_nextButton_clicked()
             msgBox.exec();
             return;
         }
-        cmdP.centralStationHost = info.addresses().first();
-        cmdP.centralStationPort = this->ui->centralStationPort->value();
+        cmdP->centralStationHost = info.addresses().first();
+        cmdP->centralStationPort = this->ui->centralStationPort->value();
     }
 
 

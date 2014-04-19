@@ -41,7 +41,7 @@ class CommandPanel : public QWidget
     Q_OBJECT
 
 public:
-    explicit CommandPanel(CommandStationParameters cmdP, QWidget *parent = 0);
+    explicit CommandPanel(CommandStationParameters *cmdP, QWidget *parent = 0);
     ~CommandPanel();
 
 public slots:
@@ -55,7 +55,7 @@ private:
     Ui::CommandPanel    *ui;
     MPlayerWidget       *mpw;
     QTextEdit           *logBox;
-    CommandStationParameters    cmdP;
+    CommandStationParameters    *cmdP;
     DCPServer           *dcpServer;
 };
 
