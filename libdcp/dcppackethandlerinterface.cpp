@@ -133,8 +133,8 @@ void DCPPacketHandlerHelloFromCS::handleCommandHello(DCPPacket *packet)
 
             DCPCommandHello* hello = dynamic_cast<DCPCommandHello*>(packet);
             QList<QByteArray> list = hello->getPayload(HelloFromCentralStation);
-            qint8 sessIDWithCentralStation = 4>>(list.at(0).data()[0] & 0xF0);
-            qint8 IDRemoteNode  = list.at(1).data()[0] & 0x0F;
+            qint8 sessIDWithCentralStation = list.at(0).data()[0];
+            qint8 IDRemoteNode  = list.at(1).data()[0];
 
             DCPCommandAck *ack =
                     new DCPCommandAck(packet->getSessionID());
@@ -273,7 +273,7 @@ void DCPPacketHandlerWelcome::handleCommandHello(DCPPacket *packet)
 
         // TODO: add client to db
         int clientID = 8;
-        int clientSessID = 4;
+        int clientSessID = 5;
         DCPCommandHello *myHello =
                 new DCPCommandHello(central->getSessID(), HelloFromCentralStation);
         myHello->setIDs(clientSessID, clientID);

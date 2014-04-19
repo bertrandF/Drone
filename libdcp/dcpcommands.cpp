@@ -244,7 +244,7 @@ QList<QByteArray> DCPCommandHello::getPayload()
         if(this->payload.length() == 1)
         {
             char* data = this->payload.data();
-            this->sessIDWithCentralStation = 4>>(data[0] & 0xF0);
+            this->sessIDWithCentralStation = (data[0] & 0xF0)>>4;
             this->IDRemoteNode = (data[0] & 0x0F);
 
             list.append(QByteArray((char*)&(this->sessIDWithCentralStation), 1));
