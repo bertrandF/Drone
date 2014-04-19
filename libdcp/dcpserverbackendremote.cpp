@@ -92,5 +92,6 @@ void DCPServerBackendRemote::sayHello(QString description)
         statusChanged.wait(&(this->statusMutex));
     this->statusMutex.unlock();
 
-    this->handler = new DCPPacketHandlerSelectDrone(this);
+    if(this->getStatus() == NotConnected)
+        this->handler = new DCPPacketHandlerSelectDrone(this);
 }
