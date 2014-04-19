@@ -28,6 +28,10 @@ DCPCommandAilerons::DCPCommandAilerons(qint8 sessID) :
     DCPPacket(DCP_CMDAILERON, sessID)
 {}
 
+DCPCommandAilerons::DCPCommandAilerons(char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandAilerons::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandAilerons(this);
@@ -60,6 +64,10 @@ DCPCommandIsAlive::DCPCommandIsAlive(qint8 sessID) :
   DCPPacket(DCP_CMDISALIVE, sessID)
 {}
 
+DCPCommandIsAlive::DCPCommandIsAlive(char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandIsAlive::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandIsAlive(this);
@@ -73,6 +81,10 @@ DCPCommandAck::DCPCommandAck(qint8 sessID) :
     DCPPacket(DCP_CMDACK, sessID)
 {}
 
+DCPCommandAck::DCPCommandAck(char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandAck::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandAck(this);
@@ -84,6 +96,10 @@ void DCPCommandAck::handle(DCPPacketHandlerInterface *handler)
  * */
 DCPCommandThrottle::DCPCommandThrottle(qint8 sessID) :
     DCPPacket(DCP_CMDTHROTTLE, sessID)
+{}
+
+DCPCommandThrottle::DCPCommandThrottle(char *data, int len) :
+    DCPPacket(data,len)
 {}
 
 void DCPCommandThrottle::handle(DCPPacketHandlerInterface *handler)
@@ -116,6 +132,10 @@ DCPCommandSetSessID::DCPCommandSetSessID(qint8 sessID) :
     DCPPacket(DCP_CMDSETSESSID, sessID)
 {}
 
+DCPCommandSetSessID::DCPCommandSetSessID(char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandSetSessID::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandSetSessID(this);
@@ -144,6 +164,10 @@ DCPCommandUnsetSessID::DCPCommandUnsetSessID(qint8 sessID) :
     DCPPacket(DCP_CMDUNSETSESSID, sessID)
 {}
 
+DCPCommandUnsetSessID::DCPCommandUnsetSessID(char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandUnsetSessID::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandUnsetSessID(this);
@@ -170,6 +194,13 @@ void DCPCommandUnsetSessID::unbuildPayload()
  * */
 DCPCommandHello::DCPCommandHello(qint8 sessID, enum DCPCommandHelloType type) :
     DCPPacket(DCP_CMDHELLO, sessID),
+    type(type)
+{}
+
+DCPCommandHello::DCPCommandHello(
+        char* data, int len,
+        enum DCPCommandHelloType type=HelloFromRemoteNode) :
+    DCPPacket(data, len),
     type(type)
 {}
 
@@ -249,6 +280,10 @@ DCPCommandBye::DCPCommandBye(qint8 sessID) :
     DCPPacket(DCP_CMDBYE, sessID)
 {}
 
+DCPCommandBye::DCPCommandBye(char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandBye::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandBye(this);
@@ -259,6 +294,10 @@ void DCPCommandBye::handle(DCPPacketHandlerInterface *handler)
  * */
 DCPCommandConnectToDrone::DCPCommandConnectToDrone(qint8 sessID) :
     DCPPacket(DCP_CMDCONNECTTODRONE, sessID)
+{}
+
+DCPCommandConnectToDrone::DCPCommandConnectToDrone(char* data, int len) :
+    DCPPacket(data, len)
 {}
 
 void DCPCommandConnectToDrone::handle(DCPPacketHandlerInterface *handler)
@@ -289,6 +328,11 @@ DCPCommandUnconnectFromDrone::DCPCommandUnconnectFromDrone(qint8 sessID) :
     DCPPacket(DCP_CMDUNCONNECTFROMDRONE, sessID)
 {}
 
+DCPCommandUnconnectFromDrone::DCPCommandUnconnectFromDrone(
+        char* data, int len) :
+    DCPPacket(data, len)
+{}
+
 void DCPCommandUnconnectFromDrone::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandUnconnectFromDrone(this);
@@ -316,47 +360,45 @@ void DCPCommandUnconnectFromDrone::unbuildPayload()
 DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
 {
     qint8 cmdID     = (data[0]>>4) & (qint8)0x0F;
-    qint8 sessID    = (data[0] & 0x0F);
 
     DCPPacket* packet;
     switch(cmdID)
     {
     case DCP_CMDAILERON:
-        packet = new DCPCommandAilerons(sessID);
+        packet = new DCPCommandAilerons(data, len);
         break;
     case DCP_CMDISALIVE:
-        packet = new DCPCommandIsAlive(sessID);
+        packet = new DCPCommandIsAlive(data, len);
         break;
     case DCP_CMDACK:
-        packet = new DCPCommandAck(sessID);
+        packet = new DCPCommandAck(data, len);
         break;
     case DCP_CMDTHROTTLE:
-        packet = new DCPCommandThrottle(sessID);
+        packet = new DCPCommandThrottle(data, len);
         break;
     case DCP_CMDSETSESSID:
-        packet = new DCPCommandSetSessID(sessID);
+        packet = new DCPCommandSetSessID(data, len);
         break;
     case DCP_CMDUNSETSESSID:
-        packet = new DCPCommandUnsetSessID(sessID);
+        packet = new DCPCommandUnsetSessID(data, len);
         break;
     case DCP_CMDHELLO:
-        packet = new DCPCommandHello(sessID, HelloFromCentralStation);
+        packet = new DCPCommandHello(data, len);
         break;
     case DCP_CMDBYE:
-        packet = new DCPCommandBye(sessID);
+        packet = new DCPCommandBye(data, len);
         break;
     case DCP_CMDCONNECTTODRONE:
-        packet = new DCPCommandConnectToDrone(sessID);
+        packet = new DCPCommandConnectToDrone(data, len);
         break;
     case DCP_CMDUNCONNECTFROMDRONE:
-        packet = new DCPCommandUnconnectFromDrone(sessID);
+        packet = new DCPCommandUnconnectFromDrone(data, len);
         break;
     default:
         qDebug("Bad Packet cmdID.");
         return NULL;
         break;
     }
-    packet->dataToPacket(data, len);
 
     return packet;
 }

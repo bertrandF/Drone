@@ -27,6 +27,18 @@ DCPPacket::DCPPacket(qint8 cmdID, qint8 sessID, qint32 timestamp) :
 {
 }
 
+DCPPacket::DCPPacket(char *data, int len)
+{
+    this->cmdID = (data[0]>>4) & (qint8)0x0F;
+    this->sessID = (data[0] & (qint8)0x0F);
+    this->timestamp = ((qint32)((qint32)data[1]<<16) & (qint32)0x00FF0000) |
+            ((qint32)((qint32)data[1]<<8) & (qint32)0x0000FF00) |
+            ((qint32)((qint32)data[1]) & (qint32)0x000000FF);
+    this->payload = QByteArray::fromRawData(
+                data+DCP_HEADERSIZE, len-DCP_HEADERSIZE);
+    this->unbuildPayload();
+}
+
 QByteArray DCPPacket::buildHeader()
 {
     char *h = new char[DCP_HEADERSIZE];
@@ -57,22 +69,6 @@ QByteArray* DCPPacket::packetToData()
     data->append(this->payload.data(), this->getPayloadLength());
 
     return data;
-}
-
-DCPPacket* DCPPacket::dataToPacket(char *data, int len)
-{
-    DCPPacket *packet = new DCPPacket();
-
-    packet->cmdID = (data[0]>>4) & (qint8)0x0F;
-    packet->sessID = (data[0] & (qint8)0x0F);
-    packet->timestamp = ((qint32)((qint32)data[1]<<16) & (qint32)0x00FF0000) |
-            ((qint32)((qint32)data[1]<<8) & (qint32)0x0000FF00) |
-            ((qint32)((qint32)data[1]) & (qint32)0x000000FF);
-    packet->payload = QByteArray::fromRawData(
-                data+DCP_HEADERSIZE, len-DCP_HEADERSIZE);
-    this->unbuildPayload();
-
-    return packet;
 }
 
 void DCPPacket::unbuildPayload()

@@ -40,6 +40,7 @@ class DCPCommandAilerons : public DCPPacket
 
 public:
     DCPCommandAilerons(qint8 sessID);
+    DCPCommandAilerons(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
@@ -60,6 +61,7 @@ class DCPCommandIsAlive : public DCPPacket
 
 public:
     DCPCommandIsAlive(qint8 sessID);
+    DCPCommandIsAlive(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 };
 
@@ -72,6 +74,7 @@ class DCPCommandAck : public DCPPacket
 
 public:
     DCPCommandAck(qint8 sessID);
+    DCPCommandAck(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 };
 
@@ -84,6 +87,7 @@ class DCPCommandThrottle : public DCPPacket
 
 public:
     DCPCommandThrottle(qint8 sessID);
+    DCPCommandThrottle(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
@@ -103,6 +107,7 @@ class DCPCommandSetSessID : public DCPPacket
 
 public:
     DCPCommandSetSessID(qint8 sessID);
+    DCPCommandSetSessID(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
@@ -122,6 +127,7 @@ class DCPCommandUnsetSessID : public DCPPacket
 
 public:
     DCPCommandUnsetSessID(qint8 sessID);
+    DCPCommandUnsetSessID(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
@@ -143,6 +149,7 @@ class DCPCommandHello : public DCPPacket
 
 public:
     DCPCommandHello(qint8 sessID, DCPCommandHelloType type);
+    DCPCommandHello(char* data, int len, DCPCommandHelloType type);
     void handle(DCPPacketHandlerInterface *handler);
     QList<QByteArray> getPayload();
     QList<QByteArray> getPayload(enum DCPCommandHelloType type);
@@ -170,6 +177,7 @@ class DCPCommandBye : public DCPPacket
 
 public:
     DCPCommandBye(qint8 sessID);
+    DCPCommandBye(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 };
 
@@ -182,6 +190,7 @@ class DCPCommandConnectToDrone : public DCPPacket
 
 public:
     DCPCommandConnectToDrone(qint8 sessID);
+    DCPCommandConnectToDrone(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
@@ -201,6 +210,7 @@ class DCPCommandUnconnectFromDrone : public DCPPacket
 
 public:
     DCPCommandUnconnectFromDrone(qint8 sessID);
+    DCPCommandUnconnectFromDrone(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
