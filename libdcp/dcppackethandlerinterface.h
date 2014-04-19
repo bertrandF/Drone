@@ -21,10 +21,12 @@
 #ifndef DCPPACKETHANDLERINTERFACE_H
 #define DCPPACKETHANDLERINTERFACE_H
 
-#include <dcppacket.h>
+#include <QMap>
+#include <QString>
 
 class DCPServerBackend;
 class DCPPacket;
+class DCPCommandHello;
 
 
 
@@ -131,6 +133,10 @@ public:
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
+
+private:
+        QMap<DCPCommandHello*, QString> sentHellos;
+        DCPCommandHello*    findSentHelloByTimestamp(qint32 timestamp);
 };
 
 #endif // DCPPACKETHANDLERINTERFACE_H

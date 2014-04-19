@@ -240,7 +240,15 @@ void DCPPacketHandlerWelcome::handleCommandIsAlive(DCPPacket *packet)
 {}
 
 void DCPPacketHandlerWelcome::handleCommandAck(DCPPacket *packet)
-{}
+{
+    DCPCommandHello* hello = findSentHelloByTimestamp(packet->getTimestamp());
+    if(hello != NULL)
+    {
+        QString description = this->sentHellos[hello];
+
+        // TODO: add client to DB
+    }
+}
 
 void DCPPacketHandlerWelcome::handleCommandThrottle(DCPPacket *packet)
 {}
@@ -270,6 +278,7 @@ void DCPPacketHandlerWelcome::handleCommandHello(DCPPacket *packet)
         myHello->setPortDst(packet->getPortDst());
 
         central->sendPacket(myHello);
+        this->sentHellos.insert(myHello,description);
     }
 }
 
@@ -282,3 +291,14 @@ void DCPPacketHandlerWelcome::handleCommandConnectToDrone(DCPPacket *packet)
 void DCPPacketHandlerWelcome::handleCommandUnconnectFromDrone(
         DCPPacket *packet)
 {}
+
+DCPCommandHello* DCPPacketHandlerWelcome::findSentHelloByTimestamp(qint32 timestamp)
+{
+    DCPCommandHello *hello;
+    foreach(hello, this->sentHellos.keys())
+    {
+        if(hello->getTimestamp() == timestamp)
+            return hello;
+    }
+    return NULL;
+}
