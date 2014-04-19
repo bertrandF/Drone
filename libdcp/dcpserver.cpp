@@ -20,6 +20,7 @@
 
 #include "dcpserver.h"
 #include "dcpcommands.h"
+#include "dcpserverbackend.h"
 
 DCPServer::DCPServer(QUdpSocket *sock, QObject *parent) :
     QObject(parent),
@@ -43,6 +44,8 @@ void DCPServer::sendPacket(DCPPacket* packet)
 
     if(err >= 0)
         backend->moveToAckQueue(packet);
+    qDebug() << "p leng:" << packet->getLenght();
+    qDebug() << this->sock->errorString() << " -- " << this->sock->error();
 
     return;
 }

@@ -19,6 +19,7 @@
  * */
 
 #include "dcpserverbackend.h"
+#include "dcpcommands.h"
 
 DCPServerBackend::DCPServerBackend() :
     QObject(),

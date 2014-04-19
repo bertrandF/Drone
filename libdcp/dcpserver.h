@@ -27,8 +27,6 @@
 #include <QUdpSocket>
 #include <QMap>
 
-#include <dcpserverbackend.h>
-#include <dcppacket.h>
 
 class DCPPacket;
 class DCPServerBackend;

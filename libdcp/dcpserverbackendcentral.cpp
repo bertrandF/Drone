@@ -19,6 +19,9 @@
  * */
 
 #include "dcpserverbackendcentral.h"
+#include "dcp.h"
+#include "dcpcommands.h"
+#include "dcpserver.h"
 
 DCPServerBackendCentral::DCPServerBackendCentral() :
     DCPServerBackend(),

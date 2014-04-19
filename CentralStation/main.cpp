@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QHostAddress>
 #include <QUdpSocket>
+#include <QThread>
 
 #include <dcp.h>
 #include <dcpserver.h>
@@ -31,10 +32,10 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     QUdpSocket *sock = new QUdpSocket();
-    sock->bind(QHostAddress("127.0.0.1"), 7894);
+    sock->bind(QHostAddress("192.168.0.27"), 5866);
     DCPServer * srv = new DCPServer(sock);
     DCPServerBackendCentral *back = new DCPServerBackendCentral();
-
+    back->registerWithServer(srv);
 
     return a.exec();
 }

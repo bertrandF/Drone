@@ -26,12 +26,9 @@
 #include <QString>
 #include <QMutex>
 
-#include <dcpserver.h>
 #include <dcpserverbackend.h>
 
 class DCPServer;
-class DCPServerBackend;
-
 
 
 enum DCPServerBackendRemoteStatus {

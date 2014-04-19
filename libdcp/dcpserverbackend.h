@@ -26,9 +26,6 @@
 #include <QLinkedList>
 #include <QMutex>
 
-#include <dcppacket.h>
-#include <dcppackethandlerinterface.h>
-
 class DCPPacket;
 class DCPPacketHandlerInterface;
 
