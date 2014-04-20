@@ -23,9 +23,9 @@
 #include "dcpcommands.h"
 #include "dcpserver.h"
 
-DCPServerBackendCentral::DCPServerBackendCentral() :
+DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     DCPServerBackend(),
-    sessID(DCP_SESSIDCENTRAL),
+    sessID(sessID),
     myID(DCP_IDCENTRAL)
 {
     this->handler = new DCPPacketHandlerWelcome(this);
@@ -33,5 +33,12 @@ DCPServerBackendCentral::DCPServerBackendCentral() :
 
 void DCPServerBackendCentral::registerWithServer(DCPServer *srv)
 {
+    this->srv = srv;
     srv->registerBackend(this, this->sessID);
+}
+
+void DCPServerBackendCentral::registerNewBackendWithServer(
+        DCPServerBackendCentral *central)
+{
+    central->registerWithServer(this->srv);
 }

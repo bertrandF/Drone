@@ -23,23 +23,29 @@
 
 #include <QtGlobal>
 
+#include <dcp.h>
 #include <dcpserverbackend.h>
+
 class DCPServer;
 
 
 class DCPServerBackendCentral : public DCPServerBackend
 {
 public:
-    DCPServerBackendCentral();
+    DCPServerBackendCentral(qint8 sessID=DCP_SESSIDCENTRAL);
 
     inline qint8 getSessID()    { return this->sessID;  }
     inline qint8 getMyId()      { return this->myID;    }
 
     void    registerWithServer(DCPServer* srv);
 
+    // TODO: make avaliable only to packet handler
+    void    registerNewBackendWithServer(DCPServerBackendCentral* central);
+
 private:
-    qint8   sessID;
-    qint8   myID;
+    DCPServer*  srv;
+    qint8       sessID;
+    qint8       myID;
 };
 
 #endif // DCPSERVERBACKENDCENTRAL_H
