@@ -47,6 +47,8 @@ public:
     inline quint16         getPortCentralStation()
         { return this->portCentralStation; }
     inline qint8           getSessionIdDrone()  { return this->sessIdDrone; }
+    inline qint8            getSessionIdCentralStation()
+        { return this->sessIdCentralStation; }
     inline enum DCPServerBackendRemoteStatus getStatus()
         { return this->status; }
 
