@@ -146,6 +146,7 @@ void DCPPacketHandlerHelloFromCS::handleCommandHello(DCPPacket *packet)
             remote->setMyId(IDRemoteNode);
             remote->setSessionIdCentralStation(
                         sessIDWithCentralStation);
+
             remote->setStatus(NotConnected);
             remote->setHandler(new DCPPacketHandlerSelectDrone(remote));
         }
@@ -181,11 +182,14 @@ void DCPPacketHandlerSelectDrone::handleCommandIsAlive(DCPPacket *packet)
 {
     DCPServerBackendRemote *remote =
             dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
-    if(packet->getSessionID() == remote->getSessionIdDrone())
+    if(packet->getSessionID() == remote->getSessionIdDrone() ||
+            packet->getSessionID() == remote->getSessionIdCentralStation())
     {
         DCPCommandAck *response = new DCPCommandAck(
-                    remote->getSessionIdDrone());
+                    packet->getSessionID());
         response->setTimestamp(packet->getTimestamp());
+        response->setAddrDst(packet->getAddrDst());
+        response->setPortDst(packet->getPortDst());
         remote->sendPacket(response);
     }
 }
