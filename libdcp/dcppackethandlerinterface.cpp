@@ -248,11 +248,9 @@ void DCPPacketHandlerWelcome::handleCommandIsAlive(DCPPacket *packet)
 
 void DCPPacketHandlerWelcome::handleCommandAck(DCPPacket *packet)
 {
-    DCPCommandHello* hello = findSentHelloByTimestamp(packet->getTimestamp());
-    if(hello != NULL)
+    struct newRemote* remote = findNewRemoteByTimestamp(packet->getTimestamp());
+    if(remote != NULL)
     {
-        QString description = this->sentHellos[hello];
-
         // TODO: add client to DB
     }
 }
@@ -285,7 +283,13 @@ void DCPPacketHandlerWelcome::handleCommandHello(DCPPacket *packet)
         myHello->setPortDst(packet->getPortDst());
 
         central->sendPacket(myHello);
-        this->sentHellos.insert(myHello,description);
+
+        struct newRemote* remote = new newRemote();
+        remote->description = description;
+        remote->id = clientID;
+        remote->sessIdCentralStation = clientSessID;
+        remote->myHello = myHello;
+        this->pendingRemote.append(remote);
     }
 }
 
@@ -299,13 +303,14 @@ void DCPPacketHandlerWelcome::handleCommandUnconnectFromDrone(
         DCPPacket *packet)
 {}
 
-DCPCommandHello* DCPPacketHandlerWelcome::findSentHelloByTimestamp(qint32 timestamp)
+struct newRemote *DCPPacketHandlerWelcome::findNewRemoteByTimestamp(
+        qint32 timestamp)
 {
-    DCPCommandHello *hello;
-    foreach(hello, this->sentHellos.keys())
+    struct newRemote *remote;
+    foreach(remote, this->pendingRemote)
     {
-        if(hello->getTimestamp() == timestamp)
-            return hello;
+        if(remote->myHello->getTimestamp() == timestamp)
+            return remote;
     }
     return NULL;
 }

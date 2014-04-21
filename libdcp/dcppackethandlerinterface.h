@@ -21,8 +21,9 @@
 #ifndef DCPPACKETHANDLERINTERFACE_H
 #define DCPPACKETHANDLERINTERFACE_H
 
-#include <QMap>
+#include <QList>
 #include <QString>
+#include <QHostAddress>
 
 class DCPServerBackend;
 class DCPPacket;
@@ -117,6 +118,13 @@ public:
 /*
  * CENTRAL STATION -- Welcome new clients
  * */
+struct newRemote {
+    QString         description;
+    qint8           id;
+    qint8           sessIdCentralStation;
+    DCPCommandHello* myHello;
+};
+
 class DCPPacketHandlerWelcome : public DCPPacketHandlerInterface
 {
 public:
@@ -135,8 +143,8 @@ public:
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
 
 private:
-        QMap<DCPCommandHello*, QString> sentHellos;
-        DCPCommandHello*    findSentHelloByTimestamp(qint32 timestamp);
+        QList<struct newRemote*>    pendingRemote;
+        struct newRemote*    findNewRemoteByTimestamp(qint32 timestamp);
 };
 
 #endif // DCPPACKETHANDLERINTERFACE_H
