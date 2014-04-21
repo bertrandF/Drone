@@ -62,8 +62,7 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
 
     /* ----- DCP SERVER ----- */
     QUdpSocket *sock = new QUdpSocket();
-    qDebug() << "bind= " << sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
-    qDebug() << cmdP->centralStationHost.protocol();
+    sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
     this->dcpServer = new DCPServer(sock);
     DCPServerBackendRemote *srvBack = new DCPServerBackendRemote();
     srvBack->registerWithServer(this->dcpServer);
