@@ -252,6 +252,13 @@ void DCPPacketHandlerWelcome::handleCommandAck(DCPPacket *packet)
     if(remote != NULL)
     {
         // TODO: add client to DB
+
+        DCPServerBackendCentral* newBackend =
+                new DCPServerBackendCentral(remote->sessIdCentralStation);
+        newBackend->setHandler(
+                    new DCPPacketHandlerCentralMainRun(this->backendSrv));
+        dynamic_cast<DCPServerBackendCentral*>(this->backendSrv)
+                ->registerNewBackendWithServer(newBackend);
     }
 }
 
@@ -314,3 +321,46 @@ struct newRemote *DCPPacketHandlerWelcome::findNewRemoteByTimestamp(
     }
     return NULL;
 }
+
+
+/*
+ * CENTRAL STATION -- Central station normal operations
+ * */
+DCPPacketHandlerCentralMainRun::DCPPacketHandlerCentralMainRun(
+        DCPServerBackend *backend) :
+    DCPPacketHandlerInterface(backend)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleNull(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandAilerons(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandIsAlive(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandAck(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandThrottle(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandSetSessID(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandUnsetSessID(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandHello(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandBye(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandConnectToDrone(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandUnconnectFromDrone(
+        DCPPacket *packet)
+{}

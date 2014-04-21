@@ -147,4 +147,25 @@ private:
         struct newRemote*    findNewRemoteByTimestamp(qint32 timestamp);
 };
 
+/*
+ * CENTRAL STATION -- Central station normal operations
+ * */
+class DCPPacketHandlerCentralMainRun : public DCPPacketHandlerInterface
+{
+public:
+    DCPPacketHandlerCentralMainRun(DCPServerBackend *backend);
+
+    virtual void handleNull                         (DCPPacket* packet);
+    virtual void handleCommandAilerons              (DCPPacket* packet);
+    virtual void handleCommandIsAlive               (DCPPacket* packet);
+    virtual void handleCommandAck                   (DCPPacket* packet);
+    virtual void handleCommandThrottle              (DCPPacket* packet);
+    virtual void handleCommandSetSessID             (DCPPacket* packet);
+    virtual void handleCommandUnsetSessID           (DCPPacket* packet);
+    virtual void handleCommandHello                 (DCPPacket* packet);
+    virtual void handleCommandBye                   (DCPPacket* packet);
+    virtual void handleCommandConnectToDrone        (DCPPacket* packet);
+    virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
+};
+
 #endif // DCPPACKETHANDLERINTERFACE_H
