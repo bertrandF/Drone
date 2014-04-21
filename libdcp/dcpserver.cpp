@@ -43,7 +43,16 @@ void DCPServer::sendPacket(DCPPacket* packet)
                                 packet->getAddrDst(), packet->getPortDst());
 
     if(err >= 0)
+    {
+        qDebug() << "Send success for:";
+        qDebug() << packet->toString();
         backend->moveToAckQueue(packet);
+    }
+    else
+    {
+        qDebug() << "Send failure for:";
+        qDebug() << packet->toString();
+    }
 
     return;
 }
@@ -66,7 +75,16 @@ void DCPServer::receivedDatagram()
     DCPServerBackend *backend =
             this->findBackendFromSessID(packet->getSessionID());
     if(backend != NULL)
+    {
+        qDebug() << "Got packet (backend found):";
+        qDebug() << packet->toString();
         packet->handle(backend->getHandler());
+    }
+    else
+    {
+        qDebug() << "Got packet (backend NOT found):";
+        qDebug() << packet->toString();
+    }
 }
 
 void DCPServer::registerBackend(DCPServerBackend *backend, QList<qint8> ids)
