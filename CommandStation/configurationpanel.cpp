@@ -26,14 +26,30 @@
 
 #include "commandstationparameters.h"
 
+
+
 ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConfigurationPanel)
 {
+    QNetworkInterface interface;
+
     ui->setupUi(this);
 
+    ui->dcpServerInterface->addItem("AddressAny ( * )");
+    foreach (interface, QNetworkInterface::allInterfaces()) {
+        if(!interface.addressEntries().isEmpty())
+        {
+            ComboBoxItem *item =
+                    new ComboBoxItem(interface.name().append(" ( ").append(
+                                         interface.addressEntries().first().ip()
+                                         .toString()).append(" )"), interface);
+            ui->dcpServerInterface->addItem(*item);
+            this->interfaces.append(item);
+        }
+    }
+
     connect(this->ui->frontVideoUrl, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
-    connect(this->ui->dcpServerHost, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
     connect(this->ui->dbServerHost, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
     connect(this->ui->dbName, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
     connect(this->ui->dbUserName, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
@@ -81,25 +97,15 @@ void ConfigurationPanel::on_nextButton_clicked()
     }
 
     // ---- DCP Server setup ----
-    if(this->ui->dcpServerHost->text().isEmpty())
-    {
-        msgBox.setInformativeText("DCP Server IP is empty !");
-        msgBox.exec();
-        return;
-    }
+    if(ui->dcpServerInterface->currentIndex() == 0)
+        cmdP->dcpServerHost = QHostAddress::Any;
     else
     {
-        // TODO: only allow IP or change Widget for selecting interface
-        QHostInfo info = QHostInfo::fromName(this->ui->dcpServerHost->text());
-        if(info.addresses().isEmpty())
-        {
-            msgBox.setInformativeText("DCP Server IP is not valid !");
-            msgBox.exec();
-            return;
-        }
-        cmdP->dcpServerHost = info.addresses().first();
-        cmdP->dcpServerPort = this->ui->dcpServerPort->value();
+        ComboBoxItem *interface = this->interfaces.at(
+                    ui->dcpServerInterface->currentIndex()-1);
+        cmdP->dcpServerHost = interface->allAddresses().first();
     }
+    cmdP->dcpServerPort = this->ui->dcpServerPort->value();
 
     // ---- DB Server setup ----
     // Host

@@ -22,6 +22,7 @@
 #define CONFIGURATIONPANEL_H
 
 #include <QWidget>
+#include <QNetworkInterface>
 
 #include "commandstationparameters.h"
 
@@ -46,6 +47,17 @@ public:
 
 private:
     Ui::ConfigurationPanel  *ui;
+
+    class ComboBoxItem : public QString, public QNetworkInterface
+    {
+    public:
+        ComboBoxItem(QString str, QNetworkInterface interface) :
+            QString(str),
+            QNetworkInterface(interface)
+        {}
+    };
+
+    QList<ComboBoxItem*> interfaces;
 };
 
 #endif // CONFIGURATIONPANEL_H

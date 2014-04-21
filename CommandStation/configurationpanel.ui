@@ -57,9 +57,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="dcpServerHost">
-       <property name="text">
-        <string>127.0.0.1</string>
+      <widget class="QComboBox" name="dcpServerInterface">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
       </widget>
      </item>
