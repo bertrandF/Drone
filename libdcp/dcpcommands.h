@@ -138,35 +138,68 @@ private:
     qint8 sessID;
 };
 
-/*
- * DCP -- Hello.
- * */
-enum DCPCommandHelloType {HelloFromCentralStation, HelloFromRemoteNode};
 
-class DCPCommandHello : public DCPPacket
+
+
+
+/*
+ * DCP -- Hello From Remote Node
+ * */
+
+class DCPCommandHelloFromRemote : public DCPPacket
 {
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandHello(qint8 sessID, DCPCommandHelloType type);
-    DCPCommandHello(char* data, int len, DCPCommandHelloType type);
+    DCPCommandHelloFromRemote(qint8 sessID);
+    DCPCommandHelloFromRemote(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
-    QList<QByteArray> getPayload();
-    QList<QByteArray> getPayload(enum DCPCommandHelloType type);
 
-    void setNodeDescription(QString description);
-    void setIDs(qint8 sessIDWithCentralStation, qint8 IDRemoteNode);
+    inline void setDescription(QString description)
+        { this->description = description; }
+    inline QString getDescription()
+        { return this->description; }
 
 protected:
     QByteArray buildPayload();
-    int getPayloadLength();
 
 private:
-    enum DCPCommandHelloType type;
-    QString     nodeDescription;
-    qint8       sessIDWithCentralStation;
-    qint8       IDRemoteNode;
+    QString     description;
 };
+
+/*
+ * DCP -- Hello From Central Station
+ * */
+
+class DCPCommandHelloFromCentralStation : public DCPPacket
+{
+    friend class DCPPacketFactory;
+
+public:
+    DCPCommandHelloFromCentralStation(qint8 sessID);
+    DCPCommandHelloFromCentralStation(char* data, int len);
+    void handle(DCPPacketHandlerInterface *handler);
+
+    inline void setSessIdCentralStation(qint8 sessId)
+        { this->sessIdCentralStation = sessId; }
+    inline void setIdRemote(qint8 id)
+        { this->IdRemote = id; }
+    inline qint8 getSessIdCentralStation()
+        { return this->sessIdCentralStation; }
+    inline qint8 getIdRemote()
+        { return this->IdRemote; }
+
+protected:
+    QByteArray buildPayload();
+
+private:
+    qint8       sessIdCentralStation;
+    qint8       IdRemote;
+};
+
+
+
+
 
 /*
  * DCP -- Bye.

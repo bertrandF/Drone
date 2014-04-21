@@ -119,7 +119,12 @@ void DCPPacketHandlerHelloFromCS::handleCommandSetSessID(DCPPacket *packet)
 void DCPPacketHandlerHelloFromCS::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerHelloFromCS::handleCommandHello(DCPPacket *packet)
+void DCPPacketHandlerHelloFromCS::handleCommandHelloFromRemote(
+        DCPPacket *packet)
+{}
+
+void DCPPacketHandlerHelloFromCS::handleCommandHelloFromCentral(
+        DCPPacket *packet)
 {
     DCPServerBackendRemote *remote =
             dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
@@ -131,10 +136,10 @@ void DCPPacketHandlerHelloFromCS::handleCommandHello(DCPPacket *packet)
         {
             remote->removeFromAckQueue(myHello);
 
-            DCPCommandHello* hello = dynamic_cast<DCPCommandHello*>(packet);
-            QList<QByteArray> list = hello->getPayload(HelloFromCentralStation);
-            qint8 sessIDWithCentralStation = list.at(0).data()[0];
-            qint8 IDRemoteNode  = list.at(1).data()[0];
+            DCPCommandHelloFromCentralStation* hello =
+                    dynamic_cast<DCPCommandHelloFromCentralStation*>(packet);
+            qint8 sessIdCentralStation = hello->getSessIdCentralStation();
+            qint8 IdRemote  = hello->getIdRemote();
 
             DCPCommandAck *ack =
                     new DCPCommandAck(packet->getSessionID());
@@ -143,9 +148,9 @@ void DCPPacketHandlerHelloFromCS::handleCommandHello(DCPPacket *packet)
             ack->setPortDst(packet->getPortDst());
             remote->sendPacket(ack);
 
-            remote->setMyId(IDRemoteNode);
+            remote->setMyId(IdRemote);
             remote->setSessionIdCentralStation(
-                        sessIDWithCentralStation);
+                        sessIdCentralStation);
 
             remote->setStatus(NotConnected);
             remote->setHandler(new DCPPacketHandlerSelectDrone(remote));
@@ -217,7 +222,12 @@ void DCPPacketHandlerSelectDrone::handleCommandSetSessID(DCPPacket *packet)
 void DCPPacketHandlerSelectDrone::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerSelectDrone::handleCommandHello(DCPPacket *packet)
+void DCPPacketHandlerSelectDrone::handleCommandHelloFromRemote(
+        DCPPacket *packet)
+{}
+
+void DCPPacketHandlerSelectDrone::handleCommandHelloFromCentral(
+        DCPPacket *packet)
 {}
 
 void DCPPacketHandlerSelectDrone::handleCommandBye(DCPPacket *packet)
@@ -271,21 +281,23 @@ void DCPPacketHandlerWelcome::handleCommandSetSessID(DCPPacket *packet)
 void DCPPacketHandlerWelcome::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerWelcome::handleCommandHello(DCPPacket *packet)
+void DCPPacketHandlerWelcome::handleCommandHelloFromRemote(DCPPacket *packet)
 {
     DCPServerBackendCentral *central =
             dynamic_cast<DCPServerBackendCentral*>(this->backendSrv);
     if(packet->getSessionID() == central->getSessID())
     {
-        DCPCommandHello *hello = dynamic_cast<DCPCommandHello*>(packet);
-        QString description(hello->getPayload().at(0).data());
+        DCPCommandHelloFromRemote *hello =
+                dynamic_cast<DCPCommandHelloFromRemote*>(packet);
+        QString description(hello->getDescription());
 
         // TODO: add client to db
         int clientID = 8;
         int clientSessID = 5;
-        DCPCommandHello *myHello =
-                new DCPCommandHello(central->getSessID(), HelloFromCentralStation);
-        myHello->setIDs(clientSessID, clientID);
+        DCPCommandHelloFromCentralStation *myHello =
+                new DCPCommandHelloFromCentralStation(central->getSessID());
+        myHello->setIdRemote(clientID);
+        myHello->setSessIdCentralStation(clientSessID);
         myHello->setAddrDst(packet->getAddrDst());
         myHello->setPortDst(packet->getPortDst());
 
@@ -299,6 +311,9 @@ void DCPPacketHandlerWelcome::handleCommandHello(DCPPacket *packet)
         this->pendingRemote.append(remote);
     }
 }
+
+void DCPPacketHandlerWelcome::handleCommandHelloFromCentral(DCPPacket *packet)
+{}
 
 void DCPPacketHandlerWelcome::handleCommandBye(DCPPacket *packet)
 {}
@@ -352,13 +367,19 @@ void DCPPacketHandlerCentralMainRun::handleCommandSetSessID(DCPPacket *packet)
 void DCPPacketHandlerCentralMainRun::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralMainRun::handleCommandHello(DCPPacket *packet)
+void DCPPacketHandlerCentralMainRun::handleCommandHelloFromRemote(
+        DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralMainRun::handleCommandHelloFromCentral(
+        DCPPacket *packet)
 {}
 
 void DCPPacketHandlerCentralMainRun::handleCommandBye(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralMainRun::handleCommandConnectToDrone(DCPPacket *packet)
+void DCPPacketHandlerCentralMainRun::handleCommandConnectToDrone(
+        DCPPacket *packet)
 {}
 
 void DCPPacketHandlerCentralMainRun::handleCommandUnconnectFromDrone(

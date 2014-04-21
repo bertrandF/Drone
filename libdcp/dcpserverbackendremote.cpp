@@ -75,10 +75,9 @@ void DCPServerBackendRemote::sayHello(QString description)
 {
     this->setStatus(SayingHello);
     this->handler = new DCPPacketHandlerHelloFromCS(this);
-    DCPCommandHello *hello =
-            new DCPCommandHello(this->sessIdCentralStation,
-                                HelloFromRemoteNode);
-    hello->setNodeDescription(description);
+    DCPCommandHelloFromRemote *hello =
+            new DCPCommandHelloFromRemote(this->sessIdCentralStation);
+    hello->setDescription(description);
     hello->setAddrDst(this->addrCentralStation);
     hello->setPortDst(this->portCentralStation);
     this->time.start();

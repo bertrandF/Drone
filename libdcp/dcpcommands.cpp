@@ -188,90 +188,66 @@ void DCPCommandUnsetSessID::unbuildPayload()
     this->sessID = data[0];
 }
 
-
 /*
- * DCP -- Hello.
+ * DCP -- Hello From Remote.
  * */
-DCPCommandHello::DCPCommandHello(qint8 sessID, enum DCPCommandHelloType type) :
-    DCPPacket(DCP_CMDHELLO, sessID),
-    type(type)
+DCPCommandHelloFromRemote::DCPCommandHelloFromRemote(
+        qint8 sessID) :
+    DCPPacket(DCP_CMDHELLOFROMREMOTE, sessID)
 {}
 
-DCPCommandHello::DCPCommandHello(
-        char* data, int len,
-        enum DCPCommandHelloType type=HelloFromRemoteNode) :
-    DCPPacket(data, len),
-    type(type)
-{}
-
-void DCPCommandHello::handle(DCPPacketHandlerInterface *handler)
+DCPCommandHelloFromRemote::DCPCommandHelloFromRemote(
+        char* data, int len) :
+    DCPPacket(data, len)
 {
-    handler->handleCommandHello(this);
+    this->description = this->description.fromUtf8(this->payload);
 }
 
-QByteArray DCPCommandHello::buildPayload()
+void DCPCommandHelloFromRemote::handle(
+        DCPPacketHandlerInterface *handler)
+{
+    handler->handleCommandHelloFromRemote(this);
+}
+
+QByteArray DCPCommandHelloFromRemote::buildPayload()
 {
     this->payload.clear();
-    if(this->type == HelloFromCentralStation)
-    {
-        quint8 data = (quint8)((this->sessIDWithCentralStation & 0x0F)<<4 |
-                     (this->IDRemoteNode & 0x0F));
-        this->payload.append((char)data);
-    }
-    if(this->type == HelloFromRemoteNode)
-    {
-        this->payload.append(this->nodeDescription);
-    }
+    this->payload = this->description.toUtf8();
+    return this->payload;
+}
+
+/*
+ * DCP -- Hello From CommandStation.
+ * */
+DCPCommandHelloFromCentralStation::DCPCommandHelloFromCentralStation(
+        qint8 sessID) :
+    DCPPacket(DCP_CMDHELLOFROMCENTRAL, sessID)
+{}
+
+DCPCommandHelloFromCentralStation::DCPCommandHelloFromCentralStation(
+        char* data, int len) :
+    DCPPacket(data, len)
+{
+    this->sessIdCentralStation = (qint8)((this->payload.at(0)>>4) & 0x0F);
+    this->IdRemote = (qint8)(this->payload.at(0) & 0x0F);
+}
+
+void DCPCommandHelloFromCentralStation::handle(
+        DCPPacketHandlerInterface *handler)
+{
+    handler->handleCommandHelloFromCentral(this);
+}
+
+QByteArray DCPCommandHelloFromCentralStation::buildPayload()
+{
+    this->payload.clear();
+    quint8 data = (quint8)((this->sessIdCentralStation & 0x0F)<<4 |
+                 (this->IdRemote & 0x0F));
+    this->payload.append((char)data);
 
     return this->payload;
 }
 
-QList<QByteArray> DCPCommandHello::getPayload(enum DCPCommandHelloType type)
-{
-    this->type = type;
-    return this->getPayload();
-}
-QList<QByteArray> DCPCommandHello::getPayload()
-{
-    QList<QByteArray> list;
-    if(this->type == HelloFromRemoteNode)
-    {
-        list.append(this->payload);
-        this->nodeDescription.append(this->payload);
-    }
-    else if(this->type == HelloFromCentralStation)
-    {
-        if(this->payload.length() == 1)
-        {
-            char* data = this->payload.data();
-            this->sessIDWithCentralStation = (data[0] & 0xF0)>>4;
-            this->IDRemoteNode = (data[0] & 0x0F);
-
-            list.append(QByteArray((char*)&(this->sessIDWithCentralStation), 1));
-            list.append(QByteArray((char*)&(this->IDRemoteNode), 1));
-        }
-    }
-    return list;
-}
-
-void DCPCommandHello::setNodeDescription(QString description)
-{
-    this->nodeDescription.clear();
-    this->nodeDescription.append(description);
-}
-
-void DCPCommandHello::setIDs(qint8 sessIDWithCentralStation, qint8 IDRemoteNode)
-{
-    this->IDRemoteNode = IDRemoteNode;
-    this->sessIDWithCentralStation = sessIDWithCentralStation;
-}
-
-int DCPCommandHello::getPayloadLength()
-{
-    if(this->type == HelloFromCentralStation)
-        return 1;
-    return this->payload.length();
-}
 
 /*
  * DCP -- Bye.
@@ -382,8 +358,11 @@ DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
     case DCP_CMDUNSETSESSID:
         packet = new DCPCommandUnsetSessID(data, len);
         break;
-    case DCP_CMDHELLO:
-        packet = new DCPCommandHello(data, len);
+    case DCP_CMDHELLOFROMREMOTE:
+        packet = new DCPCommandHelloFromRemote(data, len);
+        break;
+    case DCP_CMDHELLOFROMCENTRAL:
+        packet = new DCPCommandHelloFromCentralStation(data, len);
         break;
     case DCP_CMDBYE:
         packet = new DCPCommandBye(data, len);

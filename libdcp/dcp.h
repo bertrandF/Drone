@@ -32,10 +32,11 @@
 #define DCP_CMDTHROTTLE             ((qint8)0x03)
 #define DCP_CMDSETSESSID            ((qint8)0x04)
 #define DCP_CMDUNSETSESSID          ((qint8)0x05)
-#define DCP_CMDHELLO                ((qint8)0x06)
-#define DCP_CMDBYE                  ((qint8)0x07)
-#define DCP_CMDCONNECTTODRONE       ((qint8)0x08)
-#define DCP_CMDUNCONNECTFROMDRONE   ((qint8)0x09)
+#define DCP_CMDHELLOFROMCENTRAL     ((qint8)0x06)
+#define DCP_CMDHELLOFROMREMOTE      ((qint8)0x07)
+#define DCP_CMDBYE                  ((qint8)0x08)
+#define DCP_CMDCONNECTTODRONE       ((qint8)0x09)
+#define DCP_CMDUNCONNECTFROMDRONE   ((qint8)0x0A)
 
 
 /* --- DEFAULTS IDS --- */

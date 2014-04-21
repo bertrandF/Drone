@@ -27,7 +27,7 @@
 
 class DCPServerBackend;
 class DCPPacket;
-class DCPCommandHello;
+class DCPCommandHelloFromCentralStation;
 
 
 
@@ -43,7 +43,8 @@ public:
     virtual void handleCommandThrottle              (DCPPacket *packet) = 0;
     virtual void handleCommandSetSessID             (DCPPacket *packet) = 0;
     virtual void handleCommandUnsetSessID           (DCPPacket *packet) = 0;
-    virtual void handleCommandHello                 (DCPPacket *packet) = 0;
+    virtual void handleCommandHelloFromCentral      (DCPPacket *packet) = 0;
+    virtual void handleCommandHelloFromRemote       (DCPPacket *packet) = 0;
     virtual void handleCommandBye                   (DCPPacket *packet) = 0;
     virtual void handleCommandConnectToDrone        (DCPPacket *packet) = 0;
     virtual void handleCommandUnconnectFromDrone    (DCPPacket *packet) = 0;
@@ -88,7 +89,8 @@ public:
     virtual void handleCommandThrottle              (DCPPacket* packet);
     virtual void handleCommandSetSessID             (DCPPacket* packet);
     virtual void handleCommandUnsetSessID           (DCPPacket* packet);
-    virtual void handleCommandHello                 (DCPPacket* packet);
+    virtual void handleCommandHelloFromCentral      (DCPPacket *packet);
+    virtual void handleCommandHelloFromRemote       (DCPPacket *packet);
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
@@ -109,7 +111,8 @@ public:
     virtual void handleCommandThrottle              (DCPPacket* packet);
     virtual void handleCommandSetSessID             (DCPPacket* packet);
     virtual void handleCommandUnsetSessID           (DCPPacket* packet);
-    virtual void handleCommandHello                 (DCPPacket* packet);
+    virtual void handleCommandHelloFromCentral      (DCPPacket *packet);
+    virtual void handleCommandHelloFromRemote       (DCPPacket *packet);
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
@@ -122,7 +125,7 @@ struct newRemote {
     QString         description;
     qint8           id;
     qint8           sessIdCentralStation;
-    DCPCommandHello* myHello;
+    DCPCommandHelloFromCentralStation* myHello;
 };
 
 class DCPPacketHandlerWelcome : public DCPPacketHandlerInterface
@@ -137,7 +140,8 @@ public:
     virtual void handleCommandThrottle              (DCPPacket* packet);
     virtual void handleCommandSetSessID             (DCPPacket* packet);
     virtual void handleCommandUnsetSessID           (DCPPacket* packet);
-    virtual void handleCommandHello                 (DCPPacket* packet);
+    virtual void handleCommandHelloFromCentral      (DCPPacket *packet);
+    virtual void handleCommandHelloFromRemote       (DCPPacket *packet);
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
@@ -162,7 +166,8 @@ public:
     virtual void handleCommandThrottle              (DCPPacket* packet);
     virtual void handleCommandSetSessID             (DCPPacket* packet);
     virtual void handleCommandUnsetSessID           (DCPPacket* packet);
-    virtual void handleCommandHello                 (DCPPacket* packet);
+    virtual void handleCommandHelloFromCentral      (DCPPacket *packet);
+    virtual void handleCommandHelloFromRemote       (DCPPacket *packet);
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
