@@ -90,6 +90,15 @@ void DCPCommandAck::handle(DCPPacketHandlerInterface *handler)
     handler->handleCommandAck(this);
 }
 
+QString DCPCommandAck::toString()
+{
+    QString str("--- DCPCommandAck ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+
+    return str;
+}
 
 /*
  * DCP -- Throttle.
@@ -216,6 +225,17 @@ QByteArray DCPCommandHelloFromRemote::buildPayload()
     return this->payload;
 }
 
+QString DCPCommandHelloFromRemote::toString()
+{
+    QString str("--- DCPCommandHelloFromRemote ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+    text << "description: " << this->description << endl;
+
+    return str;
+}
+
 /*
  * DCP -- Hello From CommandStation.
  * */
@@ -246,6 +266,18 @@ QByteArray DCPCommandHelloFromCentralStation::buildPayload()
     this->payload.append((char)data);
 
     return this->payload;
+}
+
+QString DCPCommandHelloFromCentralStation::toString()
+{
+    QString str("--- DCPCommandHelloFromCentralStation ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+    text << "Sess Id central station: " << this->sessIdCentralStation << endl;
+    text << "Remote Id: " << this->IdRemote << endl;
+
+    return str;
 }
 
 

@@ -99,3 +99,14 @@ int DCPPacket::getPayloadLength()
 {
     return this->payload.length();
 }
+
+QString DCPPacket::toString()
+{
+    QString str;
+    QTextStream text(&str);
+    text << "Cmd Id: " << this->cmdID << endl;
+    text << "Sess Id: " << this->sessID << endl;
+    text << "Timestamp: " << this->timestamp << endl;
+
+    return str;
+}

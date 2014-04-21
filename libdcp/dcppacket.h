@@ -56,6 +56,8 @@ public:
     DCPPacket*      dataToPacket(char* data, int len);
     QByteArray*     packetToData();
 
+    virtual QString toString();
+
 protected:
     QByteArray  payload;
 

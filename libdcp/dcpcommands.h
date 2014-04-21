@@ -76,6 +76,8 @@ public:
     DCPCommandAck(qint8 sessID);
     DCPCommandAck(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
+
+    QString toString();
 };
 
 /*
@@ -160,6 +162,8 @@ public:
     inline QString getDescription()
         { return this->description; }
 
+    QString toString();
+
 protected:
     QByteArray buildPayload();
 
@@ -188,6 +192,8 @@ public:
         { return this->sessIdCentralStation; }
     inline qint8 getIdRemote()
         { return this->IdRemote; }
+
+    QString toString();
 
 protected:
     QByteArray buildPayload();
