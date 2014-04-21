@@ -28,7 +28,7 @@ DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     sessID(sessID),
     myID(DCP_IDCENTRAL)
 {
-    this->handler = new DCPPacketHandlerWelcome(this);
+    this->handler = new DCPPacketHandlerCentralStationHello(this);
 }
 
 void DCPServerBackendCentral::registerWithServer(DCPServer *srv)

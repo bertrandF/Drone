@@ -77,10 +77,10 @@ protected:
 /*
  * COMMAND STATION -- Packet Handler for Hello handshake
  * */
-class DCPPacketHandlerHelloFromCS : public DCPPacketHandlerInterface
+class DCPPacketHandlerCommandStationHello : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerHelloFromCS(DCPServerBackend *backend);
+    DCPPacketHandlerCommandStationHello(DCPServerBackend *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -99,10 +99,10 @@ public:
 /*
  * COMMAND STATION -- Packet Handler Not Connected
  * */
-class DCPPacketHandlerSelectDrone : public DCPPacketHandlerInterface
+class DCPPacketHandlerCommandStationMainRun : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerSelectDrone(DCPServerBackend *backend);
+    DCPPacketHandlerCommandStationMainRun(DCPServerBackend *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -128,10 +128,10 @@ struct newRemote {
     DCPCommandHelloFromCentralStation* myHello;
 };
 
-class DCPPacketHandlerWelcome : public DCPPacketHandlerInterface
+class DCPPacketHandlerCentralStationHello : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerWelcome(DCPServerBackend *backend);
+    DCPPacketHandlerCentralStationHello(DCPServerBackend *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -147,17 +147,17 @@ public:
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
 
 private:
-        QList<struct newRemote*>    pendingRemote;
-        struct newRemote*    findNewRemoteByTimestamp(qint32 timestamp);
+    QList<struct newRemote*>    pendingRemote;
+    struct newRemote*           findNewRemoteByTimestamp(qint32 timestamp);
 };
 
 /*
  * CENTRAL STATION -- Central station normal operations
  * */
-class DCPPacketHandlerCentralMainRun : public DCPPacketHandlerInterface
+class DCPPacketHandlerCentralStationMainRun : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCentralMainRun(DCPServerBackend *backend);
+    DCPPacketHandlerCentralStationMainRun(DCPServerBackend *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);

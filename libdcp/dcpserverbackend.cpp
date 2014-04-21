@@ -25,7 +25,7 @@ DCPServerBackend::DCPServerBackend() :
     QObject(),
     myID(0)
 {
-    this->handler = new DCPPacketHandlerHelloFromCS(this);
+    this->handler = new DCPPacketHandlerCommandStationHello(this);
 }
 
 void DCPServerBackend::sendPacket(DCPPacket *packet)
