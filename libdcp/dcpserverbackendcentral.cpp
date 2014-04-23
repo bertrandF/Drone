@@ -26,7 +26,8 @@
 DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     DCPServerBackend(),
     sessID(sessID),
-    myID(DCP_IDCENTRAL)
+    myID(DCP_IDCENTRAL),
+    droneSessId(DCP_IDNULL)
 {
     this->handler = new DCPPacketHandlerCentralStationHello(this);
 }

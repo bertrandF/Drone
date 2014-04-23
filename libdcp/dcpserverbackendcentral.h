@@ -36,6 +36,10 @@ public:
 
     inline qint8 getSessID()    { return this->sessID;  }
     inline qint8 getMyId()      { return this->myID;    }
+    inline void setDroneSessId(qint8 id)
+        { this->droneSessId = id; }
+    inline qint8 getDroneSessId()
+        { return this->droneSessId; }
 
     void    registerWithServer(DCPServer* srv);
 
@@ -46,6 +50,7 @@ private:
     DCPServer*  srv;
     qint8       sessID;
     qint8       myID;
+    qint8       droneSessId;
 };
 
 #endif // DCPSERVERBACKENDCENTRAL_H
