@@ -74,6 +74,7 @@ void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
 
 void DCPServerBackendRemote::sayHello(QString description)
 {
+    if(this->getStatus() != Init) return;
     this->setStatus(SayingHello);
 
     DCPCommandHelloFromRemote *hello =
