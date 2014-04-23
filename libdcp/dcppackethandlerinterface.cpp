@@ -377,7 +377,17 @@ void DCPPacketHandlerCentralStationMainRun::handleCommandIsAlive(DCPPacket *pack
 {}
 
 void DCPPacketHandlerCentralStationMainRun::handleCommandAck(DCPPacket *packet)
-{}
+{
+    DCPServerBackendCentral *central = dynamic_cast<DCPServerBackendCentral*>
+            (this->backendSrv);
+    DCPCommandSetSessID *sess = dynamic_cast<DCPCommandSetSessID*>
+            (central->findInAckQueue(packet->getTimestamp()));
+    if(sess)
+    {
+        central->setDroneSessId(sess->getDroneSessId());
+        central->removeFromAckQueue(sess);
+    }
+}
 
 void DCPPacketHandlerCentralStationMainRun::handleCommandThrottle(DCPPacket *packet)
 {}
@@ -401,7 +411,25 @@ void DCPPacketHandlerCentralStationMainRun::handleCommandBye(DCPPacket *packet)
 
 void DCPPacketHandlerCentralStationMainRun::handleCommandConnectToDrone(
         DCPPacket *packet)
-{}
+{
+    DCPServerBackendCentral *central =
+            dynamic_cast<DCPServerBackendCentral*> (this->backendSrv);
+    DCPCommandConnectToDrone *conn =
+            dynamic_cast<DCPCommandConnectToDrone*> (packet);
+    if(packet->getSessionID() == central->getSessID())
+    {
+        // TODO: check with DB & get next sessID
+
+        qint8 droneSessId = 9;
+        DCPCommandSetSessID *sess = new DCPCommandSetSessID(
+                    central->getSessID());
+        sess->setAddrDst(packet->getAddrDst());
+        sess->setPortDst(packet->getPortDst());
+        sess->setDroneSessId(droneSessId);
+        sess->setTimestamp(packet->getTimestamp());
+        central->sendPacket(sess);
+    }
+}
 
 void DCPPacketHandlerCentralStationMainRun::handleCommandUnconnectFromDrone(
         DCPPacket *packet)
