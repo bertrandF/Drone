@@ -287,7 +287,7 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
         DCPServerBackendCentral* newBackend =
                 new DCPServerBackendCentral(remote->sessIdCentralStation);
         newBackend->setHandler(
-                    new DCPPacketHandlerCentralStationMainRun(this->backendSrv));
+                    new DCPPacketHandlerCentralStationWaitConnectRequest(this->backendSrv));
         dynamic_cast<DCPServerBackendCentral*>(this->backendSrv)
                 ->registerNewBackendWithServer(newBackend);
     }
@@ -360,23 +360,24 @@ struct newRemote *DCPPacketHandlerCentralStationHello::findNewRemoteByTimestamp(
 
 
 /*
- * CENTRAL STATION -- Central station normal operations
+ * CENTRAL STATION -- Central station Wait connect request from command station
  * */
-DCPPacketHandlerCentralStationMainRun::DCPPacketHandlerCentralStationMainRun(
+DCPPacketHandlerCentralStationWaitConnectRequest::
+    DCPPacketHandlerCentralStationWaitConnectRequest(
         DCPServerBackend *backend) :
     DCPPacketHandlerInterface(backend)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleNull(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleNull(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandAilerons(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandAilerons(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandIsAlive(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandIsAlive(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandAck(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandAck(DCPPacket *packet)
 {
     DCPServerBackendCentral *central = dynamic_cast<DCPServerBackendCentral*>
             (this->backendSrv);
@@ -389,27 +390,27 @@ void DCPPacketHandlerCentralStationMainRun::handleCommandAck(DCPPacket *packet)
     }
 }
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandThrottle(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandThrottle(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandSetSessID(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandSetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandUnsetSessID(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandHelloFromRemote(
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandHelloFromRemote(
         DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandHelloFromCentral(
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandHelloFromCentral(
         DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandBye(DCPPacket *packet)
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandBye(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandConnectToDrone(
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandConnectToDrone(
         DCPPacket *packet)
 {
     DCPServerBackendCentral *central =
@@ -431,6 +432,6 @@ void DCPPacketHandlerCentralStationMainRun::handleCommandConnectToDrone(
     }
 }
 
-void DCPPacketHandlerCentralStationMainRun::handleCommandUnconnectFromDrone(
+void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandUnconnectFromDrone(
         DCPPacket *packet)
 {}

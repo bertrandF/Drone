@@ -152,12 +152,13 @@ private:
 };
 
 /*
- * CENTRAL STATION -- Central station normal operations
+ * CENTRAL STATION -- Central station Wait connect request from command station
  * */
-class DCPPacketHandlerCentralStationMainRun : public DCPPacketHandlerInterface
+class DCPPacketHandlerCentralStationWaitConnectRequest :
+        public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCentralStationMainRun(DCPServerBackend *backend);
+    DCPPacketHandlerCentralStationWaitConnectRequest(DCPServerBackend *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
