@@ -96,6 +96,7 @@ void DCPServerBackendRemote::connectToDrone(qint8 id)
 {
     if(this->getStatus() != NotConnected) return;
 
+    this->setStatus(Connecting);
     DCPCommandConnectToDrone *conn = new DCPCommandConnectToDrone(
                 this->sessIdCentralStation);
     conn->setAddrDst(this->addrCentralStation);
