@@ -216,7 +216,28 @@ void DCPPacketHandlerCommandStationMainRun::handleCommandThrottle(DCPPacket *pac
 
 void DCPPacketHandlerCommandStationMainRun::handleCommandSetSessID(DCPPacket *packet)
 {
+    DCPServerBackendRemote *remote =
+            dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
+    DCPCommandSetSessID *sess =
+            dynamic_cast<DCPCommandSetSessID*> (packet);
+    DCPCommandConnectToDrone *conn;
+    if(packet->getSessionID() == remote->getSessionIdCentralStation())
+    {
+        conn = dynamic_cast<DCPCommandConnectToDrone*>
+                (remote->findInAckQueue(packet->getTimestamp()));
+        if(conn)
+        {
+            remote->setSessionIdDrone(sess->getDroneSessId());
+            remote->removeFromAckQueue(conn);
+            DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
+            ack->setAddrDst(packet->getAddrDst());
+            ack->setPortDst(packet->getPortDst());
+            ack->setTimestamp(packet->getTimestamp());
+            remote->sendPacket(ack);
 
+            remote->setStatus(Connected);
+        }
+    }
 }
 
 void DCPPacketHandlerCommandStationMainRun::handleCommandUnsetSessID(DCPPacket *packet)
