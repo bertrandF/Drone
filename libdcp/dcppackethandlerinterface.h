@@ -99,10 +99,10 @@ public:
 /*
  * COMMAND STATION -- Packet Handler Not Connected
  * */
-class DCPPacketHandlerCommandStationMainRun : public DCPPacketHandlerInterface
+class DCPPacketHandlerCommandStationNotConnected : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCommandStationMainRun(DCPServerBackend *backend);
+    DCPPacketHandlerCommandStationNotConnected(DCPServerBackend *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
