@@ -232,12 +232,15 @@ public:
     DCPCommandConnectToDrone(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
 
+    inline void setDroneId(qint8 id)
+        { this->droneId = id; }
+
 protected:
     QByteArray buildPayload();
     void unbuildPayload();
 
 private:
-    qint8 droneID;
+    qint8 droneId;
 };
 
 /*

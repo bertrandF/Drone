@@ -316,7 +316,7 @@ void DCPCommandConnectToDrone::handle(DCPPacketHandlerInterface *handler)
 QByteArray DCPCommandConnectToDrone::buildPayload()
 {
     this->payload.clear();
-    this->payload.append((char)this->droneID);
+    this->payload.append((char)this->droneId);
     return this->payload;
 }
 
@@ -325,7 +325,7 @@ void DCPCommandConnectToDrone::unbuildPayload()
     if(this->payload.length() != 1) return;
 
     char* data = this->payload.data();
-    this->droneID = data[0];
+    this->droneId = data[0];
 }
 
 
