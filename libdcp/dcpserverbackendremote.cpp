@@ -28,6 +28,7 @@ DCPServerBackendRemote::DCPServerBackendRemote() :
     sessIdCentralStation(DCP_SESSIDCENTRAL),
     status(Init)
 {
+    this->handler = new DCPPacketHandlerCommandStationHello(this);
 }
 
 void DCPServerBackendRemote::setCentralStationHost(
@@ -74,7 +75,7 @@ void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
 void DCPServerBackendRemote::sayHello(QString description)
 {
     this->setStatus(SayingHello);
-    this->handler = new DCPPacketHandlerCommandStationHello(this);
+
     DCPCommandHelloFromRemote *hello =
             new DCPCommandHelloFromRemote(this->sessIdCentralStation);
     hello->setDescription(description);
