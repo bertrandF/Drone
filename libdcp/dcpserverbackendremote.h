@@ -62,6 +62,7 @@ public:
 
     void            registerWithServer(DCPServer* srv);
     void            sayHello(QString description);
+    void            connectToDrone(qint8 id);
 
     enum DCPServerBackendRemoteStatus   waitStatusChanged();
 

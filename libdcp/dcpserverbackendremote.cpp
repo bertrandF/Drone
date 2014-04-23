@@ -91,3 +91,16 @@ enum DCPServerBackendRemoteStatus DCPServerBackendRemote::waitStatusChanged()
     this->statusChanged.wait(&(this->statusMutex));
     this->statusMutex.unlock();
 }
+
+void DCPServerBackendRemote::connectToDrone(qint8 id)
+{
+    if(this->getStatus() != NotConnected) return;
+
+    DCPCommandConnectToDrone *conn = new DCPCommandConnectToDrone(
+                this->sessIdCentralStation);
+    conn->setAddrDst(this->addrCentralStation);
+    conn->setPortDst(this->portCentralStation);
+    conn->setDroneId(id);
+    conn->setTimestamp(this->time.elapsed());
+    this->sendPacket(conn);
+}
