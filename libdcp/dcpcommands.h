@@ -108,16 +108,21 @@ class DCPCommandSetSessID : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandSetSessID(qint8 sessID);
+    DCPCommandSetSessID(qint8 sessId);
     DCPCommandSetSessID(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
+
+    inline void setDroneSessId(qint8 id)
+        { this->droneSessId = id; }
+    inline qint8 getDroneSessId()
+        { return this->droneSessId; }
 
 protected:
     QByteArray buildPayload();
     void unbuildPayload();
 
 private:
-    qint8   sessID;
+    qint8   droneSessId;
 };
 
 /*

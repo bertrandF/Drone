@@ -137,8 +137,8 @@ void DCPCommandThrottle::unbuildPayload()
 /*
  * DCP -- Set session ID.
  * */
-DCPCommandSetSessID::DCPCommandSetSessID(qint8 sessID) :
-    DCPPacket(DCP_CMDSETSESSID, sessID)
+DCPCommandSetSessID::DCPCommandSetSessID(qint8 sessId) :
+    DCPPacket(DCP_CMDSETSESSID, sessId)
 {}
 
 DCPCommandSetSessID::DCPCommandSetSessID(char* data, int len) :
@@ -153,7 +153,7 @@ void DCPCommandSetSessID::handle(DCPPacketHandlerInterface *handler)
 QByteArray DCPCommandSetSessID::buildPayload()
 {
     this->payload.clear();
-    this->payload.append((char)this->sessID);
+    this->payload.append((char)this->droneSessId);
     return this->payload;
 }
 
@@ -162,7 +162,7 @@ void DCPCommandSetSessID::unbuildPayload()
     if(this->payload.length() != 1) return;
 
     char* data = this->payload.data();
-    this->sessID = data[0];
+    this->droneSessId = data[0];
 }
 
 
