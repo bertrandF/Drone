@@ -89,9 +89,13 @@ void DCPServerBackendRemote::sayHello(QString description)
 
 enum DCPServerBackendRemoteStatus DCPServerBackendRemote::waitStatusChanged()
 {
+    enum DCPServerBackendRemoteStatus status;
     this->statusMutex.lock();
     this->statusChanged.wait(&(this->statusMutex));
+    status = this->getStatus();
     this->statusMutex.unlock();
+
+    return status;
 }
 
 void DCPServerBackendRemote::connectToDrone(qint8 id)
