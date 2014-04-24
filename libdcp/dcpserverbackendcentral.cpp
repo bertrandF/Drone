@@ -23,6 +23,8 @@
 #include "dcpcommands.h"
 #include "dcpserver.h"
 
+#include <QSqlQuery>
+
 DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     DCPServerBackend(),
     sessID(sessID),
@@ -46,15 +48,36 @@ void DCPServerBackendCentral::registerNewBackendWithServer(
 
 qint8 DCPServerBackendCentral::nextDroneId()
 {
-    return 0;
+    QSqlQuery query("SELECT max(id) FROM drones", this->db);
+    if(query.next())
+    {
+        qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
+        return ((currentMax>=0x0F || currentMax=='\0') ?
+                    DCP_DBNOAVALIABLEIDS : currentMax+1 );
+    }
+    return DCP_DBQUERYERROR;
 }
 
 qint8 DCPServerBackendCentral::nextCommandStationId()
 {
-    return 0;
+    QSqlQuery query("SELECT max(id) FROM command_stations", this->db);
+    if(query.next())
+    {
+        qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
+        return ((currentMax>=0x0F || currentMax=='\0') ?
+                    DCP_DBNOAVALIABLEIDS : currentMax+1 );
+    }
+    return DCP_DBQUERYERROR;
 }
 
 qint8 DCPServerBackendCentral::nextSessId()
 {
-    return 0;
+    QSqlQuery query("SELECT max(id) FROM drones", this->db);
+    if(query.next())
+    {
+        qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
+        return ((currentMax>=0x0F || currentMax=='\0') ?
+                    DCP_DBNOAVALIABLEIDS : currentMax+1 );
+    }
+    return DCP_DBQUERYERROR;
 }

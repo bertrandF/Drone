@@ -41,9 +41,9 @@ public:
         { this->droneSessId = id; }
     inline qint8 getDroneSessId()
         { return this->droneSessId; }
-    inline void setDb(QSqlDatabase *db)
+    inline void setDb(QSqlDatabase db)
         { this->db = db; }
-    inline QSqlDatabase* getDb()
+    inline QSqlDatabase getDb()
         { return this->db; }
 
     void    registerWithServer(DCPServer* srv);
@@ -60,7 +60,7 @@ private:
     qint8       myID;
     qint8       droneSessId;
 
-    QSqlDatabase *db;
+    QSqlDatabase db;
 };
 
 #endif // DCPSERVERBACKENDCENTRAL_H

@@ -50,6 +50,10 @@
 #define DCP_MOTORSLEFT              ((qint8)0x01)
 #define DCP_MOTORSRIGHT             ((qint8)0x02)
 
+/* --- DataBase query --- */
+#define DCP_DBQUERYERROR            ((qint8)-1)
+#define DCP_DBNOAVALIABLEIDS        ((qint8)-2)
+
 
 
 #endif // DCP_H
