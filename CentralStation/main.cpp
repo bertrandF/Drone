@@ -47,5 +47,12 @@ int main(int argc, char *argv[])
     back->setDb(db);
     back->registerWithServer(srv);
 
+    if(db.open())
+    {
+        qDebug() << back->nextCommandStationId();
+        qDebug() << back->nextDroneId();
+        qDebug() << back->nextSessId();
+    }
+
     return a.exec();
 }
