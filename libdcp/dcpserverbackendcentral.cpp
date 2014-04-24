@@ -52,7 +52,7 @@ qint8 DCPServerBackendCentral::nextDroneId()
     if(query.next())
     {
         qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
-        return ((currentMax>=0x0F || currentMax=='\0') ?
+        return ((currentMax>=0x0F) ?
                     DCP_DBNOAVALIABLEIDS : currentMax+1 );
     }
     return DCP_DBQUERYERROR;
@@ -64,7 +64,7 @@ qint8 DCPServerBackendCentral::nextCommandStationId()
     if(query.next())
     {
         qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
-        return ((currentMax>=0x0F || currentMax=='\0') ?
+        return ((currentMax>=0x0F) ?
                     DCP_DBNOAVALIABLEIDS : currentMax+1 );
     }
     return DCP_DBQUERYERROR;
@@ -76,7 +76,7 @@ qint8 DCPServerBackendCentral::nextSessId()
     if(query.next())
     {
         qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
-        return ((currentMax>=0x0F || currentMax=='\0') ?
+        return ((currentMax>=0x0F) ?
                     DCP_DBNOAVALIABLEIDS : currentMax+1 );
     }
     return DCP_DBQUERYERROR;
