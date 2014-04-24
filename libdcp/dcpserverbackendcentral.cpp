@@ -43,3 +43,18 @@ void DCPServerBackendCentral::registerNewBackendWithServer(
 {
     central->registerWithServer(this->srv);
 }
+
+qint8 DCPServerBackendCentral::nextDroneId()
+{
+    return 0;
+}
+
+qint8 DCPServerBackendCentral::nextCommandStationId()
+{
+    return 0;
+}
+
+qint8 DCPServerBackendCentral::nextSessId()
+{
+    return 0;
+}

@@ -22,6 +22,7 @@
 #define DCPSERVERBACKENDCENTRAL_H
 
 #include <QtGlobal>
+#include <QtSql/QSqlDatabase>
 
 #include <dcp.h>
 #include <dcpserverbackend.h>
@@ -40,17 +41,26 @@ public:
         { this->droneSessId = id; }
     inline qint8 getDroneSessId()
         { return this->droneSessId; }
+    inline void setDb(QSqlDatabase *db)
+        { this->db = db; }
+    inline QSqlDatabase* getDb()
+        { return this->db; }
 
     void    registerWithServer(DCPServer* srv);
 
     // TODO: make avaliable only to packet handler
     void    registerNewBackendWithServer(DCPServerBackendCentral* central);
+    qint8   nextDroneId();
+    qint8   nextCommandStationId();
+    qint8   nextSessId();
 
 private:
     DCPServer*  srv;
     qint8       sessID;
     qint8       myID;
     qint8       droneSessId;
+
+    QSqlDatabase *db;
 };
 
 #endif // DCPSERVERBACKENDCENTRAL_H
