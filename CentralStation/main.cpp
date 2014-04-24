@@ -22,6 +22,7 @@
 #include <QHostAddress>
 #include <QUdpSocket>
 #include <QThread>
+#include <QtSql/QSqlDatabase>
 
 #include <dcp.h>
 #include <dcpserver.h>
@@ -34,7 +35,16 @@ int main(int argc, char *argv[])
     QUdpSocket *sock = new QUdpSocket();
     sock->bind(QHostAddress("192.168.0.29"), 5866);
     DCPServer * srv = new DCPServer(sock);
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+    db.setHostName("127.0.0.1");
+    db.setPort(5432);
+    db.setDatabaseName("drones");
+    db.setUserName("dronedbmanager");
+    db.setPassword("|<4n4");
+
     DCPServerBackendCentral *back = new DCPServerBackendCentral();
+    back->setDb(db);
     back->registerWithServer(srv);
 
     return a.exec();
