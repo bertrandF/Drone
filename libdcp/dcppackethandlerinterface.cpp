@@ -304,6 +304,9 @@ void DCPPacketHandlerCentralStationHello::handleCommandUnsetSessID(DCPPacket *pa
 
 void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket *packet)
 {
+    int clientID;
+    int clientSessID ;
+
     DCPServerBackendCentral *central =
             dynamic_cast<DCPServerBackendCentral*>(this->backendSrv);
     if(packet->getSessionID() == central->getSessID())
@@ -312,9 +315,15 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
                 dynamic_cast<DCPCommandHelloFromRemote*>(packet);
         QString description(hello->getDescription());
 
-        // TODO: add client to db
-        int clientID = 8;
-        int clientSessID = 5;
+        if(hello->getRemoteType() ==
+                DCPCommandHelloFromRemote::remoteTypeCommandStation)
+            clientID = central->nextCommandStationId();
+        else if(hello->getRemoteType() ==
+                DCPCommandHelloFromRemote::remoteTypeDrone)
+            clientID = central->nextDroneId();
+        clientSessID = central->nextSessId();
+        // TODO: Handle no more ID avaliables
+
         DCPCommandHelloFromCentralStation *myHello =
                 new DCPCommandHelloFromCentralStation(central->getSessID());
         myHello->setIdRemote(clientID);
