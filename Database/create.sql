@@ -1,6 +1,5 @@
 ﻿CREATE TABLE command_stations (
 	id 		smallserial 	PRIMARY KEY,
-	mac		macaddr				NOT NULL,
 	ip		inet					NOT NULL,
 	port	integer				CHECK (port>0) CHECK (port<65536),
 	date	timestamp			with time zone NOT NULL,
@@ -9,7 +8,6 @@
 
 CREATE TABLE drones (
 	id		smallserial	PRIMARY KEY,
-	mac		macaddr			NOT NULL,
 	ip		inet				NOT NULL,
 	port	integer			CHECK (port>0) CHECK (port<65536),
 	date	timestamp		with time zone NOT NULL,
