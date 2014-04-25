@@ -72,7 +72,8 @@ void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
     srv->registerBackend(this, ids);
 }
 
-void DCPServerBackendRemote::sayHello(QString description)
+void DCPServerBackendRemote::sayHello(QString description,
+                                     DCPCommandHelloFromRemote::remoteType type)
 {
     if(this->getStatus() != Init) return;
     this->setStatus(SayingHello);
@@ -82,6 +83,7 @@ void DCPServerBackendRemote::sayHello(QString description)
     hello->setDescription(description);
     hello->setAddrDst(this->addrCentralStation);
     hello->setPortDst(this->portCentralStation);
+    hello->setRemoteType(type);
     this->time.start();
     hello->setTimestamp(this->time.elapsed());
     this->sendPacket(hello);

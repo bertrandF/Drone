@@ -28,8 +28,10 @@
 #include <QWaitCondition>
 
 #include <dcpserverbackend.h>
+#include <dcpcommands.h>
 
 class DCPServer;
+
 
 
 enum DCPServerBackendRemoteStatus {
@@ -61,7 +63,8 @@ public:
     void            setSessionIdCentralStation(qint8 sessIdCentralStation);
 
     void            registerWithServer(DCPServer* srv);
-    void            sayHello(QString description);
+    void            sayHello(QString description,
+                             DCPCommandHelloFromRemote::remoteType type);
     void            connectToDrone(qint8 id);
 
     enum DCPServerBackendRemoteStatus   waitStatusChanged();

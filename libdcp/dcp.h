@@ -54,6 +54,11 @@
 #define DCP_DBQUERYERROR            ((qint8)-1)
 #define DCP_DBNOAVALIABLEIDS        ((qint8)-2)
 
+/* --- REMOTE TYPES --- */
+#define DCP_REMOTETYPECOMMANDSTATION    ((char)'C')
+#define DCP_REMOTETYPEDRONE             ((char)'D')
+#define DCP_REMOTETYPENOTSET            ((char)'\0')
+
 
 
 #endif // DCP_H

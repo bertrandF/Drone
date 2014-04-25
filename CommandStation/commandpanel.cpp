@@ -69,7 +69,8 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     srvBack->setCentralStationHost(cmdP->centralStationHost,
                                    cmdP->centralStationPort);
     QThread::sleep(5);
-    srvBack->sayHello("Welcome to my world !");
+    srvBack->sayHello("Welcome to my world !",
+                      DCPCommandHelloFromRemote::remoteTypeCommandStation);
 
 
     /* ----- DB SERVER ----- */

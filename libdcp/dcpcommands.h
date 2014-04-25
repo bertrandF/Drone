@@ -158,6 +158,10 @@ class DCPCommandHelloFromRemote : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
+    enum remoteType {
+        remoteTypeDrone, remoteTypeCommandStation, remoteTypeNotSet
+    };
+
     DCPCommandHelloFromRemote(qint8 sessID);
     DCPCommandHelloFromRemote(char* data, int len);
     void handle(DCPPacketHandlerInterface *handler);
@@ -166,6 +170,8 @@ public:
         { this->description = description; }
     inline QString getDescription()
         { return this->description; }
+    void setRemoteType(enum remoteType type);
+    enum remoteType getRemoteType();
 
     QString toString();
 
@@ -173,6 +179,7 @@ protected:
     QByteArray buildPayload();
 
 private:
+    char        type;
     QString     description;
 };
 

@@ -202,14 +202,17 @@ void DCPCommandUnsetSessID::unbuildPayload()
  * */
 DCPCommandHelloFromRemote::DCPCommandHelloFromRemote(
         qint8 sessID) :
-    DCPPacket(DCP_CMDHELLOFROMREMOTE, sessID)
+    DCPPacket(DCP_CMDHELLOFROMREMOTE, sessID),
+    type(DCP_REMOTETYPENOTSET)
 {}
 
 DCPCommandHelloFromRemote::DCPCommandHelloFromRemote(
         char* data, int len) :
     DCPPacket(data, len)
 {
-    this->description = this->description.fromUtf8(this->payload);
+    //this->description = this->description.fromUtf8(this->payload);
+    this->type = this->payload.at(0);
+    this->description.fromUtf8(this->payload.data()+1);
 }
 
 void DCPCommandHelloFromRemote::handle(
@@ -221,7 +224,8 @@ void DCPCommandHelloFromRemote::handle(
 QByteArray DCPCommandHelloFromRemote::buildPayload()
 {
     this->payload.clear();
-    this->payload = this->description.toUtf8();
+    this->payload.append(this->type);
+    this->payload.append(this->description.toUtf8());
     return this->payload;
 }
 
@@ -231,9 +235,55 @@ QString DCPCommandHelloFromRemote::toString()
     QTextStream text(&str);
     text << endl;
     text << DCPPacket::toString();
+    text << "remote type: ";
+    switch(this->type)
+    {
+    case DCP_REMOTETYPECOMMANDSTATION:
+        text << "remoteTypeCommandStation";
+        break;
+    case DCP_REMOTETYPEDRONE:
+        text << "remoteTypeDrone";
+        break;
+    case DCP_REMOTETYPENOTSET:
+    default:
+        text << "remoteTypeNotSet";
+        break;
+    }
+    text << endl;
     text << "description: " << this->description << endl;
 
     return str;
+}
+
+void DCPCommandHelloFromRemote::setRemoteType(enum remoteType type)
+{
+    switch(type)
+    {
+    case remoteTypeCommandStation:
+        this->type = DCP_REMOTETYPECOMMANDSTATION;
+        break;
+    case remoteTypeDrone:
+        this->type = DCP_REMOTETYPEDRONE;
+        break;
+    case remoteTypeNotSet:
+    default:
+        this->type = DCP_REMOTETYPENOTSET;
+        break;
+    }
+}
+
+DCPCommandHelloFromRemote::remoteType DCPCommandHelloFromRemote::getRemoteType()
+{
+    switch(this->type)
+    {
+    case DCP_REMOTETYPECOMMANDSTATION:
+        return remoteTypeCommandStation;
+    case DCP_REMOTETYPEDRONE:
+        return remoteTypeDrone;
+    case DCP_REMOTETYPENOTSET:
+    default:
+        return remoteTypeNotSet;
+    }
 }
 
 /*
