@@ -104,8 +104,8 @@ QString DCPPacket::toString()
 {
     QString str;
     QTextStream text(&str);
-    text << "Addr Dst: " << this->addrDst.toString();
-    text << "Port Dst: " << this->portDst;
+    text << "Addr Dst: " << this->addrDst.toString() << endl;
+    text << "Port Dst: " << this->portDst << endl;
     text << "Cmd Id: " << this->cmdID << endl;
     text << "Sess Id: " << this->sessID << endl;
     text << "Timestamp: " << this->timestamp << endl;
