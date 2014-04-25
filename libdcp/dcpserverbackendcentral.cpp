@@ -72,7 +72,7 @@ qint8 DCPServerBackendCentral::nextCommandStationId()
 
 qint8 DCPServerBackendCentral::nextSessId()
 {
-    QSqlQuery query("SELECT max(id) FROM drones", this->db);
+    QSqlQuery query("SELECT max(id) FROM sessions", this->db);
     if(query.next())
     {
         qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
