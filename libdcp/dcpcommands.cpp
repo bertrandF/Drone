@@ -212,7 +212,7 @@ DCPCommandHelloFromRemote::DCPCommandHelloFromRemote(
 {
     //this->description = this->description.fromUtf8(this->payload);
     this->type = this->payload.at(0);
-    this->description.fromUtf8(this->payload.data()+1);
+    this->description = QString::fromUtf8(this->payload.data()+1);
 }
 
 void DCPCommandHelloFromRemote::handle(
