@@ -238,6 +238,14 @@ void ConfigurationPanel::on_nextButton_clicked()
         this->cmdP->centralStationPort = this->ui->centralStationPort->value();
     }
 
+    // ---- Check that a drone is selected ----
+    if(this->ui->dronesListComboBox->currentIndex() == 0)
+    {
+        msgBox.setInformativeText("Please select a drone.");
+        msgBox.exec();
+        return;
+    }
+
 
     emit signal_configuration_done(this->cmdP);
 }
