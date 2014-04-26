@@ -36,6 +36,7 @@ class ConfigurationPanel : public QWidget
 
 public slots:
     void on_nextButton_clicked();
+    void on_getDronesListButton_clicked();
     void confUpdate(QString);
 
 signals:
@@ -47,6 +48,7 @@ public:
 
 private:
     Ui::ConfigurationPanel  *ui;
+    CommandStationParameters *cmdP;
 
     class ComboBoxItem : public QString, public QNetworkInterface
     {

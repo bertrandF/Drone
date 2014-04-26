@@ -23,6 +23,7 @@
 
 #include <QMessageBox>
 #include <QHostInfo>
+#include <QSqlDatabase>
 
 #include "commandstationparameters.h"
 
@@ -36,6 +37,8 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
 
     ui->setupUi(this);
 
+    this->cmdP = new CommandStationParameters();
+
     ui->dcpServerInterface->addItem("AddressAny ( * )");
     foreach (interface, QNetworkInterface::allInterfaces()) {
         if(!interface.addressEntries().isEmpty())
@@ -48,6 +51,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
             this->interfaces.append(item);
         }
     }
+
 
     connect(this->ui->frontVideoUrl, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
     connect(this->ui->dbServerHost, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
@@ -66,10 +70,80 @@ void ConfigurationPanel::confUpdate(QString)
 
 }
 
+void ConfigurationPanel::on_getDronesListButton_clicked()
+{
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setMaximumWidth(1000);
+    msgBox.setWindowTitle("Error");
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.setDefaultButton(QMessageBox::Close);
+
+    // ---- DB Server setup ----
+    // Host
+    if(this->ui->dbServerHost->text().isEmpty())
+    {
+        msgBox.setInformativeText("DB Server IP is empty !");
+        msgBox.exec();
+        return;
+    }
+    else
+    {
+        QHostInfo info = QHostInfo::fromName(this->ui->dbServerHost->text());
+        if(info.addresses().isEmpty())
+        {
+            msgBox.setInformativeText("DB Server IP is not valid !");
+            msgBox.exec();
+            return;
+        }
+        this->cmdP->dbServerHost = info.addresses().first();
+        this->cmdP->dbServerPort = this->ui->dbServerPort->value();
+    }
+    // DB Name
+    if(this->ui->dbName->text().isEmpty())
+    {
+        msgBox.setInformativeText("DB Name is empty !");
+        msgBox.exec();
+        return;
+    }
+    else
+    {
+        this->cmdP->dbName = this->ui->dbName->text();
+    }
+    // User name
+    if(this->ui->dbUserName->text().isEmpty())
+    {
+        msgBox.setInformativeText("DB User Name is empty !");
+        msgBox.exec();
+        return;
+    }
+    else
+    {
+        this->cmdP->dbUserName = this->ui->dbUserName->text();
+    }
+    // User Password
+    if(this->ui->dbUserPassword->text().isEmpty())
+    {
+        msgBox.setInformativeText("DB User Password is empty !");
+        msgBox.exec();
+        return;
+    }
+    else
+    {
+        this->cmdP->dbUserPassword = this->ui->dbUserPassword->text();
+    }
+
+    // ---- CONNECT TO DB ----
+    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+    db.setHostName(this->cmdP->dbServerHost.toString());
+    db.setPort(this->cmdP->dbServerPort);
+    db.setDatabaseName(this->cmdP->dbName);
+    db.setUserName(this->cmdP->dbUserName);
+    db.setPassword(this->cmdP->dbUserPassword);
+}
+
 void ConfigurationPanel::on_nextButton_clicked()
 {
-    CommandStationParameters *cmdP = new CommandStationParameters();
-
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
     msgBox.setMaximumWidth(1000);
@@ -93,73 +167,21 @@ void ConfigurationPanel::on_nextButton_clicked()
             msgBox.exec();
             return;
         }
-        cmdP->frontVideoFeed = QUrl(this->ui->frontVideoUrl->text());
+        this->cmdP->frontVideoFeed = QUrl(this->ui->frontVideoUrl->text());
     }
 
     // ---- DCP Server setup ----
     if(ui->dcpServerInterface->currentIndex() == 0)
-        cmdP->dcpServerHost = QHostAddress::Any;
+       this->cmdP->dcpServerHost = QHostAddress::Any;
     else
     {
         ComboBoxItem *interface = this->interfaces.at(
                     ui->dcpServerInterface->currentIndex()-1);
-        cmdP->dcpServerHost = interface->allAddresses().first();
+        this->cmdP->dcpServerHost = interface->allAddresses().first();
     }
-    cmdP->dcpServerPort = this->ui->dcpServerPort->value();
+    this->cmdP->dcpServerPort = this->ui->dcpServerPort->value();
 
-    // ---- DB Server setup ----
-    // Host
-    if(this->ui->dbServerHost->text().isEmpty())
-    {
-        msgBox.setInformativeText("DB Server IP is empty !");
-        msgBox.exec();
-        return;
-    }
-    else
-    {
-        QHostInfo info = QHostInfo::fromName(this->ui->dbServerHost->text());
-        if(info.addresses().isEmpty())
-        {
-            msgBox.setInformativeText("DB Server IP is not valid !");
-            msgBox.exec();
-            return;
-        }
-        cmdP->dbServerHost = info.addresses().first();
-        cmdP->dbServerPort = this->ui->dbServerPort->value();
-    }
-    // DB Name
-    if(this->ui->dbName->text().isEmpty())
-    {
-        msgBox.setInformativeText("DB Name is empty !");
-        msgBox.exec();
-        return;
-    }
-    else
-    {
-        cmdP->dbName = this->ui->dbName->text();
-    }
-    // User name
-    if(this->ui->dbUserName->text().isEmpty())
-    {
-        msgBox.setInformativeText("DB User Name is empty !");
-        msgBox.exec();
-        return;
-    }
-    else
-    {
-        cmdP->dbUserName = this->ui->dbUserName->text();
-    }
-    // User Password
-    if(this->ui->dbUserPassword->text().isEmpty())
-    {
-        msgBox.setInformativeText("DB User Password is empty !");
-        msgBox.exec();
-        return;
-    }
-    else
-    {
-        cmdP->dbUserPassword = this->ui->dbUserPassword->text();
-    }
+
 
     // ---- Central Station setup ----
     if(this->ui->centralStationHost->text().isEmpty())
@@ -177,10 +199,10 @@ void ConfigurationPanel::on_nextButton_clicked()
             msgBox.exec();
             return;
         }
-        cmdP->centralStationHost = info.addresses().first();
-        cmdP->centralStationPort = this->ui->centralStationPort->value();
+        this->cmdP->centralStationHost = info.addresses().first();
+        this->cmdP->centralStationPort = this->ui->centralStationPort->value();
     }
 
 
-    emit signal_configuration_done(cmdP);
+    emit signal_configuration_done(this->cmdP);
 }
