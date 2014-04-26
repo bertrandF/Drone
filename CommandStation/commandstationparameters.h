@@ -39,6 +39,7 @@ public:
     QString         dbName;
     QString         dbUserName;
     QString         dbUserPassword;
+    qint8           droneId;
 
     QHostAddress    centralStationHost;
     quint16         centralStationPort;

@@ -245,6 +245,8 @@ void ConfigurationPanel::on_nextButton_clicked()
         msgBox.exec();
         return;
     }
+    else
+        this->cmdP->droneId = this->ui->dronesListComboBox->currentIndex();
 
 
     emit signal_configuration_done(this->cmdP);
