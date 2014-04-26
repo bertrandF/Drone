@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     db.setPort(5432);
     db.setDatabaseName("drones");
     db.setUserName("dronedbmanager");
-    db.setPassword("|<4n4");
+    db.setPassword("Ch3v41");
 
     DCPServerBackendCentral *back = new DCPServerBackendCentral();
     back->setDb(db);
