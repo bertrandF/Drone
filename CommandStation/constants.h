@@ -24,4 +24,6 @@
 #define VERSION_MAJOR       "0"
 #define VERSION_MINOR       "0.1"
 
+#define DBREADER_CONNECTIONNAME     "dronedbreader_connection"
+
 #endif // VERSION_H

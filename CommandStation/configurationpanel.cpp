@@ -27,6 +27,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+#include "constants.h"
 #include "dcp.h"
 #include "commandstationparameters.h"
 
@@ -55,6 +56,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
         }
     }
 
+    this->db = QSqlDatabase::addDatabase("QPSQL", DBREADER_CONNECTIONNAME);
     this->ui->dronesListComboBox->addItem(" -- Please select a drone -- ");
 
     connect(this->ui->frontVideoUrl, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
@@ -138,12 +140,11 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
     }
 
     // ---- CONNECT TO DB ----
-    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
-    db.setHostName(this->cmdP->dbServerHost.toString());
-    db.setPort(this->cmdP->dbServerPort);
-    db.setDatabaseName(this->cmdP->dbName);
-    db.setUserName(this->cmdP->dbUserName);
-    db.setPassword(this->cmdP->dbUserPassword);
+    this->db.setHostName(this->cmdP->dbServerHost.toString());
+    this->db.setPort(this->cmdP->dbServerPort);
+    this->db.setDatabaseName(this->cmdP->dbName);
+    this->db.setUserName(this->cmdP->dbUserName);
+    this->db.setPassword(this->cmdP->dbUserPassword);
 
     if(db.open())
     {
@@ -157,6 +158,7 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
                             query.value(0).toString() + " -- " +
                             query.value(1).toString());
             }
+            this->db.close();
         }
         else
         {
@@ -166,6 +168,7 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
                                       query.lastError().databaseText() + "\n" +
                                       "Query was:\n" + queryStr);
             msgBox.exec();
+            this->db.close();
             return;
         }
     }

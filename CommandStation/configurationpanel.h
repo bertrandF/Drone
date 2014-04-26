@@ -23,6 +23,7 @@
 
 #include <QWidget>
 #include <QNetworkInterface>
+#include <QSqlDatabase>
 
 #include "commandstationparameters.h"
 
@@ -49,6 +50,7 @@ public:
 private:
     Ui::ConfigurationPanel  *ui;
     CommandStationParameters *cmdP;
+    QSqlDatabase    db;
 
     class ComboBoxItem : public QString, public QNetworkInterface
     {
