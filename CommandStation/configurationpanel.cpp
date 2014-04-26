@@ -140,6 +140,17 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
     db.setDatabaseName(this->cmdP->dbName);
     db.setUserName(this->cmdP->dbUserName);
     db.setPassword(this->cmdP->dbUserPassword);
+
+    if(db.open())
+    {
+
+    }
+    else
+    {
+        msgBox.setInformativeText("Cannot open DB!\nCheck your configuration.");
+        msgBox.exec();
+        return;
+    }
 }
 
 void ConfigurationPanel::on_nextButton_clicked()
