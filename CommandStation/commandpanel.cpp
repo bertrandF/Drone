@@ -22,11 +22,14 @@
 #include <iostream>
 #include <cstdio>
 
+#include "constants.h"
 #include "commandpanel.h"
 #include "ui_commandpanel.h"
 
+#include <QtGlobal>
 #include <QThread>
 #include <QtSql/QSqlDatabase>
+#include <QSqlError>
 
 #include <dcpserverbackendremote.h>
 #include <dcpserver.h>
@@ -74,20 +77,14 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
 
 
     /* ----- DB SERVER ----- */
-    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
-    db.setHostName(cmdP->dbServerHost.toString());
-    db.setPort(cmdP->dbServerPort);
-    db.setDatabaseName(cmdP->dbName);
-    db.setUserName(cmdP->dbUserName);
-    db.setPassword(cmdP->dbUserPassword);
+    this->db = QSqlDatabase::database(DBREADER_CONNECTIONNAME);
 
-    if(db.open())
+    if(!this->db.isOpen() && !db.open())
     {
-        qDebug() << db.tables();
-
+        qCritical() << "CommandPanel: Cannot open DB.";
+        qCritical() << "CommandPanel: " << db.lastError().driverText();
+        qCritical() << "CommandPanel: " << db.lastError().databaseText();
     }
-    else
-        qDebug("DB error !!!");
 
 }
 

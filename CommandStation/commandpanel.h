@@ -24,6 +24,7 @@
 #include <QWidget>
 #include <QProcess>
 #include <QTextEdit>
+#include <QSqlDatabase>
 
 #include <dcpserver.h>
 
@@ -57,6 +58,7 @@ private:
     QTextEdit           *logBox;
     CommandStationParameters    *cmdP;
     DCPServer           *dcpServer;
+    QSqlDatabase        db;
 };
 
 #endif // COMMANDPANEL_H
