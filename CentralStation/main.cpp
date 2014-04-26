@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     QUdpSocket *sock = new QUdpSocket();
-    sock->bind(QHostAddress("192.168.0.22"), 5866);
+    sock->bind(QHostAddress("192.168.0.23"), 5866);
     DCPServer * srv = new DCPServer(sock);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");

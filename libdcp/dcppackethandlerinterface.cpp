@@ -280,16 +280,20 @@ void DCPPacketHandlerCentralStationHello::handleCommandIsAlive(DCPPacket *packet
 void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
 {
     struct newRemote* remote = findNewRemoteByTimestamp(packet->getTimestamp());
+    DCPServerBackendCentral *central =
+            dynamic_cast<DCPServerBackendCentral*>(this->backendSrv);
     if(remote != NULL)
     {
-        // TODO: add client to DB
+        central->addNewRemote(
+                    (DCPCommandHelloFromRemote::remoteType)remote->type,
+                    remote->id, remote->myHello->getAddrDst(),
+                    remote->myHello->getPortDst(), remote->description);
 
         DCPServerBackendCentral* newBackend =
                 new DCPServerBackendCentral(remote->sessIdCentralStation);
         newBackend->setHandler(
                     new DCPPacketHandlerCentralStationWaitConnectRequest(this->backendSrv));
-        dynamic_cast<DCPServerBackendCentral*>(this->backendSrv)
-                ->registerNewBackendWithServer(newBackend);
+        central->registerNewBackendWithServer(newBackend);
     }
 }
 
@@ -337,6 +341,7 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
         remote->description = description;
         remote->id = clientID;
         remote->sessIdCentralStation = clientSessID;
+        remote->type = hello->getRemoteType();
         remote->myHello = myHello;
         this->pendingRemote.append(remote);
     }

@@ -23,9 +23,12 @@
 
 #include <QtGlobal>
 #include <QtSql/QSqlDatabase>
+#include <QHostAddress>
+#include <QString>
 
 #include <dcp.h>
 #include <dcpserverbackend.h>
+#include <dcpcommands.h>
 
 class DCPServer;
 
@@ -53,6 +56,8 @@ public:
     qint8   nextDroneId();
     qint8   nextCommandStationId();
     qint8   nextSessId();
+    bool    addNewRemote(DCPCommandHelloFromRemote::remoteType type, qint8 id,
+                         QHostAddress addr, quint8 port, QString description);
 
 private:
     DCPServer*  srv;

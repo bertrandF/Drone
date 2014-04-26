@@ -25,6 +25,7 @@
 #include <QString>
 #include <QHostAddress>
 
+
 class DCPServerBackend;
 class DCPPacket;
 class DCPCommandHelloFromCentralStation;
@@ -125,6 +126,7 @@ struct newRemote {
     QString         description;
     qint8           id;
     qint8           sessIdCentralStation;
+    int             type;
     DCPCommandHelloFromCentralStation* myHello;
 };
 

@@ -24,6 +24,8 @@
 #include "dcpserver.h"
 
 #include <QSqlQuery>
+#include <QSqlError>
+
 
 DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     DCPServerBackend(),
@@ -80,4 +82,44 @@ qint8 DCPServerBackendCentral::nextSessId()
                     DCP_DBNOAVALIABLEIDS : currentMax+1 );
     }
     return DCP_DBQUERYERROR;
+}
+
+bool DCPServerBackendCentral::addNewRemote(
+        DCPCommandHelloFromRemote::remoteType type, qint8 id, QHostAddress addr,
+        quint8 port, QString description)
+{
+    QString table;
+    switch(type)
+    {
+    case DCPCommandHelloFromRemote::remoteTypeCommandStation:
+        table = DCP_DBCOMMANDSTATIONSTABLE;
+        break;
+    case DCPCommandHelloFromRemote::remoteTypeDrone:
+        table = DCP_DBDRONESTABLE;
+        break;
+    default:
+        qWarning() << "DCPServerBackendCentral: Got request to add remote for"
+                      "something not a drone nor a command station!";
+        return false;
+    }
+
+
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + table +
+                  " VALUES (?, ?, ?, ?, ?)");
+    query.bindValue(0, id);
+    query.bindValue(1, addr.toString());
+    query.bindValue(2, port);
+    query.bindValue(3, QDateTime::currentDateTime().toString(Qt::ISODate));
+    query.bindValue(4, description);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully added new remote:" << query.lastQuery();
+    return true;
 }
