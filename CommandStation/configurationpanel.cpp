@@ -24,7 +24,10 @@
 #include <QMessageBox>
 #include <QHostInfo>
 #include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
+#include "dcp.h"
 #include "commandstationparameters.h"
 
 
@@ -144,7 +147,27 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
 
     if(db.open())
     {
-
+        QString queryStr = QString("SELECT id,info FROM " DCP_DBDRONESTABLE);
+        QSqlQuery query(db);
+        if(query.exec(queryStr))
+        {
+            while(query.next())
+            {
+                this->ui->dronesListComboBox->addItem(
+                            query.value(0).toString() + " -- " +
+                            query.value(1).toString());
+            }
+        }
+        else
+        {
+            msgBox.setInformativeText("Error while executing query to " \
+                                      "retreive drone list:\n" +
+                                      query.lastError().driverText() + "\n" +
+                                      query.lastError().databaseText() + "\n" +
+                                      "Query was:\n" + queryStr);
+            msgBox.exec();
+            return;
+        }
     }
     else
     {
