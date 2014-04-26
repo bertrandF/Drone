@@ -168,7 +168,7 @@
        <item>
         <widget class="QLineEdit" name="dbUserName">
          <property name="text">
-          <string>dronedbmanager</string>
+          <string>dronedbreader</string>
          </property>
          <property name="echoMode">
           <enum>QLineEdit::Normal</enum>
@@ -185,7 +185,7 @@
        <item>
         <widget class="QLineEdit" name="dbUserPassword">
          <property name="text">
-          <string>Ch3v41</string>
+          <string>M1n3tt3</string>
          </property>
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
