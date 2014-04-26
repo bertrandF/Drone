@@ -52,6 +52,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
         }
     }
 
+    this->ui->dronesListComboBox->addItem(" -- Please select a drone -- ");
 
     connect(this->ui->frontVideoUrl, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
     connect(this->ui->dbServerHost, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
