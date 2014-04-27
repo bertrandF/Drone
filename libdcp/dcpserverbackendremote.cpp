@@ -61,7 +61,6 @@ void DCPServerBackendRemote::setStatus(DCPServerBackendRemoteStatus status)
     this->statusMutex.lock();
     this->status = status;
     this->statusMutex.unlock();
-    this->statusChanged.wakeAll();
 }
 
 void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
@@ -87,17 +86,6 @@ void DCPServerBackendRemote::sayHello(QString description,
     this->time.start();
     hello->setTimestamp(this->time.elapsed());
     this->sendPacket(hello);
-}
-
-enum DCPServerBackendRemoteStatus DCPServerBackendRemote::waitStatusChanged()
-{
-    enum DCPServerBackendRemoteStatus status;
-    this->statusMutex.lock();
-    this->statusChanged.wait(&(this->statusMutex));
-    status = this->getStatus();
-    this->statusMutex.unlock();
-
-    return status;
 }
 
 void DCPServerBackendRemote::connectToDrone(qint8 id)

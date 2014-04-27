@@ -67,8 +67,6 @@ public:
                              DCPCommandHelloFromRemote::remoteType type);
     void            connectToDrone(qint8 id);
 
-    enum DCPServerBackendRemoteStatus   waitStatusChanged();
-
 protected:
     qint8           sessIdDrone;
     qint8           sessIdCentralStation;
@@ -79,7 +77,6 @@ protected:
 
     enum DCPServerBackendRemoteStatus status;
     QMutex                      statusMutex;
-    QWaitCondition              statusChanged;
 };
 
 #endif // DCPSERVERBACKENDREMOTE_H
