@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
 
     QUdpSocket *sock = new QUdpSocket();
     sock->bind(QHostAddress("192.168.0.24"), 5866);
-    // TODO: create server
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName("127.0.0.1");
@@ -44,9 +43,7 @@ int main(int argc, char *argv[])
 
     if(db.open())
     {
-//        qDebug() << back->nextCommandStationId();
-//        qDebug() << back->nextDroneId();
-//        qDebug() << back->nextSessId();
+        DCPServerCentral *central = new DCPServerCentral(sock, db);
     }
 
     return a.exec();
