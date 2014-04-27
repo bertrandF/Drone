@@ -20,7 +20,6 @@
 
 #include "dcpserverbackendremote.h"
 #include "dcpcommands.h"
-#include "dcpserver.h"
 
 DCPServerBackendRemote::DCPServerBackendRemote() :
     DCPServerBackend(),
@@ -62,14 +61,6 @@ void DCPServerBackendRemote::setStatus(DCPServerBackendRemoteStatus status)
     this->status = status;
     this->statusMutex.unlock();
     emit statusChanged(status);
-}
-
-void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
-{
-    QList<qint8>  ids;
-    ids.append(this->sessIdCentralStation);
-    ids.append(this->sessIdDrone);
-    srv->registerBackend(this, ids);
 }
 
 void DCPServerBackendRemote::sayHello(QString description,

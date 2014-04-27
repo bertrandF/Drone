@@ -21,7 +21,6 @@
 #include "dcpserverbackendcentral.h"
 #include "dcp.h"
 #include "dcpcommands.h"
-#include "dcpserver.h"
 
 #include <QSqlQuery>
 #include <QSqlError>
@@ -36,16 +35,9 @@ DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     this->handler = new DCPPacketHandlerCentralStationHello(this);
 }
 
-void DCPServerBackendCentral::registerWithServer(DCPServer *srv)
-{
-    this->srv = srv;
-    srv->registerBackend(this, this->sessID);
-}
-
 void DCPServerBackendCentral::registerNewBackendWithServer(
         DCPServerBackendCentral *central)
 {
-    central->registerWithServer(this->srv);
 }
 
 qint8 DCPServerBackendCentral::nextDroneId()

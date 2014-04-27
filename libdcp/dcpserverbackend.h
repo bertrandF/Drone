@@ -26,7 +26,6 @@
 #include <QLinkedList>
 #include <QMutex>
 
-class DCPServer;
 class DCPPacket;
 class DCPPacketHandlerInterface;
 
@@ -45,17 +44,12 @@ public:
     void            removeFromAckQueue(DCPPacket* packet);
     DCPPacket*      findInAckQueue(qint32 timestamp);
 
-    virtual void    registerWithServer(DCPServer *srv)=0;
-
     // TODO: Make avaliable only to friends
     void            setMyId(qint8 myID);
     void            setHandler(DCPPacketHandlerInterface *handler);
 
 public slots:
     void sendPacket(DCPPacket* packet);
-
-signals:
-    void send(DCPPacket* packet);
 
 protected:
     DCPPacketHandlerInterface   *handler;

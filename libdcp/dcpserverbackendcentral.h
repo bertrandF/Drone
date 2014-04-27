@@ -30,8 +30,6 @@
 #include <dcpserverbackend.h>
 #include <dcpcommands.h>
 
-class DCPServer;
-
 
 class DCPServerBackendCentral : public DCPServerBackend
 {
@@ -49,10 +47,9 @@ public:
     inline QSqlDatabase getDb()
         { return this->db; }
 
-    void    registerWithServer(DCPServer* srv);
+    void registerNewBackendWithServer(DCPServerBackendCentral *central);
 
     // TODO: make avaliable only to packet handler
-    void    registerNewBackendWithServer(DCPServerBackendCentral* central);
     qint8   nextDroneId();
     qint8   nextCommandStationId();
     qint8   nextSessId();
@@ -60,7 +57,6 @@ public:
                          QHostAddress addr, quint8 port, QString description);
 
 private:
-    DCPServer*  srv;
     qint8       sessID;
     qint8       myID;
     qint8       droneSessId;

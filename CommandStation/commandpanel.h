@@ -26,7 +26,6 @@
 #include <QTextEdit>
 #include <QSqlDatabase>
 
-#include <dcpserver.h>
 #include <dcpserverbackendremote.h>
 
 #include "commandstationparameters.h"
@@ -60,7 +59,6 @@ private:
     MPlayerWidget       *mpw;
     QTextEdit           *logBox;
     CommandStationParameters    *cmdP;
-    DCPServer           *dcpServer;
     QSqlDatabase        db;
     DCPServerBackendRemote *srvBack;
 };

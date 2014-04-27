@@ -30,7 +30,7 @@ DCPServerBackend::DCPServerBackend() :
 
 void DCPServerBackend::sendPacket(DCPPacket *packet)
 {
-    emit send(packet);
+
 }
 
 void DCPServerBackend::setMyId(qint8 myID)

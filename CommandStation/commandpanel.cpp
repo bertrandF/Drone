@@ -32,7 +32,6 @@
 #include <QSqlError>
 
 #include <dcpserverbackendremote.h>
-#include <dcpserver.h>
 
 
 CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
@@ -64,18 +63,7 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     ui->altimeterWidget->setAltitudeFt(1586);
 
     /* ----- DCP SERVER ----- */
-    QUdpSocket *sock = new QUdpSocket();
-    sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
-    this->dcpServer = new DCPServer(sock);
-    this->srvBack = new DCPServerBackendRemote();
-    connect(this->srvBack, SIGNAL(statusChanged(DCPServerBackendRemoteStatus)),
-            this, SLOT(srvBackendStatusChanged(DCPServerBackendRemoteStatus)));
-    this->srvBack->registerWithServer(this->dcpServer);
-    this->srvBack->setCentralStationHost(cmdP->centralStationHost,
-                                   cmdP->centralStationPort);
-    QThread::sleep(5);
-    this->srvBack->sayHello("Welcome to my world !",
-                      DCPCommandHelloFromRemote::remoteTypeCommandStation);
+    // TODO: create server
 
 
     /* ----- DB SERVER ----- */
