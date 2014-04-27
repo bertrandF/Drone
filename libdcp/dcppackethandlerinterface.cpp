@@ -127,34 +127,35 @@ void DCPPacketHandlerCommandStationHello::handleCommandHelloFromRemote(
 void DCPPacketHandlerCommandStationHello::handleCommandHelloFromCentral(
         DCPPacket *packet)
 {
-    DCPServerCommand *remote =
+    qint8 sessIdCentral;
+    qint8 IdCommand;
+    DCPServerCommand *command =
             dynamic_cast<DCPServerCommand*> (this->backendSrv);
     if(packet->getSessionID() == DCP_IDNULL)
     {
         DCPPacket* myHello =
-                remote->findInAckQueue(packet->getTimestamp());
+                command->findInAckQueue(packet->getTimestamp());
         if(myHello)
         {
-            remote->removeFromAckQueue(myHello);
+            command->removeFromAckQueue(myHello);
 
             DCPCommandHelloFromCentralStation* hello =
                     dynamic_cast<DCPCommandHelloFromCentralStation*>(packet);
-            qint8 sessIdCentralStation = hello->getSessIdCentralStation();
-            qint8 IdRemote  = hello->getIdRemote();
+            sessIdCentral   = hello->getSessIdCentralStation();
+            IdCommand       = hello->getIdRemote();
 
             DCPCommandAck *ack =
                     new DCPCommandAck(packet->getSessionID());
             ack->setTimestamp(packet->getTimestamp());
             ack->setAddrDst(packet->getAddrDst());
             ack->setPortDst(packet->getPortDst());
-            remote->sendPacket(ack);
+            command->sendPacket(ack);
 
-            remote->setMyId(IdRemote);
-            remote->setSessionIdCentralStation(
-                        sessIdCentralStation);
-
-            remote->setStatus(NotConnected);
-            remote->setHandler(new DCPPacketHandlerCommandStationNotConnected(remote));
+            command->setMyId(IdCommand);
+            command->setSessionIdCentralStation(sessIdCentral);
+            command->setStatus(NotConnected);
+            command->setHandler(
+                        new DCPPacketHandlerCommandStationNotConnected(command));
         }
     }
 }
@@ -186,29 +187,32 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandAilerons(DCPPacket
 
 void DCPPacketHandlerCommandStationNotConnected::handleCommandIsAlive(DCPPacket *packet)
 {
-    DCPServerCommand *remote =
+    DCPServerCommand *command =
             dynamic_cast<DCPServerCommand*> (this->backendSrv);
-    if(packet->getSessionID() == remote->getSessionIdDrone() ||
-            packet->getSessionID() == remote->getSessionIdCentralStation())
+    qint8 packetSessId = packet->getSessionID();
+
+    if(packetSessId == command->getSessionIdDrone() ||
+            packetSessId == command->getSessionIdCentralStation())
     {
-        DCPCommandAck *response = new DCPCommandAck(
-                    packet->getSessionID());
-        response->setTimestamp(packet->getTimestamp());
-        response->setAddrDst(packet->getAddrDst());
-        response->setPortDst(packet->getPortDst());
-        remote->sendPacket(response);
+        DCPCommandAck *ack = new DCPCommandAck(packetSessId);
+        ack->setTimestamp(packet->getTimestamp());
+        ack->setAddrDst(packet->getAddrDst());
+        ack->setPortDst(packet->getPortDst());
+        command->sendPacket(ack);
     }
 }
 
 void DCPPacketHandlerCommandStationNotConnected::handleCommandAck(DCPPacket *packet)
 {
-    DCPServerCommand *remote =
+    DCPServerCommand *command =
             dynamic_cast<DCPServerCommand*> (this->backendSrv);
-    DCPPacket* packetAck;
-    if(packet->getSessionID() == remote->getSessionIdDrone())
+    qint8 packetSessId = packet->getSessionID();
+
+    if(packetSessId == command->getSessionIdDrone() ||
+            packetSessId == command->getSessionIdCentralStation())
     {
-        packetAck = remote->findInAckQueue(packet->getTimestamp());
-        remote->removeFromAckQueue(packetAck);
+        command->removeFromAckQueue(
+                    command->findInAckQueue(packet->getTimestamp()) );
     }
 }
 
@@ -217,26 +221,29 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandThrottle(DCPPacket
 
 void DCPPacketHandlerCommandStationNotConnected::handleCommandSetSessID(DCPPacket *packet)
 {
-    DCPServerCommand *remote =
+    DCPServerCommand *command =
             dynamic_cast<DCPServerCommand*> (this->backendSrv);
     DCPCommandSetSessID *sess =
             dynamic_cast<DCPCommandSetSessID*> (packet);
+    qint8 packetSessId = packet->getSessionID();
     DCPCommandConnectToDrone *conn;
-    if(packet->getSessionID() == remote->getSessionIdCentralStation())
+
+    if(packetSessId == command->getSessionIdCentralStation())
     {
         conn = dynamic_cast<DCPCommandConnectToDrone*>
-                (remote->findInAckQueue(packet->getTimestamp()));
+                (command->findInAckQueue(packet->getTimestamp()));
         if(conn)
         {
-            remote->setSessionIdDrone(sess->getDroneSessId());
-            remote->removeFromAckQueue(conn);
-            DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
+            command->setSessionIdDrone(sess->getDroneSessId());
+            command->removeFromAckQueue(conn);
+
+            DCPCommandAck *ack = new DCPCommandAck(packetSessId);
             ack->setAddrDst(packet->getAddrDst());
             ack->setPortDst(packet->getPortDst());
             ack->setTimestamp(packet->getTimestamp());
-            remote->sendPacket(ack);
+            command->sendPacket(ack);
 
-            remote->setStatus(Connected);
+            command->setStatus(Connected);
         }
     }
 }
@@ -289,12 +296,6 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
                     (DCPCommandHelloFromRemote::remoteType)remote->type,
                     remote->id, remote->myHello->getAddrDst(),
                     remote->myHello->getPortDst(), remote->description);
-
-//        DCPServerCentral* newBackend =
-//                new DCPServerCentral(remote->sessIdCentralStation);
-//        newBackend->setHandler(
-//                    new DCPPacketHandlerCentralStationWaitConnectRequest(newBackend));
-//        central->registerNewBackendWithServer(newBackend);
     }
 }
 
@@ -335,15 +336,14 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
         myHello->setSessIdCentralStation(clientSessID);
         myHello->setAddrDst(packet->getAddrDst());
         myHello->setPortDst(packet->getPortDst());
-
         central->sendPacket(myHello);
 
         struct newRemote* remote = new newRemote();
-        remote->description = description;
-        remote->id = clientID;
-        remote->sessIdCentralStation = clientSessID;
-        remote->type = hello->getRemoteType();
-        remote->myHello = myHello;
+        remote->description             = description;
+        remote->id                      = clientID;
+        remote->sessIdCentralStation    = clientSessID;
+        remote->type                    = hello->getRemoteType();
+        remote->myHello                 = myHello;
         this->pendingRemote.append(remote);
     }
 }
