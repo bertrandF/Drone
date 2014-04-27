@@ -18,8 +18,8 @@
  *
  * */
 
-#ifndef DCPSERVERBACKEND_H
-#define DCPSERVERBACKEND_H
+#ifndef DCPSERVER_H
+#define DCPSERVER_H
 
 #include <QtGlobal>
 #include <QTime>
@@ -63,4 +63,4 @@ protected:
 
 
 
-#endif // DCPSERVERBACKEND_H
+#endif // DCPSERVER_H
