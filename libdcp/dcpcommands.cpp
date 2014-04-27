@@ -196,7 +196,7 @@ void DCPCommandUnsetSessID::handle(DCPPacketHandlerInterface *handler)
 QByteArray DCPCommandUnsetSessID::buildPayload()
 {
     this->payload.clear();
-    this->payload.append((char)this->sessID);
+    this->payload.append((char)this->droneDessID);
     return this->payload;
 }
 
@@ -205,7 +205,7 @@ void DCPCommandUnsetSessID::unbuildPayload()
     if(this->payload.length() != 1) return;
 
     char* data = this->payload.data();
-    this->sessID = data[0];
+    this->droneDessID = data[0];
 }
 
 /*

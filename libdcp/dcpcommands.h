@@ -144,7 +144,7 @@ protected:
     void unbuildPayload();
 
 private:
-    qint8 sessID;
+    qint8 droneDessID;
 };
 
 
