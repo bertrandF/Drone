@@ -36,7 +36,7 @@ class DCPCommandHelloFromCentralStation;
 class DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerInterface(DCPServer* backend);
+    DCPPacketHandlerInterface(DCPServer* server);
 
     virtual void handleNull                         (DCPPacket *packet) = 0;
     virtual void handleCommandAilerons              (DCPPacket *packet) = 0;
@@ -52,7 +52,7 @@ public:
     virtual void handleCommandUnconnectFromDrone    (DCPPacket *packet) = 0;
 
 protected:
-    DCPServer* backendSrv;
+    DCPServer* server;
 };
 
 /*
