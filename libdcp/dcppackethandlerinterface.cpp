@@ -281,8 +281,8 @@ void DCPPacketHandlerCentralStationHello::handleCommandIsAlive(DCPPacket *packet
 void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
 {
     struct newRemote* remote = findNewRemoteByTimestamp(packet->getTimestamp());
-    DCPServerBackendCentral *central =
-            dynamic_cast<DCPServerBackendCentral*>(this->backendSrv);
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*>(this->backendSrv);
     if(remote != NULL)
     {
         central->addNewRemote(
@@ -290,8 +290,8 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
                     remote->id, remote->myHello->getAddrDst(),
                     remote->myHello->getPortDst(), remote->description);
 
-        DCPServerBackendCentral* newBackend =
-                new DCPServerBackendCentral(remote->sessIdCentralStation);
+        DCPServerCentral* newBackend =
+                new DCPServerCentral(remote->sessIdCentralStation);
         newBackend->setHandler(
                     new DCPPacketHandlerCentralStationWaitConnectRequest(newBackend));
         central->registerNewBackendWithServer(newBackend);
@@ -312,8 +312,8 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
     int clientID;
     int clientSessID ;
 
-    DCPServerBackendCentral *central =
-            dynamic_cast<DCPServerBackendCentral*>(this->backendSrv);
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*>(this->backendSrv);
     if(packet->getSessionID() == central->getSessID())
     {
         DCPCommandHelloFromRemote *hello =
@@ -394,7 +394,7 @@ void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandIsAlive(DCPP
 
 void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandAck(DCPPacket *packet)
 {
-    DCPServerBackendCentral *central = dynamic_cast<DCPServerBackendCentral*>
+    DCPServerCentral *central = dynamic_cast<DCPServerCentral*>
             (this->backendSrv);
     DCPCommandSetSessID *sess = dynamic_cast<DCPCommandSetSessID*>
             (central->findInAckQueue(packet->getTimestamp()));
@@ -428,8 +428,8 @@ void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandBye(DCPPacke
 void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandConnectToDrone(
         DCPPacket *packet)
 {
-    DCPServerBackendCentral *central =
-            dynamic_cast<DCPServerBackendCentral*> (this->backendSrv);
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*> (this->backendSrv);
     DCPCommandConnectToDrone *conn =
             dynamic_cast<DCPCommandConnectToDrone*> (packet);
     if(packet->getSessionID() == central->getSessID())

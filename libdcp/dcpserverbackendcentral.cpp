@@ -26,7 +26,7 @@
 #include <QSqlError>
 
 
-DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
+DCPServerCentral::DCPServerCentral(qint8 sessID) :
     DCPServer(),
     sessID(sessID),
     myID(DCP_IDCENTRAL),
@@ -35,12 +35,12 @@ DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
     this->handler = new DCPPacketHandlerCentralStationHello(this);
 }
 
-void DCPServerBackendCentral::registerNewBackendWithServer(
-        DCPServerBackendCentral *central)
+void DCPServerCentral::registerNewBackendWithServer(
+        DCPServerCentral *central)
 {
 }
 
-qint8 DCPServerBackendCentral::nextDroneId()
+qint8 DCPServerCentral::nextDroneId()
 {
     QSqlQuery query("SELECT max(id) FROM drones", this->db);
     if(query.next())
@@ -52,7 +52,7 @@ qint8 DCPServerBackendCentral::nextDroneId()
     return DCP_DBQUERYERROR;
 }
 
-qint8 DCPServerBackendCentral::nextCommandStationId()
+qint8 DCPServerCentral::nextCommandStationId()
 {
     QSqlQuery query("SELECT max(id) FROM command_stations", this->db);
     if(query.next())
@@ -64,7 +64,7 @@ qint8 DCPServerBackendCentral::nextCommandStationId()
     return DCP_DBQUERYERROR;
 }
 
-qint8 DCPServerBackendCentral::nextSessId()
+qint8 DCPServerCentral::nextSessId()
 {
     QSqlQuery query("SELECT max(id) FROM sessions", this->db);
     if(query.next())
@@ -76,7 +76,7 @@ qint8 DCPServerBackendCentral::nextSessId()
     return DCP_DBQUERYERROR;
 }
 
-bool DCPServerBackendCentral::addNewRemote(
+bool DCPServerCentral::addNewRemote(
         DCPCommandHelloFromRemote::remoteType type, qint8 id, QHostAddress addr,
         quint8 port, QString description)
 {

@@ -31,10 +31,10 @@
 #include <dcpcommands.h>
 
 
-class DCPServerBackendCentral : public DCPServer
+class DCPServerCentral : public DCPServer
 {
 public:
-    DCPServerBackendCentral(qint8 sessID=DCP_SESSIDCENTRAL);
+    DCPServerCentral(qint8 sessID=DCP_SESSIDCENTRAL);
 
     inline qint8 getSessID()    { return this->sessID;  }
     inline qint8 getMyId()      { return this->myID;    }
@@ -47,7 +47,7 @@ public:
     inline QSqlDatabase getDb()
         { return this->db; }
 
-    void registerNewBackendWithServer(DCPServerBackendCentral *central);
+    void registerNewBackendWithServer(DCPServerCentral *central);
 
     // TODO: make avaliable only to packet handler
     qint8   nextDroneId();
