@@ -67,12 +67,12 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     QUdpSocket *sock = new QUdpSocket();
     sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
     this->dcpServer = new DCPServer(sock);
-    DCPServerBackendRemote *srvBack = new DCPServerBackendRemote();
-    srvBack->registerWithServer(this->dcpServer);
-    srvBack->setCentralStationHost(cmdP->centralStationHost,
+    this->srvBack = new DCPServerBackendRemote();
+    this->srvBack->registerWithServer(this->dcpServer);
+    this->srvBack->setCentralStationHost(cmdP->centralStationHost,
                                    cmdP->centralStationPort);
     QThread::sleep(5);
-    srvBack->sayHello("Welcome to my world !",
+    this->srvBack->sayHello("Welcome to my world !",
                       DCPCommandHelloFromRemote::remoteTypeCommandStation);
 
 

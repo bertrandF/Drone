@@ -27,6 +27,7 @@
 #include <QSqlDatabase>
 
 #include <dcpserver.h>
+#include <dcpserverbackendremote.h>
 
 #include "commandstationparameters.h"
 #include "mplayerwidget.h"
@@ -59,6 +60,7 @@ private:
     CommandStationParameters    *cmdP;
     DCPServer           *dcpServer;
     QSqlDatabase        db;
+    DCPServerBackendRemote *srvBack;
 };
 
 #endif // COMMANDPANEL_H
