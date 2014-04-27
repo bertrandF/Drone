@@ -124,7 +124,7 @@ void DCPServer::removeBackend(qint8 id)
 
 DCPServerBackend* DCPServer::findBackendFromSessID(qint8 sessID)
 {
-    return this->backends.find(sessID).value();
-
+    QMap<qint8, DCPServerBackend*>::iterator iter = this->backends.find(sessID);
+    return (iter==this->backends.end()) ? NULL : iter.value();
 }
 
