@@ -249,6 +249,8 @@ public:
     inline void setDroneId(qint8 id)
         { this->droneId = id; }
 
+    QString toString();
+
 protected:
     QByteArray buildPayload();
     void unbuildPayload();

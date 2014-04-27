@@ -389,6 +389,18 @@ void DCPCommandConnectToDrone::unbuildPayload()
     this->droneId = data[0];
 }
 
+QString DCPCommandConnectToDrone::toString()
+{
+    QString str("--- DCPCommandConnectToDrone ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+    text << "Drone Id: " << this->droneId;
+
+    return str;
+}
+
+
 
 /*
  * DCP -- Unconnect from Drone.
