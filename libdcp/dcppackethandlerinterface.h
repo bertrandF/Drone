@@ -26,7 +26,7 @@
 #include <QHostAddress>
 
 
-class DCPServerBackend;
+class DCPServer;
 class DCPPacket;
 class DCPCommandHelloFromCentralStation;
 
@@ -35,7 +35,7 @@ class DCPCommandHelloFromCentralStation;
 class DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerInterface(DCPServerBackend* backend);
+    DCPPacketHandlerInterface(DCPServer* backend);
 
     virtual void handleNull                         (DCPPacket *packet) = 0;
     virtual void handleCommandAilerons              (DCPPacket *packet) = 0;
@@ -51,7 +51,7 @@ public:
     virtual void handleCommandUnconnectFromDrone    (DCPPacket *packet) = 0;
 
 protected:
-    DCPServerBackend* backendSrv;
+    DCPServer* backendSrv;
 };
 
 /*
@@ -81,7 +81,7 @@ protected:
 class DCPPacketHandlerCommandStationHello : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCommandStationHello(DCPServerBackend *backend);
+    DCPPacketHandlerCommandStationHello(DCPServer *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -103,7 +103,7 @@ public:
 class DCPPacketHandlerCommandStationNotConnected : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCommandStationNotConnected(DCPServerBackend *backend);
+    DCPPacketHandlerCommandStationNotConnected(DCPServer *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -133,7 +133,7 @@ struct newRemote {
 class DCPPacketHandlerCentralStationHello : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCentralStationHello(DCPServerBackend *backend);
+    DCPPacketHandlerCentralStationHello(DCPServer *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -160,7 +160,7 @@ class DCPPacketHandlerCentralStationWaitConnectRequest :
         public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCentralStationWaitConnectRequest(DCPServerBackend *backend);
+    DCPPacketHandlerCentralStationWaitConnectRequest(DCPServer *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);

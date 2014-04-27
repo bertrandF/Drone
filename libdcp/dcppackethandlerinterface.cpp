@@ -29,7 +29,7 @@
  * Constructor
  * */
 DCPPacketHandlerInterface::DCPPacketHandlerInterface(
-        DCPServerBackend *backend) :
+        DCPServer *backend) :
     backendSrv(backend)
 {}
 
@@ -94,7 +94,7 @@ DCPPacketHandlerInterface::DCPPacketHandlerInterface(
  * COMMAND STATION -- Packet Handler for Hello handshake
  * */
 DCPPacketHandlerCommandStationHello::DCPPacketHandlerCommandStationHello(
-        DCPServerBackend *backend) :
+        DCPServer *backend) :
     DCPPacketHandlerInterface(backend)
 {}
 
@@ -173,7 +173,7 @@ void DCPPacketHandlerCommandStationHello::handleCommandUnconnectFromDrone(
  * COMMAND STATION -- Packet Handler Not Connected
  * */
 DCPPacketHandlerCommandStationNotConnected::DCPPacketHandlerCommandStationNotConnected(
-        DCPServerBackend *backend) :
+        DCPServer *backend) :
     DCPPacketHandlerInterface(backend)
 {}
 
@@ -264,7 +264,7 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandUnconnectFromDrone
 /*
  * CENTRAL STATION -- Welcome new clients
  * */
-DCPPacketHandlerCentralStationHello::DCPPacketHandlerCentralStationHello(DCPServerBackend *backend) :
+DCPPacketHandlerCentralStationHello::DCPPacketHandlerCentralStationHello(DCPServer *backend) :
     DCPPacketHandlerInterface(backend)
 {}
 
@@ -378,7 +378,7 @@ struct newRemote *DCPPacketHandlerCentralStationHello::findNewRemoteByTimestamp(
  * */
 DCPPacketHandlerCentralStationWaitConnectRequest::
     DCPPacketHandlerCentralStationWaitConnectRequest(
-        DCPServerBackend *backend) :
+        DCPServer *backend) :
     DCPPacketHandlerInterface(backend)
 {}
 

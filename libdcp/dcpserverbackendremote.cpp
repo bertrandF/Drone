@@ -22,7 +22,7 @@
 #include "dcpcommands.h"
 
 DCPServerBackendRemote::DCPServerBackendRemote() :
-    DCPServerBackend(),
+    DCPServer(),
     sessIdDrone(DCP_IDNULL),
     sessIdCentralStation(DCP_SESSIDCENTRAL),
     status(Init)

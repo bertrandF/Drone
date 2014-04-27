@@ -31,12 +31,12 @@ class DCPPacketHandlerInterface;
 
 
 
-class DCPServerBackend : public QObject
+class DCPServer : public QObject
 {
     Q_OBJECT
 
 public:
-    DCPServerBackend();
+    DCPServer();
 
     inline DCPPacketHandlerInterface*  getHandler() { return this->handler; }
 

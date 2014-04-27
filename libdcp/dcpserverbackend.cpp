@@ -21,38 +21,38 @@
 #include "dcpserverbackend.h"
 #include "dcpcommands.h"
 
-DCPServerBackend::DCPServerBackend() :
+DCPServer::DCPServer() :
     QObject(),
     myID(0)
 {
     this->handler = new DCPPacketHandlerCommandStationHello(this);
 }
 
-void DCPServerBackend::sendPacket(DCPPacket *packet)
+void DCPServer::sendPacket(DCPPacket *packet)
 {
 
 }
 
-void DCPServerBackend::setMyId(qint8 myID)
+void DCPServer::setMyId(qint8 myID)
 {
     this->myID = myID;
 }
 
-void DCPServerBackend::moveToAckQueue(DCPPacket *packet)
+void DCPServer::moveToAckQueue(DCPPacket *packet)
 {
     this->ackMutex.lock();
     this->ackQueue.append(packet);
     this->ackMutex.unlock();
 }
 
-void DCPServerBackend::removeFromAckQueue(DCPPacket *packet)
+void DCPServer::removeFromAckQueue(DCPPacket *packet)
 {
     this->ackMutex.lock();
     this->ackQueue.removeOne(packet);
     this->ackMutex.unlock();
 }
 
-DCPPacket* DCPServerBackend::findInAckQueue(qint32 timestamp)
+DCPPacket* DCPServer::findInAckQueue(qint32 timestamp)
 {
     DCPPacket* packet=NULL;
     this->ackMutex.lock();
@@ -68,7 +68,7 @@ DCPPacket* DCPServerBackend::findInAckQueue(qint32 timestamp)
     return NULL;
 }
 
-void DCPServerBackend::setHandler(DCPPacketHandlerInterface *handler)
+void DCPServer::setHandler(DCPPacketHandlerInterface *handler)
 {
     this->handler = handler;
 }

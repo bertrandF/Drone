@@ -31,7 +31,7 @@
 #include <dcpcommands.h>
 
 
-class DCPServerBackendCentral : public DCPServerBackend
+class DCPServerBackendCentral : public DCPServer
 {
 public:
     DCPServerBackendCentral(qint8 sessID=DCP_SESSIDCENTRAL);

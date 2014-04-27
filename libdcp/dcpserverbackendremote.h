@@ -35,7 +35,7 @@
 enum DCPServerBackendRemoteStatus {
     Init, SayingHello, NotConnected, Connecting, Connected, Stopping, Stopped};
 
-class DCPServerBackendRemote : public DCPServerBackend
+class DCPServerBackendRemote : public DCPServer
 {
     Q_OBJECT
 

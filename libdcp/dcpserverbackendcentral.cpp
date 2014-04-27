@@ -27,7 +27,7 @@
 
 
 DCPServerBackendCentral::DCPServerBackendCentral(qint8 sessID) :
-    DCPServerBackend(),
+    DCPServer(),
     sessID(sessID),
     myID(DCP_IDCENTRAL),
     droneSessId(DCP_IDNULL)
