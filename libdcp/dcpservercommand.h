@@ -62,8 +62,7 @@ public:
     void            setSessionIdDrone(qint8 sessIdDrone);
     void            setSessionIdCentralStation(qint8 sessIdCentralStation);
 
-    void            sayHello(QString description,
-                             DCPCommandHelloFromRemote::remoteType type);
+    void            sayHello(QString description);
     void            connectToDrone(qint8 id);
 
 signals:

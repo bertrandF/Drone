@@ -63,8 +63,7 @@ void DCPServerCommand::setStatus(DCPServerCommandStatus status)
     emit statusChanged(status);
 }
 
-void DCPServerCommand::sayHello(QString description,
-                                     DCPCommandHelloFromRemote::remoteType type)
+void DCPServerCommand::sayHello(QString description)
 {
     if(this->getStatus() != Init) return;
     this->setStatus(SayingHello);
@@ -74,7 +73,7 @@ void DCPServerCommand::sayHello(QString description,
     hello->setDescription(description);
     hello->setAddrDst(this->addrCentralStation);
     hello->setPortDst(this->portCentralStation);
-    hello->setRemoteType(type);
+    hello->setRemoteType(DCPCommandHelloFromRemote::remoteTypeCommandStation);
     this->time.start();
     hello->setTimestamp(this->time.elapsed());
     this->sendPacket(hello);
