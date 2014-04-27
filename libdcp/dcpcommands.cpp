@@ -165,6 +165,17 @@ void DCPCommandSetSessID::unbuildPayload()
     this->droneSessId = data[0];
 }
 
+QString DCPCommandSetSessID::toString()
+{
+    QString str("--- DCPCommandSetSessID ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+    text << "Drone Session Id: " << this->droneSessId << endl;
+
+    return str;
+}
+
 
 /*
  * DCP -- Unset SessID.

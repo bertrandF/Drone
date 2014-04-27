@@ -117,6 +117,8 @@ public:
     inline qint8 getDroneSessId()
         { return this->droneSessId; }
 
+    QString toString();
+
 protected:
     QByteArray buildPayload();
     void unbuildPayload();
