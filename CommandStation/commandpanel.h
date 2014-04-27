@@ -55,12 +55,12 @@ public slots:
             enum DCPServerCommandStatus status);
 
 private:
-    Ui::CommandPanel    *ui;
-    MPlayerWidget       *mpw;
-    QTextEdit           *logBox;
+    Ui::CommandPanel            *ui;
+    MPlayerWidget               *mpw;
+    QTextEdit                   *logBox;
     CommandStationParameters    *cmdP;
-    QSqlDatabase        db;
-    DCPServerCommand *srvBack;
+    QSqlDatabase                db;
+    DCPServerCommand            *commandServer;
 };
 
 #endif // COMMANDPANEL_H

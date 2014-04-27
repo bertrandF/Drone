@@ -63,7 +63,12 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     ui->altimeterWidget->setAltitudeFt(1586);
 
     /* ----- DCP SERVER ----- */
-    // TODO: create server
+    QUdpSocket *sock = new QUdpSocket();
+    sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
+    this->commandServer = new DCPServerCommand(sock);
+    this->commandServer->setCentralStationHost(cmdP->centralStationHost,
+                                               cmdP->centralStationPort);
+    this->commandServer->sayHello("I am a command station !");
 
 
     /* ----- DB SERVER ----- */
@@ -188,7 +193,7 @@ void CommandPanel::srvBackendStatusChanged(
     switch (status)
     {
     case NotConnected:
-        this->srvBack->connectToDrone(this->cmdP->droneId);
+        this->commandServer->connectToDrone(this->cmdP->droneId);
         break;
     default:
         break;
