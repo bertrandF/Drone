@@ -21,7 +21,7 @@
 #include "dcpserverbackendremote.h"
 #include "dcpcommands.h"
 
-DCPServerBackendRemote::DCPServerBackendRemote() :
+DCPServerCommand::DCPServerCommand() :
     DCPServer(),
     sessIdDrone(DCP_IDNULL),
     sessIdCentralStation(DCP_SESSIDCENTRAL),
@@ -30,7 +30,7 @@ DCPServerBackendRemote::DCPServerBackendRemote() :
     this->handler = new DCPPacketHandlerCommandStationHello(this);
 }
 
-void DCPServerBackendRemote::setCentralStationHost(
+void DCPServerCommand::setCentralStationHost(
         QHostAddress addr,
         quint16 port)
 {
@@ -38,24 +38,24 @@ void DCPServerBackendRemote::setCentralStationHost(
     this->portCentralStation = port;
 }
 
-void DCPServerBackendRemote::setDroneHost(QHostAddress addr, quint16 port)
+void DCPServerCommand::setDroneHost(QHostAddress addr, quint16 port)
 {
     this->addrDrone = addr;
     this->portDrone = port;
 }
 
-void DCPServerBackendRemote::setSessionIdDrone(qint8 sessID)
+void DCPServerCommand::setSessionIdDrone(qint8 sessID)
 {
     this->sessIdDrone = sessID;
 }
 
-void DCPServerBackendRemote::setSessionIdCentralStation(
+void DCPServerCommand::setSessionIdCentralStation(
         qint8 sessIdCentralStation)
 {
     this->sessIdCentralStation = sessIdCentralStation;
 }
 
-void DCPServerBackendRemote::setStatus(DCPServerBackendRemoteStatus status)
+void DCPServerCommand::setStatus(DCPServerCommandStatus status)
 {
     this->statusMutex.lock();
     this->status = status;
@@ -63,7 +63,7 @@ void DCPServerBackendRemote::setStatus(DCPServerBackendRemoteStatus status)
     emit statusChanged(status);
 }
 
-void DCPServerBackendRemote::sayHello(QString description,
+void DCPServerCommand::sayHello(QString description,
                                      DCPCommandHelloFromRemote::remoteType type)
 {
     if(this->getStatus() != Init) return;
@@ -80,7 +80,7 @@ void DCPServerBackendRemote::sayHello(QString description,
     this->sendPacket(hello);
 }
 
-void DCPServerBackendRemote::connectToDrone(qint8 id)
+void DCPServerCommand::connectToDrone(qint8 id)
 {
     if(this->getStatus() != NotConnected) return;
 

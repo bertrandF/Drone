@@ -127,8 +127,8 @@ void DCPPacketHandlerCommandStationHello::handleCommandHelloFromRemote(
 void DCPPacketHandlerCommandStationHello::handleCommandHelloFromCentral(
         DCPPacket *packet)
 {
-    DCPServerBackendRemote *remote =
-            dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
+    DCPServerCommand *remote =
+            dynamic_cast<DCPServerCommand*> (this->backendSrv);
     if(packet->getSessionID() == DCP_IDNULL)
     {
         DCPPacket* myHello =
@@ -186,8 +186,8 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandAilerons(DCPPacket
 
 void DCPPacketHandlerCommandStationNotConnected::handleCommandIsAlive(DCPPacket *packet)
 {
-    DCPServerBackendRemote *remote =
-            dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
+    DCPServerCommand *remote =
+            dynamic_cast<DCPServerCommand*> (this->backendSrv);
     if(packet->getSessionID() == remote->getSessionIdDrone() ||
             packet->getSessionID() == remote->getSessionIdCentralStation())
     {
@@ -202,8 +202,8 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandIsAlive(DCPPacket 
 
 void DCPPacketHandlerCommandStationNotConnected::handleCommandAck(DCPPacket *packet)
 {
-    DCPServerBackendRemote *remote =
-            dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
+    DCPServerCommand *remote =
+            dynamic_cast<DCPServerCommand*> (this->backendSrv);
     DCPPacket* packetAck;
     if(packet->getSessionID() == remote->getSessionIdDrone())
     {
@@ -217,8 +217,8 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandThrottle(DCPPacket
 
 void DCPPacketHandlerCommandStationNotConnected::handleCommandSetSessID(DCPPacket *packet)
 {
-    DCPServerBackendRemote *remote =
-            dynamic_cast<DCPServerBackendRemote*> (this->backendSrv);
+    DCPServerCommand *remote =
+            dynamic_cast<DCPServerCommand*> (this->backendSrv);
     DCPCommandSetSessID *sess =
             dynamic_cast<DCPCommandSetSessID*> (packet);
     DCPCommandConnectToDrone *conn;

@@ -183,7 +183,7 @@ void CommandPanel::mplayerProcessFinished(int exitCode, \
 }
 
 void CommandPanel::srvBackendStatusChanged(
-        enum DCPServerBackendRemoteStatus status)
+        enum DCPServerCommandStatus status)
 {
     switch (status)
     {

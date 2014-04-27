@@ -52,7 +52,7 @@ public slots:
     void    mplayerReadyReadError       ();
     void    mplayerReadyReadOutput      ();
     void    srvBackendStatusChanged     (
-            enum DCPServerBackendRemoteStatus status);
+            enum DCPServerCommandStatus status);
 
 private:
     Ui::CommandPanel    *ui;
@@ -60,7 +60,7 @@ private:
     QTextEdit           *logBox;
     CommandStationParameters    *cmdP;
     QSqlDatabase        db;
-    DCPServerBackendRemote *srvBack;
+    DCPServerCommand *srvBack;
 };
 
 #endif // COMMANDPANEL_H

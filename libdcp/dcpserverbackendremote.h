@@ -32,15 +32,15 @@
 
 
 
-enum DCPServerBackendRemoteStatus {
+enum DCPServerCommandStatus {
     Init, SayingHello, NotConnected, Connecting, Connected, Stopping, Stopped};
 
-class DCPServerBackendRemote : public DCPServer
+class DCPServerCommand : public DCPServer
 {
     Q_OBJECT
 
 public:
-    DCPServerBackendRemote();
+    DCPServerCommand();
 
     inline QHostAddress    getAddrDrone()   { return this->addrDrone; }
     inline quint16         getPortDrone()   { return this->portDrone; }
@@ -51,12 +51,12 @@ public:
     inline qint8           getSessionIdDrone()  { return this->sessIdDrone; }
     inline qint8            getSessionIdCentralStation()
         { return this->sessIdCentralStation; }
-    inline enum DCPServerBackendRemoteStatus getStatus()
+    inline enum DCPServerCommandStatus getStatus()
         { return this->status; }
 
     void            setCentralStationHost(QHostAddress addr, quint16 port);
     void            setDroneHost(QHostAddress addr, quint16 port);
-    void            setStatus(enum DCPServerBackendRemoteStatus status);
+    void            setStatus(enum DCPServerCommandStatus status);
 
     // TODO: Make avaliable only to friends
     void            setSessionIdDrone(qint8 sessIdDrone);
@@ -67,7 +67,7 @@ public:
     void            connectToDrone(qint8 id);
 
 signals:
-    void statusChanged(enum DCPServerBackendRemoteStatus status);
+    void statusChanged(enum DCPServerCommandStatus status);
 
 protected:
     qint8           sessIdDrone;
@@ -77,7 +77,7 @@ protected:
     QHostAddress    addrCentralStation;
     quint16         portCentralStation;
 
-    enum DCPServerBackendRemoteStatus status;
+    enum DCPServerCommandStatus status;
     QMutex                      statusMutex;
 };
 
