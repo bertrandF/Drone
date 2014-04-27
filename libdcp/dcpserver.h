@@ -51,6 +51,7 @@ public:
 
 public slots:
     void sendPacket(DCPPacket* packet);
+    void receiveDatagram();
 
 protected:
     QUdpSocket      *sock;

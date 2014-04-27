@@ -27,6 +27,7 @@ DCPServer::DCPServer(QUdpSocket *sock) :
     myID(0)
 {
     this->handler = new DCPPacketHandlerCommandStationHello(this);
+    connect(sock, SIGNAL(readyRead()), this, SLOT(receiveDatagram()));
 }
 
 void DCPServer::sendPacket(DCPPacket *packet)
@@ -48,6 +49,25 @@ void DCPServer::sendPacket(DCPPacket *packet)
     }
 
     return;
+}
+
+void DCPServer::receiveDatagram()
+{
+    QHostAddress addr;
+    quint16 port;
+    qint64 dataSize = this->sock->pendingDatagramSize();
+    if(dataSize <= 0)
+        return;
+
+    char* data = new char[dataSize];
+    this->sock->readDatagram(data, dataSize, &addr, &port);
+
+    DCPPacket* packet = DCPPacketFactory::commandPacketFromData(data, dataSize);
+    packet->setAddrDst(addr);
+    packet->setPortDst(port);
+    qDebug() << "Got packet: ";
+    qDebug() << packet->toString();
+    packet->handle(this->handler);
 }
 
 void DCPServer::setMyId(qint8 myID)
