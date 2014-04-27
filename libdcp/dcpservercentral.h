@@ -35,7 +35,8 @@
 class DCPServerCentral : public DCPServer
 {
 public:
-    DCPServerCentral(QUdpSocket *socket, qint8 sessID=DCP_SESSIDCENTRAL);
+    DCPServerCentral(QUdpSocket *socket, QSqlDatabase db,
+                     qint8 sessID=DCP_SESSIDCENTRAL);
 
     inline qint8 getSessID()    { return this->sessID;  }
     inline qint8 getMyId()      { return this->myID;    }
@@ -43,10 +44,6 @@ public:
         { this->droneSessId = id; }
     inline qint8 getDroneSessId()
         { return this->droneSessId; }
-    inline void setDb(QSqlDatabase db)
-        { this->db = db; }
-    inline QSqlDatabase getDb()
-        { return this->db; }
 
     void registerNewBackendWithServer(DCPServerCentral *central);
 

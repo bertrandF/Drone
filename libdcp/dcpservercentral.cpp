@@ -26,11 +26,13 @@
 #include <QSqlError>
 
 
-DCPServerCentral::DCPServerCentral(QUdpSocket *sock, qint8 sessID) :
+DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db,
+                                   qint8 sessID) :
     DCPServer(sock),
     sessID(sessID),
     myID(DCP_IDCENTRAL),
-    droneSessId(DCP_IDNULL)
+    droneSessId(DCP_IDNULL),
+    db(db)
 {
     this->handler = new DCPPacketHandlerCentralStationHello(this);
 }
