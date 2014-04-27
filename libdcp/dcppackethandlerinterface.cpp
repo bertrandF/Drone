@@ -292,7 +292,7 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
         DCPServerBackendCentral* newBackend =
                 new DCPServerBackendCentral(remote->sessIdCentralStation);
         newBackend->setHandler(
-                    new DCPPacketHandlerCentralStationWaitConnectRequest(this->backendSrv));
+                    new DCPPacketHandlerCentralStationWaitConnectRequest(newBackend));
         central->registerNewBackendWithServer(newBackend);
     }
 }
