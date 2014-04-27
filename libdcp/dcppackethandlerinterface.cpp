@@ -290,11 +290,11 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
                     remote->id, remote->myHello->getAddrDst(),
                     remote->myHello->getPortDst(), remote->description);
 
-        DCPServerCentral* newBackend =
-                new DCPServerCentral(remote->sessIdCentralStation);
-        newBackend->setHandler(
-                    new DCPPacketHandlerCentralStationWaitConnectRequest(newBackend));
-        central->registerNewBackendWithServer(newBackend);
+//        DCPServerCentral* newBackend =
+//                new DCPServerCentral(remote->sessIdCentralStation);
+//        newBackend->setHandler(
+//                    new DCPPacketHandlerCentralStationWaitConnectRequest(newBackend));
+//        central->registerNewBackendWithServer(newBackend);
     }
 }
 
