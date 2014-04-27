@@ -1,6 +1,6 @@
 /*
  *  This file is part of the libDCP Project
- *  Copyright (C) 15/04/2014 -- dcpserverbackendcentral.h -- bertrand
+ *  Copyright (C) 15/04/2014 -- dcpservercentral.cpp -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  * */
 
-#include "dcpserverbackendcentral.h"
+#include "dcpservercentral.h"
 #include "dcp.h"
 #include "dcpcommands.h"
 
@@ -90,7 +90,7 @@ bool DCPServerCentral::addNewRemote(
         table = DCP_DBDRONESTABLE;
         break;
     default:
-        qWarning() << "DCPServerBackendCentral: Got request to add remote for"
+        qWarning() << "DCPServerCentral: Got request to add remote for"
                       "something not a drone nor a command station!";
         return false;
     }

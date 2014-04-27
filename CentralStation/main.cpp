@@ -25,7 +25,7 @@
 #include <QtSql/QSqlDatabase>
 
 #include <dcp.h>
-#include <dcpserverbackendcentral.h>
+#include <dcpservercentral.h>
 
 int main(int argc, char *argv[])
 {

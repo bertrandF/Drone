@@ -18,8 +18,8 @@ SOURCES += \
     dcppacket.cpp \
     dcppackethandlerinterface.cpp \
     dcpserver.cpp \
-    dcpserverbackendcentral.cpp \
-    dcpserverbackendremote.cpp
+    dcpserverbackendremote.cpp \
+    dcpservercentral.cpp
 
 HEADERS += \
     dcp.h \
@@ -27,9 +27,9 @@ HEADERS += \
     dcppacket.h \
     dcppackethandlerinterface.h \
     dcpserver.h \
-    dcpserverbackendcentral.h \
     dcpserverbackendremote.h \
-    libdcp_global.h
+    libdcp_global.h \
+    dcpservercentral.h
 
 unix {
     target.path = /usr/lib

@@ -28,7 +28,7 @@
 #include <dcpcommands.h>
 #include <dcppackethandlerinterface.h>
 #include <dcpserver.h>
-#include <dcpserverbackendcentral.h>
+#include <dcpservercentral.h>
 #include <dcpserverbackendremote.h>
 
 #if defined(LIBDCP_LIBRARY)

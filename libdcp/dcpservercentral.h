@@ -1,6 +1,6 @@
 /*
  *  This file is part of the libDCP Project
- *  Copyright (C) 15/04/2014 -- dcpserverbackendcentral.h -- bertrand
+ *  Copyright (C) 15/04/2014 -- dcpservercentral.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  *
  * */
 
-#ifndef DCPSERVERBACKENDCENTRAL_H
-#define DCPSERVERBACKENDCENTRAL_H
+#ifndef DCPSERVERCENTRAL_H
+#define DCPSERVERCENTRAL_H
 
 #include <QtGlobal>
 #include <QtSql/QSqlDatabase>
@@ -64,4 +64,4 @@ private:
     QSqlDatabase db;
 };
 
-#endif // DCPSERVERBACKENDCENTRAL_H
+#endif // DCPSERVERCENTRAL_H

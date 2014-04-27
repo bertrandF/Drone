@@ -21,7 +21,7 @@
 #include "dcppackethandlerinterface.h"
 #include "dcpserver.h"
 #include "dcpserverbackendremote.h"
-#include "dcpserverbackendcentral.h"
+#include "dcpservercentral.h"
 #include "dcpcommands.h"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
