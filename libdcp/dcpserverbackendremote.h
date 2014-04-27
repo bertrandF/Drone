@@ -39,6 +39,8 @@ enum DCPServerBackendRemoteStatus {
 
 class DCPServerBackendRemote : public DCPServerBackend
 {
+    Q_OBJECT
+
 public:
     DCPServerBackendRemote();
 
@@ -66,6 +68,9 @@ public:
     void            sayHello(QString description,
                              DCPCommandHelloFromRemote::remoteType type);
     void            connectToDrone(qint8 id);
+
+signals:
+    void statusChanged(enum DCPServerBackendRemoteStatus status);
 
 protected:
     qint8           sessIdDrone;

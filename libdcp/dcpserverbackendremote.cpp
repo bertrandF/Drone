@@ -61,6 +61,7 @@ void DCPServerBackendRemote::setStatus(DCPServerBackendRemoteStatus status)
     this->statusMutex.lock();
     this->status = status;
     this->statusMutex.unlock();
+    emit statusChanged(status);
 }
 
 void DCPServerBackendRemote::registerWithServer(DCPServer *srv)
