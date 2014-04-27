@@ -31,7 +31,23 @@ DCPServer::DCPServer(QUdpSocket *sock) :
 
 void DCPServer::sendPacket(DCPPacket *packet)
 {
+    QByteArray *datagram = packet->packetToData();
+    int err = this->sock->writeDatagram(datagram->data(), packet->getLenght(),
+                                packet->getAddrDst(), packet->getPortDst());
 
+    if(err >= 0)
+    {
+        qDebug() << "Send success for:";
+        qDebug() << packet->toString();
+        this->moveToAckQueue(packet);
+    }
+    else
+    {
+        qDebug() << "Send failure for:";
+        qDebug() << packet->toString();
+    }
+
+    return;
 }
 
 void DCPServer::setMyId(qint8 myID)
