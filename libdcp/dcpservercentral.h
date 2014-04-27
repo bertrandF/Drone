@@ -25,6 +25,7 @@
 #include <QtSql/QSqlDatabase>
 #include <QHostAddress>
 #include <QString>
+#include <QUdpSocket>
 
 #include <dcp.h>
 #include <dcpserver.h>
@@ -34,7 +35,7 @@
 class DCPServerCentral : public DCPServer
 {
 public:
-    DCPServerCentral(qint8 sessID=DCP_SESSIDCENTRAL);
+    DCPServerCentral(QUdpSocket *socket, qint8 sessID=DCP_SESSIDCENTRAL);
 
     inline qint8 getSessID()    { return this->sessID;  }
     inline qint8 getMyId()      { return this->myID;    }

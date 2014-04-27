@@ -25,6 +25,7 @@
 #include <QTime>
 #include <QLinkedList>
 #include <QMutex>
+#include <QUdpSocket>
 
 class DCPPacket;
 class DCPPacketHandlerInterface;
@@ -36,7 +37,7 @@ class DCPServer : public QObject
     Q_OBJECT
 
 public:
-    DCPServer();
+    DCPServer(QUdpSocket *sock);
 
     inline DCPPacketHandlerInterface*  getHandler() { return this->handler; }
 
@@ -52,6 +53,7 @@ public slots:
     void sendPacket(DCPPacket* packet);
 
 protected:
+    QUdpSocket      *sock;
     DCPPacketHandlerInterface   *handler;
 
     QTime           time;

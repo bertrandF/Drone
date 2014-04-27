@@ -21,8 +21,9 @@
 #include "dcpserver.h"
 #include "dcpcommands.h"
 
-DCPServer::DCPServer() :
+DCPServer::DCPServer(QUdpSocket *sock) :
     QObject(),
+    sock(sock),
     myID(0)
 {
     this->handler = new DCPPacketHandlerCommandStationHello(this);

@@ -40,7 +40,7 @@ class DCPServerCommand : public DCPServer
     Q_OBJECT
 
 public:
-    DCPServerCommand();
+    DCPServerCommand(QUdpSocket *sock);
 
     inline QHostAddress    getAddrDrone()   { return this->addrDrone; }
     inline quint16         getPortDrone()   { return this->portDrone; }

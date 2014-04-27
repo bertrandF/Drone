@@ -26,8 +26,8 @@
 #include <QSqlError>
 
 
-DCPServerCentral::DCPServerCentral(qint8 sessID) :
-    DCPServer(),
+DCPServerCentral::DCPServerCentral(QUdpSocket *sock, qint8 sessID) :
+    DCPServer(sock),
     sessID(sessID),
     myID(DCP_IDCENTRAL),
     droneSessId(DCP_IDNULL)

@@ -21,8 +21,8 @@
 #include "dcpservercommand.h"
 #include "dcpcommands.h"
 
-DCPServerCommand::DCPServerCommand() :
-    DCPServer(),
+DCPServerCommand::DCPServerCommand(QUdpSocket *sock) :
+    DCPServer(sock),
     sessIdDrone(DCP_IDNULL),
     sessIdCentralStation(DCP_SESSIDCENTRAL),
     status(Init)
