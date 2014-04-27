@@ -25,6 +25,7 @@
 #include <QString>
 #include <QHostAddress>
 
+#include "dcpserver.h"
 
 class DCPServer;
 class DCPPacket;

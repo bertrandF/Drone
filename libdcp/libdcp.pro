@@ -17,7 +17,7 @@ SOURCES += \
     dcpcommands.cpp \
     dcppacket.cpp \
     dcppackethandlerinterface.cpp \
-    dcpserverbackend.cpp \
+    dcpserver.cpp \
     dcpserverbackendcentral.cpp \
     dcpserverbackendremote.cpp
 
@@ -26,7 +26,7 @@ HEADERS += \
     dcpcommands.h \
     dcppacket.h \
     dcppackethandlerinterface.h \
-    dcpserverbackend.h \
+    dcpserver.h \
     dcpserverbackendcentral.h \
     dcpserverbackendremote.h \
     libdcp_global.h

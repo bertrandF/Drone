@@ -27,7 +27,7 @@
 #include <dcppacket.h>
 #include <dcpcommands.h>
 #include <dcppackethandlerinterface.h>
-#include <dcpserverbackend.h>
+#include <dcpserver.h>
 #include <dcpserverbackendcentral.h>
 #include <dcpserverbackendremote.h>
 

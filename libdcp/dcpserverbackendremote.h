@@ -27,7 +27,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include <dcpserverbackend.h>
+#include <dcpserver.h>
 #include <dcpcommands.h>
 
 

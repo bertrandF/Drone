@@ -19,6 +19,7 @@
  * */
 
 #include "dcppackethandlerinterface.h"
+#include "dcpserver.h"
 #include "dcpserverbackendremote.h"
 #include "dcpserverbackendcentral.h"
 #include "dcpcommands.h"

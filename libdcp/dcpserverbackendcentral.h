@@ -27,7 +27,7 @@
 #include <QString>
 
 #include <dcp.h>
-#include <dcpserverbackend.h>
+#include <dcpserver.h>
 #include <dcpcommands.h>
 
 
