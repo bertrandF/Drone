@@ -68,6 +68,8 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
     this->dcpServer = new DCPServer(sock);
     this->srvBack = new DCPServerBackendRemote();
+    connect(this->srvBack, SIGNAL(statusChanged(DCPServerBackendRemoteStatus)),
+            this, SLOT(srvBackendStatusChanged(DCPServerBackendRemoteStatus)));
     this->srvBack->registerWithServer(this->dcpServer);
     this->srvBack->setCentralStationHost(cmdP->centralStationHost,
                                    cmdP->centralStationPort);
@@ -190,4 +192,17 @@ void CommandPanel::mplayerProcessFinished(int exitCode, \
         break;
     }
     qWarning() << "WARN: MPlayer exit code: (" << exitCode << ")." << endl;
+}
+
+void CommandPanel::srvBackendStatusChanged(
+        enum DCPServerBackendRemoteStatus status)
+{
+    switch (status)
+    {
+    case NotConnected:
+        this->srvBack->connectToDrone(this->cmdP->droneId);
+        break;
+    default:
+        break;
+    }
 }

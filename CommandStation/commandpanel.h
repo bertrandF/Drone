@@ -52,6 +52,8 @@ public slots:
     void    mplayerProcessError         (QProcess::ProcessError err);
     void    mplayerReadyReadError       ();
     void    mplayerReadyReadOutput      ();
+    void    srvBackendStatusChanged     (
+            enum DCPServerBackendRemoteStatus status);
 
 private:
     Ui::CommandPanel    *ui;
