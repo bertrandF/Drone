@@ -1,6 +1,6 @@
 /*
  *  This file is part of the libDCP Project
- *  Copyright (C) 15/04/2014 -- dcpserverbackendremote.h -- bertrand
+ *  Copyright (C) 15/04/2014 -- dcpservercommand.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  *
  * */
 
-#ifndef DCPSERVERBACKENDREMOTE_H
-#define DCPSERVERBACKENDREMOTE_H
+#ifndef DCPSERVERCOMMAND_H
+#define DCPSERVERCOMMAND_H
 
 #include <QtGlobal>
 #include <QHostAddress>
@@ -81,4 +81,4 @@ protected:
     QMutex                      statusMutex;
 };
 
-#endif // DCPSERVERBACKENDREMOTE_H
+#endif // DCPSERVERCOMMAND_H

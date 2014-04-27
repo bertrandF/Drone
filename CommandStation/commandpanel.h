@@ -26,7 +26,7 @@
 #include <QTextEdit>
 #include <QSqlDatabase>
 
-#include <dcpserverbackendremote.h>
+#include <dcpservercommand.h>
 
 #include "commandstationparameters.h"
 #include "mplayerwidget.h"

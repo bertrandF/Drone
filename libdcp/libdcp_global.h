@@ -29,7 +29,7 @@
 #include <dcppackethandlerinterface.h>
 #include <dcpserver.h>
 #include <dcpservercentral.h>
-#include <dcpserverbackendremote.h>
+#include <dcpservercommand.h>
 
 #if defined(LIBDCP_LIBRARY)
 #  define LIBDCPSHARED_EXPORT Q_DECL_EXPORT

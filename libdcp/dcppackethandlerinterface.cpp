@@ -20,7 +20,7 @@
 
 #include "dcppackethandlerinterface.h"
 #include "dcpserver.h"
-#include "dcpserverbackendremote.h"
+#include "dcpservercommand.h"
 #include "dcpservercentral.h"
 #include "dcpcommands.h"
 

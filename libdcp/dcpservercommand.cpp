@@ -1,6 +1,6 @@
 /*
  *  This file is part of the libDCP Project
- *  Copyright (C) 15/04/2014 -- dcpserverbackendremote.h -- bertrand
+ *  Copyright (C) 15/04/2014 -- dcpservercommand.cpp -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  * */
 
-#include "dcpserverbackendremote.h"
+#include "dcpservercommand.h"
 #include "dcpcommands.h"
 
 DCPServerCommand::DCPServerCommand() :

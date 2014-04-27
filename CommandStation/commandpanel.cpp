@@ -31,7 +31,7 @@
 #include <QtSql/QSqlDatabase>
 #include <QSqlError>
 
-#include <dcpserverbackendremote.h>
+#include <dcpservercommand.h>
 
 
 CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
