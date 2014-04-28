@@ -323,6 +323,7 @@ void DCPPacketHandlerCentralStation::handleCommandAck(DCPPacket *packet)
             default:
                 break;
             }
+            central->removeFromAckQueue(ackedPacket);
         }
     }
 }
