@@ -295,6 +295,8 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
                     (DCPCommandHelloFromRemote::remoteType)remote->type,
                     remote->id, remote->addr, remote->port,
                     remote->description);
+        this->pendingRemote.removeOne(remote);
+        this->registeredRemotes.append(remote);
     }
 }
 

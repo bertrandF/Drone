@@ -153,6 +153,7 @@ public:
 
 private:
     QList<struct newRemote*>    pendingRemote;
+    QList<struct newRemote*>    registeredRemotes;
     struct newRemote*           findNewRemoteByPacket(DCPPacket* packet);
 };
 
