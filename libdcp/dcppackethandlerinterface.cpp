@@ -420,7 +420,7 @@ struct newRemote* DCPPacketHandlerCentralStation::findRegisteredRemoteBySessId(
         qint8 sessId)
 {
     struct newRemote *remote;
-    foreach (remote, this->pendingRemotes) {
+    foreach (remote, this->registeredRemotes) {
         if(remote->sessIdCentralStation == sessId)
             return remote;
     }
