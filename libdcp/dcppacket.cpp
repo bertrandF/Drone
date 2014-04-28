@@ -27,7 +27,7 @@ DCPPacket::DCPPacket(qint8 cmdID, qint8 sessID, qint32 timestamp) :
 {
 }
 
-DCPPacket::DCPPacket(char *data, int len)
+void DCPPacket::buildFromData(char *data, int len)
 {
     this->cmdID = (data[0]>>4) & (qint8)0x0F;
     this->sessID = (data[0] & (qint8)0x0F);

@@ -39,13 +39,12 @@ class DCPCommandAilerons : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandAilerons(qint8 sessID);
-    DCPCommandAilerons(char* data, int len);
+    DCPCommandAilerons(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
-    QByteArray buildPayload();
-    void unbuildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8   aileronRight, aileronLeft, rudder;
@@ -60,8 +59,7 @@ class DCPCommandIsAlive : public DCPPacket
   friend class DCPPacketFactory;
 
 public:
-    DCPCommandIsAlive(qint8 sessID);
-    DCPCommandIsAlive(char* data, int len);
+    DCPCommandIsAlive(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 };
 
@@ -73,8 +71,7 @@ class DCPCommandAck : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandAck(qint8 sessID);
-    DCPCommandAck(char* data, int len);
+    DCPCommandAck(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
     QString toString();
@@ -88,13 +85,12 @@ class DCPCommandThrottle : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandThrottle(qint8 sessID);
-    DCPCommandThrottle(char* data, int len);
+    DCPCommandThrottle(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
-    QByteArray buildPayload();
-    void unbuildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8 motor, throttle;
@@ -108,8 +104,7 @@ class DCPCommandSetSessID : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandSetSessID(qint8 sessId);
-    DCPCommandSetSessID(char* data, int len);
+    DCPCommandSetSessID(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
     inline void setDroneSessId(qint8 id)
@@ -120,8 +115,8 @@ public:
     QString toString();
 
 protected:
-    QByteArray buildPayload();
-    void unbuildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8   droneSessId;
@@ -135,13 +130,12 @@ class DCPCommandUnsetSessID : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandUnsetSessID(qint8 sessID);
-    DCPCommandUnsetSessID(char* data, int len);
+    DCPCommandUnsetSessID(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
-    QByteArray buildPayload();
-    void unbuildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8 droneDessID;
@@ -164,8 +158,8 @@ public:
         remoteTypeDrone, remoteTypeCommandStation, remoteTypeNotSet
     };
 
-    DCPCommandHelloFromRemote(qint8 sessID);
-    DCPCommandHelloFromRemote(char* data, int len);
+    DCPCommandHelloFromRemote(qint8 sessID=DCP_SESSIDCENTRAL,
+                              qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
     inline void setDescription(QString description)
@@ -178,7 +172,8 @@ public:
     QString toString();
 
 protected:
-    QByteArray buildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     char        type;
@@ -194,8 +189,8 @@ class DCPCommandHelloFromCentralStation : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandHelloFromCentralStation(qint8 sessID);
-    DCPCommandHelloFromCentralStation(char* data, int len);
+    DCPCommandHelloFromCentralStation(qint8 sessID=DCP_SESSIDCENTRAL,
+                                      qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
     inline void setSessIdCentralStation(qint8 sessId)
@@ -210,7 +205,8 @@ public:
     QString toString();
 
 protected:
-    QByteArray buildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8       sessIdCentralStation;
@@ -229,8 +225,7 @@ class DCPCommandBye : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandBye(qint8 sessID);
-    DCPCommandBye(char* data, int len);
+    DCPCommandBye(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 };
 
@@ -242,8 +237,8 @@ class DCPCommandConnectToDrone : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandConnectToDrone(qint8 sessID);
-    DCPCommandConnectToDrone(char* data, int len);
+    DCPCommandConnectToDrone(qint8 sessID=DCP_SESSIDCENTRAL,
+                             qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
     inline void setDroneId(qint8 id)
@@ -254,8 +249,8 @@ public:
     QString toString();
 
 protected:
-    QByteArray buildPayload();
-    void unbuildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8 droneId;
@@ -269,13 +264,13 @@ class DCPCommandUnconnectFromDrone : public DCPPacket
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandUnconnectFromDrone(qint8 sessID);
-    DCPCommandUnconnectFromDrone(char* data, int len);
+    DCPCommandUnconnectFromDrone(qint8 sessID=DCP_SESSIDCENTRAL,
+                                 qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
 protected:
-    QByteArray buildPayload();
-    void unbuildPayload();
+    QByteArray  buildPayload();
+    void        unbuildPayload();
 
 private:
     qint8 droneID;

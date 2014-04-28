@@ -38,7 +38,7 @@ class DCPPacket
 public:
     DCPPacket(qint8 cmdID=DCP_CMDACK, qint8 sessID=DCP_SESSIDCENTRAL,
               qint32 timestamp=0);
-    DCPPacket(char* data, int len);
+    void    buildFromData(char *data, int len);
 
     inline qint8        getCommandID()  { return this->cmdID;       }
     inline qint8        getSessionID()  { return this->sessID;      }
