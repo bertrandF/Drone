@@ -34,7 +34,7 @@ DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db,
     droneSessId(DCP_IDNULL),
     db(db)
 {
-    this->handler = new DCPPacketHandlerCentralStationHello(this);
+    this->handler = new DCPPacketHandlerCentralStation(this);
 }
 
 void DCPServerCentral::registerNewBackendWithServer(

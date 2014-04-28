@@ -121,7 +121,7 @@ public:
 };
 
 /*
- * CENTRAL STATION -- Welcome new clients
+ * CENTRAL STATION -- Packet Handler for central station normal operations
  * */
 struct newRemote {
     QString         description;
@@ -133,10 +133,10 @@ struct newRemote {
     DCPCommandHelloFromCentralStation* myHello;
 };
 
-class DCPPacketHandlerCentralStationHello : public DCPPacketHandlerInterface
+class DCPPacketHandlerCentralStation : public DCPPacketHandlerInterface
 {
 public:
-    DCPPacketHandlerCentralStationHello(DCPServer *backend);
+    DCPPacketHandlerCentralStation(DCPServer *backend);
 
     virtual void handleNull                         (DCPPacket* packet);
     virtual void handleCommandAilerons              (DCPPacket* packet);
@@ -155,29 +155,6 @@ private:
     QList<struct newRemote*>    pendingRemotes;
     QList<struct newRemote*>    registeredRemotes;
     struct newRemote*           findNewRemoteByPacket(DCPPacket* packet);
-};
-
-/*
- * CENTRAL STATION -- Central station Wait connect request from command station
- * */
-class DCPPacketHandlerCentralStationWaitConnectRequest :
-        public DCPPacketHandlerInterface
-{
-public:
-    DCPPacketHandlerCentralStationWaitConnectRequest(DCPServer *backend);
-
-    virtual void handleNull                         (DCPPacket* packet);
-    virtual void handleCommandAilerons              (DCPPacket* packet);
-    virtual void handleCommandIsAlive               (DCPPacket* packet);
-    virtual void handleCommandAck                   (DCPPacket* packet);
-    virtual void handleCommandThrottle              (DCPPacket* packet);
-    virtual void handleCommandSetSessID             (DCPPacket* packet);
-    virtual void handleCommandUnsetSessID           (DCPPacket* packet);
-    virtual void handleCommandHelloFromCentral      (DCPPacket *packet);
-    virtual void handleCommandHelloFromRemote       (DCPPacket *packet);
-    virtual void handleCommandBye                   (DCPPacket* packet);
-    virtual void handleCommandConnectToDrone        (DCPPacket* packet);
-    virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
 };
 
 #endif // DCPPACKETHANDLERINTERFACE_H

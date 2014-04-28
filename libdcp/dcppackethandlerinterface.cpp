@@ -269,47 +269,68 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandUnconnectFromDrone
 {}
 
 /*
- * CENTRAL STATION -- Welcome new clients
+ * CENTRAL STATION -- Packet Handler for central station normal operations
  * */
-DCPPacketHandlerCentralStationHello::DCPPacketHandlerCentralStationHello(DCPServer *backend) :
+DCPPacketHandlerCentralStation::DCPPacketHandlerCentralStation(DCPServer *backend) :
     DCPPacketHandlerInterface(backend)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleNull(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleNull(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandAilerons(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandAilerons(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandIsAlive(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandIsAlive(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandAck(DCPPacket *packet)
 {
-    struct newRemote* remote = findNewRemoteByPacket(packet);
-    DCPServerCentral *central =
-            dynamic_cast<DCPServerCentral*>(this->server);
-    if(remote != NULL)
+    DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+
+    // Hello Ack
+    if(packet->getSessionID() == DCP_SESSIDCENTRAL)
     {
-        central->addNewRemote(
-                    (DCPCommandHelloFromRemote::remoteType)remote->type,
-                    remote->id, remote->addr, remote->port,
-                    remote->description);
-        this->pendingRemotes.removeOne(remote);
-        this->registeredRemotes.append(remote);
+        struct newRemote* remote = findNewRemoteByPacket(packet);
+        if(remote != NULL)
+        {
+            central->addNewRemote(
+                        (DCPCommandHelloFromRemote::remoteType)remote->type,
+                        remote->id, remote->addr, remote->port,
+                        remote->description);
+            this->pendingRemotes.removeOne(remote);
+            this->registeredRemotes.append(remote);
+        }
+    }
+    // Other commands Acks
+    else
+    {
+        DCPPacket* ackedPacket;
+        if((ackedPacket=central->findInAckQueue(packet->getTimestamp())) != NULL)
+        {
+            switch(ackedPacket->getCommandID())
+            {
+            case DCP_CMDSETSESSID:
+                // TODO: add new session to db
+                central->removeFromAckQueue(ackedPacket);
+                break;
+            default:
+                break;
+            }
+        }
     }
 }
 
-void DCPPacketHandlerCentralStationHello::handleCommandThrottle(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandThrottle(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandSetSessID(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandSetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandUnsetSessID(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *packet)
 {
     int clientID;
     int clientSessID ;
@@ -351,86 +372,13 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
     }
 }
 
-void DCPPacketHandlerCentralStationHello::handleCommandHelloFromCentral(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandHelloFromCentral(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandBye(DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCentralStationHello::handleCommandConnectToDrone(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationHello::handleCommandUnconnectFromDrone(
-        DCPPacket *packet)
-{}
-
-struct newRemote* DCPPacketHandlerCentralStationHello::findNewRemoteByPacket(
-        DCPPacket *packet)
-{
-    struct newRemote *remote;
-    foreach (remote, this->pendingRemotes) {
-        if(remote->addr == packet->getAddrDst() &&
-                remote->port == packet->getPortDst() &&
-                remote->myHello->getTimestamp() == packet->getTimestamp())
-            return remote;
-    }
-    return NULL;
-}
-
-
-/*
- * CENTRAL STATION -- Central station Wait connect request from command station
- * */
-DCPPacketHandlerCentralStationWaitConnectRequest::
-    DCPPacketHandlerCentralStationWaitConnectRequest(
-        DCPServer *backend) :
-    DCPPacketHandlerInterface(backend)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleNull(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandAilerons(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandIsAlive(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandAck(DCPPacket *packet)
-{
-    DCPServerCentral *central = dynamic_cast<DCPServerCentral*>
-            (this->server);
-    DCPCommandSetSessID *sess = dynamic_cast<DCPCommandSetSessID*>
-            (central->findInAckQueue(packet->getTimestamp()));
-    if(sess)
-    {
-        central->setDroneSessId(sess->getDroneSessId());
-        central->removeFromAckQueue(sess);
-    }
-}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandThrottle(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandSetSessID(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandUnsetSessID(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandHelloFromRemote(
-        DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandHelloFromCentral(
-        DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandBye(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandConnectToDrone(
-        DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *packet)
 {
     DCPServerCentral *central =
             dynamic_cast<DCPServerCentral*> (this->server);
@@ -451,6 +399,19 @@ void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandConnectToDro
     }
 }
 
-void DCPPacketHandlerCentralStationWaitConnectRequest::handleCommandUnconnectFromDrone(
+void DCPPacketHandlerCentralStation::handleCommandUnconnectFromDrone(
         DCPPacket *packet)
 {}
+
+struct newRemote* DCPPacketHandlerCentralStation::findNewRemoteByPacket(
+        DCPPacket *packet)
+{
+    struct newRemote *remote;
+    foreach (remote, this->pendingRemotes) {
+        if(remote->addr == packet->getAddrDst() &&
+                remote->port == packet->getPortDst() &&
+                remote->myHello->getTimestamp() == packet->getTimestamp())
+            return remote;
+    }
+    return NULL;
+}
