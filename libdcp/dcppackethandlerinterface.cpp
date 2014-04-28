@@ -384,7 +384,7 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
             dynamic_cast<DCPServerCentral*> (this->server);
     DCPCommandConnectToDrone *conn =
             dynamic_cast<DCPCommandConnectToDrone*> (packet);
-    if(packet->getSessionID() == central->getSessID())
+    if(this->findRegisteredRemoteBySessId(packet->getSessionID()))
     {
         // TODO: check with DB & get next sessID
 
