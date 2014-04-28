@@ -55,7 +55,7 @@
 #define DCP_DBNOAVALIABLEIDS        ((qint8)-2)
 #define DCP_DBCOMMANDSTATIONSTABLE  "command_stations"
 #define DCP_DBDRONESTABLE           "drones"
-#define DCP_DBSESSIONSTABLE         "session"
+#define DCP_DBSESSIONSTABLE         "sessions"
 
 /* --- REMOTE TYPES --- */
 #define DCP_REMOTETYPECOMMANDSTATION    ((char)'C')
