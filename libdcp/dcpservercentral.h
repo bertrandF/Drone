@@ -35,17 +35,7 @@
 class DCPServerCentral : public DCPServer
 {
 public:
-    DCPServerCentral(QUdpSocket *socket, QSqlDatabase db,
-                     qint8 sessID=DCP_SESSIDCENTRAL);
-
-    inline qint8 getSessID()    { return this->sessID;  }
-    inline qint8 getMyId()      { return this->myID;    }
-    inline void setDroneSessId(qint8 id)
-        { this->droneSessId = id; }
-    inline qint8 getDroneSessId()
-        { return this->droneSessId; }
-
-    void registerNewBackendWithServer(DCPServerCentral *central);
+    DCPServerCentral(QUdpSocket *socket, QSqlDatabase db);
 
     // TODO: make avaliable only to packet handler
     qint8   nextDroneId();
@@ -55,10 +45,6 @@ public:
                          QHostAddress addr, quint8 port, QString description);
 
 private:
-    qint8       sessID;
-    qint8       myID;
-    qint8       droneSessId;
-
     QSqlDatabase db;
 };
 

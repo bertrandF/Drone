@@ -337,7 +337,7 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
 
     DCPServerCentral *central =
             dynamic_cast<DCPServerCentral*>(this->server);
-    if(packet->getSessionID() == central->getSessID())
+    if(packet->getSessionID() == DCP_SESSIDCENTRAL)
     {
         DCPCommandHelloFromRemote *hello =
                 dynamic_cast<DCPCommandHelloFromRemote*>(packet);
@@ -353,7 +353,7 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
         // TODO: Handle no more ID avaliables
 
         DCPCommandHelloFromCentralStation *myHello =
-                new DCPCommandHelloFromCentralStation(central->getSessID());
+                new DCPCommandHelloFromCentralStation(DCP_SESSIDCENTRAL);
         myHello->setIdRemote(clientID);
         myHello->setSessIdCentralStation(clientSessID);
         myHello->setAddrDst(packet->getAddrDst());
@@ -390,7 +390,7 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
 
         qint8 droneSessId = 9;
         DCPCommandSetSessID *sess = new DCPCommandSetSessID(
-                    central->getSessID());
+                    packet->getSessionID());
         sess->setAddrDst(packet->getAddrDst());
         sess->setPortDst(packet->getPortDst());
         sess->setDroneSessId(droneSessId);
