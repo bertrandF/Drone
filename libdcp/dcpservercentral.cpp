@@ -108,3 +108,25 @@ bool DCPServerCentral::addNewRemote(
     qWarning() << "Sucessfully added new remote:" << query.lastQuery();
     return true;
 }
+
+bool DCPServerCentral::addNewSession(qint8 sessId, qint8 droneId,
+                                     qint8 remoteId)
+{
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSTABLE) +
+                  "VALUES (?, ?, ?, ?)");
+    query.bindValue(0, sessId);
+    query.bindValue(1, droneId);
+    query.bindValue(2, remoteId);
+    query.bindValue(3, QDateTime::currentDateTime().toString(Qt::ISODate));
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully added new session:" << query.lastQuery();
+    return true;
+}
