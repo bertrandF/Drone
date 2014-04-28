@@ -287,12 +287,14 @@ void DCPPacketHandlerCentralStation::handleCommandIsAlive(DCPPacket *packet)
 void DCPPacketHandlerCentralStation::handleCommandAck(DCPPacket *packet)
 {
     DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+    struct newRemote* remote;
 
     // Hello Ack
     if(packet->getSessionID() == DCP_SESSIDCENTRAL)
     {
-        struct newRemote* remote = findNewRemoteByPacket(packet);
-        if(remote != NULL)
+        DCPPacket* myHello;
+        if((remote=findNewRemoteByPacket(packet))!=NULL &&
+                (myHello=central->findInAckQueue(packet->getTimestamp()))!=NULL)
         {
             central->addNewRemote(
                         (DCPCommandHelloFromRemote::remoteType)remote->type,
@@ -300,13 +302,13 @@ void DCPPacketHandlerCentralStation::handleCommandAck(DCPPacket *packet)
                         remote->description);
             this->pendingRemotes.removeOne(remote);
             this->registeredRemotes.append(remote);
+            central->removeFromAckQueue(myHello);
         }
     }
     // Other commands Acks
     else
     {
         DCPPacket* ackedPacket;
-        struct newRemote* remote;
         if((ackedPacket=central->findInAckQueue(packet->getTimestamp())) != NULL
                 && (remote=this->findRegisteredRemoteBySessId(
                         packet->getSessionID())) != NULL)
