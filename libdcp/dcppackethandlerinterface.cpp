@@ -286,7 +286,7 @@ void DCPPacketHandlerCentralStationHello::handleCommandIsAlive(DCPPacket *packet
 
 void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
 {
-    struct newRemote* remote = findNewRemoteByTimestamp(packet->getTimestamp());
+    struct newRemote* remote = findNewRemoteByPacket(packet);
     DCPServerCentral *central =
             dynamic_cast<DCPServerCentral*>(this->server);
     if(remote != NULL)
@@ -369,6 +369,19 @@ struct newRemote *DCPPacketHandlerCentralStationHello::findNewRemoteByTimestamp(
     foreach(remote, this->pendingRemote)
     {
         if(remote->myHello->getTimestamp() == timestamp)
+            return remote;
+    }
+    return NULL;
+}
+
+struct newRemote* DCPPacketHandlerCentralStationHello::findNewRemoteByPacket(
+        DCPPacket *packet)
+{
+    struct newRemote *remote;
+    foreach (remote, this->pendingRemote) {
+        if(remote->addr == packet->getAddrDst() &&
+                remote->port == packet->getPortDst() &&
+                remote->myHello->getTimestamp() == packet->getTimestamp())
             return remote;
     }
     return NULL;
