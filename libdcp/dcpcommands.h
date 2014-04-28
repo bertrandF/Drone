@@ -248,6 +248,8 @@ public:
 
     inline void setDroneId(qint8 id)
         { this->droneId = id; }
+    inline qint8 getDroneId()
+        { return this->droneId; }
 
     QString toString();
 
