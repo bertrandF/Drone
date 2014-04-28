@@ -295,7 +295,7 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
                     (DCPCommandHelloFromRemote::remoteType)remote->type,
                     remote->id, remote->addr, remote->port,
                     remote->description);
-        this->pendingRemote.removeOne(remote);
+        this->pendingRemotes.removeOne(remote);
         this->registeredRemotes.append(remote);
     }
 }
@@ -347,7 +347,7 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
         remote->addr                    = hello->getAddrDst();
         remote->port                    = hello->getPortDst();
         remote->myHello                 = myHello;
-        this->pendingRemote.append(remote);
+        this->pendingRemotes.append(remote);
     }
 }
 
@@ -368,7 +368,7 @@ struct newRemote* DCPPacketHandlerCentralStationHello::findNewRemoteByPacket(
         DCPPacket *packet)
 {
     struct newRemote *remote;
-    foreach (remote, this->pendingRemote) {
+    foreach (remote, this->pendingRemotes) {
         if(remote->addr == packet->getAddrDst() &&
                 remote->port == packet->getPortDst() &&
                 remote->myHello->getTimestamp() == packet->getTimestamp())

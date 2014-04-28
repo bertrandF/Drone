@@ -152,7 +152,7 @@ public:
     virtual void handleCommandUnconnectFromDrone    (DCPPacket* packet);
 
 private:
-    QList<struct newRemote*>    pendingRemote;
+    QList<struct newRemote*>    pendingRemotes;
     QList<struct newRemote*>    registeredRemotes;
     struct newRemote*           findNewRemoteByPacket(DCPPacket* packet);
 };
