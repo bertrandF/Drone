@@ -127,6 +127,8 @@ struct newRemote {
     QString         description;
     qint8           id;
     qint8           sessIdCentralStation;
+    qint8           droneId;
+    qint8           sessIdDrone;
     int             type;
     QHostAddress    addr;
     quint16         port;

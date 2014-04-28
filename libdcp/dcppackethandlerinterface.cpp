@@ -306,12 +306,16 @@ void DCPPacketHandlerCentralStation::handleCommandAck(DCPPacket *packet)
     else
     {
         DCPPacket* ackedPacket;
-        if((ackedPacket=central->findInAckQueue(packet->getTimestamp())) != NULL)
+        struct newRemote* remote;
+        if((ackedPacket=central->findInAckQueue(packet->getTimestamp())) != NULL
+                && (remote=this->findRegisteredRemoteBySessId(
+                        packet->getSessionID())) != NULL)
         {
             switch(ackedPacket->getCommandID())
             {
             case DCP_CMDSETSESSID:
-                // TODO: add new session to db
+                central->addNewSession(remote->sessIdDrone, remote->droneId,
+                                       remote->id);
                 central->removeFromAckQueue(ackedPacket);
                 break;
             default:
@@ -364,6 +368,8 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
         remote->description             = description;
         remote->id                      = clientID;
         remote->sessIdCentralStation    = clientSessID;
+        remote->droneId                 = DCP_IDNULL;
+        remote->sessIdDrone             = DCP_IDNULL;
         remote->type                    = hello->getRemoteType();
         remote->addr                    = hello->getAddrDst();
         remote->port                    = hello->getPortDst();
@@ -384,7 +390,9 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
             dynamic_cast<DCPServerCentral*> (this->server);
     DCPCommandConnectToDrone *conn =
             dynamic_cast<DCPCommandConnectToDrone*> (packet);
-    if(this->findRegisteredRemoteBySessId(packet->getSessionID()))
+    struct newRemote* remote;
+    if((remote = this->findRegisteredRemoteBySessId(packet->getSessionID()))
+            != NULL)
     {
         // TODO: check with DB & get next sessID
 
@@ -396,6 +404,9 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
         sess->setDroneSessId(droneSessId);
         sess->setTimestamp(packet->getTimestamp());
         central->sendPacket(sess);
+
+        remote->sessIdDrone = droneSessId;
+        remote->droneId     = conn->getDroneId();
     }
 }
 
