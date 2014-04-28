@@ -153,7 +153,6 @@ public:
 
 private:
     QList<struct newRemote*>    pendingRemote;
-    struct newRemote*           findNewRemoteByTimestamp(qint32 timestamp);
     struct newRemote*           findNewRemoteByPacket(DCPPacket* packet);
 };
 

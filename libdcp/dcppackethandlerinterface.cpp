@@ -362,18 +362,6 @@ void DCPPacketHandlerCentralStationHello::handleCommandUnconnectFromDrone(
         DCPPacket *packet)
 {}
 
-struct newRemote *DCPPacketHandlerCentralStationHello::findNewRemoteByTimestamp(
-        qint32 timestamp)
-{
-    struct newRemote *remote;
-    foreach(remote, this->pendingRemote)
-    {
-        if(remote->myHello->getTimestamp() == timestamp)
-            return remote;
-    }
-    return NULL;
-}
-
 struct newRemote* DCPPacketHandlerCentralStationHello::findNewRemoteByPacket(
         DCPPacket *packet)
 {
