@@ -51,7 +51,7 @@ public slots:
     void    mplayerProcessError         (QProcess::ProcessError err);
     void    mplayerReadyReadError       ();
     void    mplayerReadyReadOutput      ();
-    void    srvBackendStatusChanged     (
+    void    serverStatusChanged     (
             enum DCPServerCommandStatus status);
 
 private:

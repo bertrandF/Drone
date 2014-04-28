@@ -68,6 +68,8 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     this->commandServer = new DCPServerCommand(sock);
     this->commandServer->setCentralStationHost(cmdP->centralStationHost,
                                                cmdP->centralStationPort);
+    connect(this->commandServer, SIGNAL(statusChanged(DCPServerCommandStatus)),
+            this, SLOT(serverStatusChanged(DCPServerCommandStatus)));
     this->commandServer->sayHello("I am a command station !");
 
 
@@ -187,7 +189,7 @@ void CommandPanel::mplayerProcessFinished(int exitCode, \
     qWarning() << "WARN: MPlayer exit code: (" << exitCode << ")." << endl;
 }
 
-void CommandPanel::srvBackendStatusChanged(
+void CommandPanel::serverStatusChanged(
         enum DCPServerCommandStatus status)
 {
     switch (status)
