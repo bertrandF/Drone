@@ -128,6 +128,8 @@ struct newRemote {
     qint8           id;
     qint8           sessIdCentralStation;
     int             type;
+    QHostAddress    addr;
+    quint16         port;
     DCPCommandHelloFromCentralStation* myHello;
 };
 

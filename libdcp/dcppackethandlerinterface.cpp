@@ -293,8 +293,8 @@ void DCPPacketHandlerCentralStationHello::handleCommandAck(DCPPacket *packet)
     {
         central->addNewRemote(
                     (DCPCommandHelloFromRemote::remoteType)remote->type,
-                    remote->id, remote->myHello->getAddrDst(),
-                    remote->myHello->getPortDst(), remote->description);
+                    remote->id, remote->addr, remote->port,
+                    remote->description);
     }
 }
 
@@ -342,6 +342,8 @@ void DCPPacketHandlerCentralStationHello::handleCommandHelloFromRemote(DCPPacket
         remote->id                      = clientID;
         remote->sessIdCentralStation    = clientSessID;
         remote->type                    = hello->getRemoteType();
+        remote->addr                    = hello->getAddrDst();
+        remote->port                    = hello->getPortDst();
         remote->myHello                 = myHello;
         this->pendingRemote.append(remote);
     }
