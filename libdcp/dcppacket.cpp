@@ -31,9 +31,9 @@ void DCPPacket::buildFromData(char *data, int len)
 {
     this->cmdID = (data[0]>>4) & (qint8)0x0F;
     this->sessID = (data[0] & (qint8)0x0F);
-    this->timestamp = ((qint32)((qint32)data[1]<<16) & (qint32)0x00FF0000) |
-            ((qint32)((qint32)data[1]<<8) & (qint32)0x0000FF00) |
-            ((qint32)((qint32)data[1]) & (qint32)0x000000FF);
+    this->timestamp =   (qint32) ((qint32)(data[1]<<16)   & (qint32)0xFF0000) |
+                        (qint32) ((qint32)(data[2]<<8)    & (qint32)0x00FF00) |
+                        (qint32) ((qint32)(data[3])       & (qint32)0x0000FF);
     this->payload = QByteArray::fromRawData(
                 data+DCP_HEADERSIZE, len-DCP_HEADERSIZE);
     this->unbuildPayload();
