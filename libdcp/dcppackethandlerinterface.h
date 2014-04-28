@@ -155,6 +155,7 @@ private:
     QList<struct newRemote*>    pendingRemotes;
     QList<struct newRemote*>    registeredRemotes;
     struct newRemote*           findNewRemoteByPacket(DCPPacket* packet);
+    struct newRemote*           findRegisteredRemoteBySessId(qint8 sessId);
 };
 
 #endif // DCPPACKETHANDLERINTERFACE_H
