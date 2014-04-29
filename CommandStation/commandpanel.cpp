@@ -197,6 +197,9 @@ void CommandPanel::serverStatusChanged(
     case NotConnected:
         this->commandServer->connectToDrone(this->cmdP->droneId);
         break;
+    case Connected:
+        this->commandServer->disconnectFromDrone();
+        break;
     default:
         break;
     }

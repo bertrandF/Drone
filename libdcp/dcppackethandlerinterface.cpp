@@ -404,7 +404,23 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
 }
 
 void DCPPacketHandlerCentralStation::handleCommandDisconnect(DCPPacket *packet)
-{}
+{
+    struct newRemote *remote;
+    DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+    if((remote = this->findRegisteredRemoteBySessId(packet->getSessionID()))
+            != NULL)
+    {
+        DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
+        ack->setAddrDst(packet->getAddrDst());
+        ack->setPortDst(packet->getPortDst());
+        ack->setTimestamp(packet->getTimestamp());
+        central->sendPacket(ack);
+
+        central->deleteSession(remote->sessIdDrone);
+        remote->sessIdDrone = DCP_IDNULL;
+        remote->droneId     = DCP_IDNULL;
+    }
+}
 
 struct newRemote* DCPPacketHandlerCentralStation::findNewRemoteByPacket(
         DCPPacket *packet)
