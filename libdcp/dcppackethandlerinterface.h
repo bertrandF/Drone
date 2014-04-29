@@ -118,6 +118,27 @@ public:
 };
 
 /*
+ * COMMAND STATION -- Packet Handler Connected
+ * */
+class DCPPacketHandlerCommandStationConnected : public DCPPacketHandlerInterface
+{
+public:
+    DCPPacketHandlerCommandStationConnected(DCPServer *backend);
+
+    virtual void handleNull                         (DCPPacket* packet);
+    virtual void handleCommandAilerons              (DCPPacket* packet);
+    virtual void handleCommandIsAlive               (DCPPacket* packet);
+    virtual void handleCommandAck                   (DCPPacket* packet);
+    virtual void handleCommandThrottle              (DCPPacket* packet);
+    virtual void handleCommandSetSessID             (DCPPacket* packet);
+    virtual void handleCommandHelloFromCentral      (DCPPacket* packet);
+    virtual void handleCommandHelloFromRemote       (DCPPacket* packet);
+    virtual void handleCommandBye                   (DCPPacket* packet);
+    virtual void handleCommandConnectToDrone        (DCPPacket* packet);
+    virtual void handleCommandDisconnect            (DCPPacket* packet);
+};
+
+/*
  * CENTRAL STATION -- Packet Handler for central station normal operations
  * */
 struct newRemote {

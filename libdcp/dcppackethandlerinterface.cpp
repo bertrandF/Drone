@@ -241,6 +241,8 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandSetSessID(DCPPacke
             command->sendPacket(ack);
 
             command->setStatus(Connected);
+            command->setHandler(
+                        new DCPPacketHandlerCommandStationConnected(command));
         }
     }
 }
@@ -262,6 +264,51 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandConnectToDrone(DCP
 void DCPPacketHandlerCommandStationNotConnected::handleCommandDisconnect(
         DCPPacket *packet)
 {}
+
+/*
+ * COMMAND STATION -- Packet Handler Connected
+ * */
+DCPPacketHandlerCommandStationConnected::DCPPacketHandlerCommandStationConnected(
+        DCPServer *backend) :
+    DCPPacketHandlerInterface(backend)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleNull(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandAilerons(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandIsAlive(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandThrottle(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandSetSessID(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandHelloFromRemote(
+        DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandHelloFromCentral(
+        DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandBye(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandConnectToDrone(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandDisconnect(
+        DCPPacket *packet)
+{}
+
 
 /*
  * CENTRAL STATION -- Packet Handler for central station normal operations
