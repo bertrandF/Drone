@@ -107,3 +107,17 @@ void DCPServerCommand::disconnectFromDrone()
     disc->setTimestamp(this->time.elapsed());
     this->sendPacket(disc);
 }
+
+void DCPServerCommand::sayByeBye()
+{
+    enum DCPServerCommandStatus status = this->getStatus();
+    if(status != NotConnected &&  status != Disconnected && status != Connected)
+        return;
+
+    this->setStatus(Stopping);
+    DCPCommandBye *bye = new DCPCommandBye(this->sessIdCentralStation);
+    bye->setAddrDst(this->addrCentralStation);
+    bye->setPortDst(this->portCentralStation);
+    bye->setTimestamp(this->time.elapsed());
+    this->sendPacket(bye);
+}

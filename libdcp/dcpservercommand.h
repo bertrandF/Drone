@@ -68,6 +68,7 @@ public:
     void            sayHello(QString description);
     void            connectToDrone(qint8 id);
     void            disconnectFromDrone();
+    void            sayByeBye();
 
 signals:
     void statusChanged(enum DCPServerCommandStatus status);

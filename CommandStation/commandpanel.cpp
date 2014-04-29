@@ -200,6 +200,9 @@ void CommandPanel::serverStatusChanged(
     case Connected:
         this->commandServer->disconnectFromDrone();
         break;
+    case Disconnected:
+        this->commandServer->sayByeBye();
+        break;
     default:
         break;
     }
