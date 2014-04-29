@@ -301,6 +301,14 @@ void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet
                             new DCPPacketHandlerCommandStationConnected(command));
                 command->setStatus(Disconnected);
                 break;
+            case DCP_CMDBYE:
+                command->setDroneId(DCP_IDNULL);
+                command->setSessionIdDrone(DCP_IDNULL);
+                command->setSessionIdCentralStation(DCP_IDCENTRAL);
+                command->setHandler(
+                            new DCPPacketHandlerCommandStationHello(command));
+                command->setStatus(Init);
+                break;
             default:
                 break;
             }
