@@ -346,6 +346,16 @@ void DCPCommandDisconnect::handle(DCPPacketHandlerInterface *handler)
     handler->handleCommandDisconnect(this);
 }
 
+QString DCPCommandDisconnect::toString()
+{
+    QString str("--- DCPCommandDisconnect ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+
+    return str;
+}
+
 
 /*
  * DCP -- Packet Factory.

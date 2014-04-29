@@ -245,6 +245,8 @@ public:
     DCPCommandDisconnect(qint8 sessID=DCP_SESSIDCENTRAL,
                                  qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
+
+    QString toString();
 };
 
 /*
