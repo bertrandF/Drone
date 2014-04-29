@@ -40,7 +40,8 @@ void DCPServer::sendPacket(DCPPacket *packet)
     {
         qDebug() << "Send success for:";
         qDebug() << packet->toString();
-        this->moveToAckQueue(packet);
+        if(packet->getCommandID() != DCP_CMDACK)
+            this->moveToAckQueue(packet);
     }
     else
     {
