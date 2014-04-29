@@ -130,3 +130,21 @@ bool DCPServerCentral::addNewSession(qint8 sessId, qint8 droneId,
     qWarning() << "Sucessfully added new session:" << query.lastQuery();
     return true;
 }
+
+bool DCPServerCentral::deleteSession(qint8 sessId)
+{
+    QSqlQuery query(this->db);
+    query.prepare("DELETE FROM " + QString(DCP_DBSESSIONSTABLE) +
+                  " WHERE id = ?");
+    query.bindValue(0, sessId);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully deleted session:" << query.lastQuery();
+    return true;
+}

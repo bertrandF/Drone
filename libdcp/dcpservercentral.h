@@ -44,6 +44,7 @@ public:
     bool    addNewRemote(DCPCommandHelloFromRemote::remoteType type, qint8 id,
                          QHostAddress addr, quint8 port, QString description);
     bool    addNewSession(qint8 sessId, qint8 droneId, qint8 remoteId);
+    bool    deleteSession(qint8 sessId);
 
 private:
     QSqlDatabase db;
