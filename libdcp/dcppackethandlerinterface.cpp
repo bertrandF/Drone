@@ -299,7 +299,7 @@ void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet
                 command->setSessionIdDrone(DCP_IDNULL);
                 command->setHandler(
                             new DCPPacketHandlerCommandStationConnected(command));
-                command->setStatus(NotConnected);
+                command->setStatus(Disconnected);
                 break;
             default:
                 break;

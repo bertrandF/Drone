@@ -82,7 +82,8 @@ void DCPServerCommand::sayHello(QString description)
 
 void DCPServerCommand::connectToDrone(qint8 id)
 {
-    if(this->getStatus() != NotConnected) return;
+    enum DCPServerCommandStatus status = this->getStatus();
+    if(status != NotConnected &&  status != Disconnected) return;
 
     this->setStatus(Connecting);
     DCPCommandConnectToDrone *conn = new DCPCommandConnectToDrone(

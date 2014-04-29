@@ -34,7 +34,7 @@
 
 enum DCPServerCommandStatus {
     Init, SayingHello, NotConnected, Connecting, Connected, Disconnecting,
-    Stopping, Stopped};
+    Disconnected, Stopping, Stopped};
 
 class DCPServerCommand : public DCPServer
 {
