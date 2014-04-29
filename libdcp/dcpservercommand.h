@@ -33,7 +33,8 @@
 
 
 enum DCPServerCommandStatus {
-    Init, SayingHello, NotConnected, Connecting, Connected, Stopping, Stopped};
+    Init, SayingHello, NotConnected, Connecting, Connected, Disconnecting,
+    Stopping, Stopped};
 
 class DCPServerCommand : public DCPServer
 {
@@ -66,6 +67,7 @@ public:
 
     void            sayHello(QString description);
     void            connectToDrone(qint8 id);
+    void            disconnectFromDrone();
 
 signals:
     void statusChanged(enum DCPServerCommandStatus status);

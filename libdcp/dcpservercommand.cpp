@@ -93,3 +93,16 @@ void DCPServerCommand::connectToDrone(qint8 id)
     conn->setTimestamp(this->time.elapsed());
     this->sendPacket(conn);
 }
+
+void DCPServerCommand::disconnectFromDrone()
+{
+    if(this->getStatus() != Connected) return;
+
+    this->setStatus(Disconnecting);
+    DCPCommandDisconnect *disc = new DCPCommandDisconnect(
+                this->sessIdCentralStation);
+    disc->setAddrDst(this->addrCentralStation);
+    disc->setPortDst(this->portCentralStation);
+    disc->setTimestamp(this->time.elapsed());
+    this->sendPacket(disc);
+}
