@@ -36,7 +36,7 @@
 #define DCP_CMDHELLOFROMREMOTE      ((qint8)0x07)
 #define DCP_CMDBYE                  ((qint8)0x08)
 #define DCP_CMDCONNECTTODRONE       ((qint8)0x09)
-#define DCP_CMDUNCONNECTFROMDRONE   ((qint8)0x0A)
+#define DCP_CMDDISCONNECT           ((qint8)0x0A)
 
 
 /* --- DEFAULTS IDS --- */

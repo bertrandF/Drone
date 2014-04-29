@@ -362,25 +362,25 @@ QString DCPCommandConnectToDrone::toString()
 
 
 /*
- * DCP -- Unconnect from Drone.
+ * DCP -- Discconnect / Kill session.
  * */
-DCPCommandUnconnectFromDrone::DCPCommandUnconnectFromDrone(qint8 sessID, qint32 timestamp) :
-    DCPPacket(DCP_CMDUNCONNECTFROMDRONE, sessID, timestamp)
+DCPCommandDisconnect::DCPCommandDisconnect(qint8 sessID, qint32 timestamp) :
+    DCPPacket(DCP_CMDDISCONNECT, sessID, timestamp)
 {}
 
-void DCPCommandUnconnectFromDrone::handle(DCPPacketHandlerInterface *handler)
+void DCPCommandDisconnect::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandUnconnectFromDrone(this);
 }
 
-QByteArray DCPCommandUnconnectFromDrone::buildPayload()
+QByteArray DCPCommandDisconnect::buildPayload()
 {
     this->payload.clear();
     this->payload.append((char)this->droneID);
     return this->payload;
 }
 
-void DCPCommandUnconnectFromDrone::unbuildPayload()
+void DCPCommandDisconnect::unbuildPayload()
 {
     if(this->payload.length() != 1) return;
 
@@ -438,8 +438,8 @@ DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
         packet = new DCPCommandConnectToDrone();
         packet->buildFromData(data, len);
         break;
-    case DCP_CMDUNCONNECTFROMDRONE:
-        packet = new DCPCommandUnconnectFromDrone();
+    case DCP_CMDDISCONNECT:
+        packet = new DCPCommandDisconnect();
         packet->buildFromData(data, len);
         break;
     default:

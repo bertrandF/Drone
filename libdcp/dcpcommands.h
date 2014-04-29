@@ -257,14 +257,14 @@ private:
 };
 
 /*
- * DCP -- Unconnect from Drone.
+ * DCP -- Discconnect / Kill session.
  * */
-class DCPCommandUnconnectFromDrone : public DCPPacket
+class DCPCommandDisconnect : public DCPPacket
 {
     friend class DCPPacketFactory;
 
 public:
-    DCPCommandUnconnectFromDrone(qint8 sessID=DCP_SESSIDCENTRAL,
+    DCPCommandDisconnect(qint8 sessID=DCP_SESSIDCENTRAL,
                                  qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
