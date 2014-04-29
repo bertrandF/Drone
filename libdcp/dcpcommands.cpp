@@ -295,6 +295,16 @@ void DCPCommandBye::handle(DCPPacketHandlerInterface *handler)
     handler->handleCommandBye(this);
 }
 
+QString DCPCommandBye::toString()
+{
+    QString str("--- DCPCommandBye ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+
+    return str;
+}
+
 /*
  * DCP -- Connect to Drone.
  * */
