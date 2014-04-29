@@ -30,9 +30,11 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+    QString strAddr = a.arguments().at(1);
+    QString strPort = a.arguments().at(2);
 
     QUdpSocket *sock = new QUdpSocket();
-    sock->bind(QHostAddress("192.168.0.25"), 5866);
+    sock->bind(QHostAddress(strAddr), strPort.toInt());
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName("127.0.0.1");
