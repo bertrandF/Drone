@@ -397,9 +397,7 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
     if((remote = this->findRegisteredRemoteBySessId(packet->getSessionID()))
             != NULL)
     {
-        // TODO: check with DB & get next sessID
-
-        qint8 droneSessId = 9;
+        qint8 droneSessId = central->nextSessId();
         DCPCommandSetSessID *sess = new DCPCommandSetSessID(
                     packet->getSessionID());
         sess->setAddrDst(packet->getAddrDst());
