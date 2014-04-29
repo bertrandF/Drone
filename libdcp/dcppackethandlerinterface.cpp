@@ -187,8 +187,7 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandIsAlive(DCPPacket 
             dynamic_cast<DCPServerCommand*> (this->server);
     qint8 packetSessId = packet->getSessionID();
 
-    if(packetSessId == command->getSessionIdDrone() ||
-            packetSessId == command->getSessionIdCentralStation())
+    if(packetSessId == command->getSessionIdCentralStation())
     {
         DCPCommandAck *ack = new DCPCommandAck(packetSessId);
         ack->setTimestamp(packet->getTimestamp());
