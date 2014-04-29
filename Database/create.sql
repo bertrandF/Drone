@@ -19,13 +19,23 @@ CREATE SEQUENCE sessions_id_seq
 	MINVALUE 1
 	MAXVALUE 15
 	START WITH 1
-	CYCLE;
+	NO CYCLE;
 
 CREATE TABLE sessions (
 	id				smallint	DEFAULT nextval('sessions_id_seq') PRIMARY KEY,
 	iddrone		integer 	REFERENCES drones (id) NOT NULL,
-	idstation	integer 	REFERENCES command_stations (id) NOT NULL,
+	idcommand	integer 	REFERENCES command_stations (id) NOT NULL,
 	date			timestamp	with time zone NOT NULL
 );
 
-ALTER SEQUENCE sessions_id_seq OWNED BY sessions.id;
+CREATE TABLE sessions_central_drones (
+	id			smallint 		DEFAULT nextval('sessions_id_seq') PRIMARY KEY,
+	iddrone	integer			REFERENCES drones (id) NOT NULL,
+	date		timestamp with time zone NOT NULL
+);
+
+CREATE TABLE sessions_central_commands (
+	id				smallint 		DEFAULT nextval('sessions_id_seq') PRIMARY KEY,
+	idcommand	integer			REFERENCES command_stations (id) NOT NULL,
+	date			timestamp with time zone NOT NULL
+);
