@@ -283,7 +283,31 @@ void DCPPacketHandlerCommandStationConnected::handleCommandIsAlive(DCPPacket *pa
 {}
 
 void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet)
-{}
+{
+    DCPServerCommand *command = dynamic_cast<DCPServerCommand*> (this->server);
+
+    if(packet->getSessionID() == command->getSessionIdCentralStation())
+    {
+        DCPPacket* ackedPacket =
+                command->findInAckQueue(packet->getTimestamp());
+        if(ackedPacket != NULL)
+        {
+            switch(ackedPacket->getCommandID())
+            {
+            case DCP_CMDDISCONNECT:
+                command->setDroneId(DCP_IDNULL);
+                command->setSessionIdDrone(DCP_IDNULL);
+                command->setHandler(
+                            new DCPPacketHandlerCommandStationConnected(command));
+                command->setStatus(NotConnected);
+                break;
+            default:
+                break;
+            }
+            command->removeFromAckQueue(ackedPacket);
+        }
+    }
+}
 
 void DCPPacketHandlerCommandStationConnected::handleCommandThrottle(DCPPacket *packet)
 {}
