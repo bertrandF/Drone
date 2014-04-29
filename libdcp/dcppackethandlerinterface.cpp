@@ -116,9 +116,6 @@ void DCPPacketHandlerCommandStationHello::handleCommandThrottle(DCPPacket *packe
 void DCPPacketHandlerCommandStationHello::handleCommandSetSessID(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCommandStationHello::handleCommandUnsetSessID(DCPPacket *packet)
-{}
-
 void DCPPacketHandlerCommandStationHello::handleCommandHelloFromRemote(
         DCPPacket *packet)
 {}
@@ -165,7 +162,7 @@ void DCPPacketHandlerCommandStationHello::handleCommandBye(DCPPacket *packet)
 void DCPPacketHandlerCommandStationHello::handleCommandConnectToDrone(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCommandStationHello::handleCommandUnconnectFromDrone(
+void DCPPacketHandlerCommandStationHello::handleCommandDisconnect(
         DCPPacket *packet)
 {}
 
@@ -248,9 +245,6 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandSetSessID(DCPPacke
     }
 }
 
-void DCPPacketHandlerCommandStationNotConnected::handleCommandUnsetSessID(DCPPacket *packet)
-{}
-
 void DCPPacketHandlerCommandStationNotConnected::handleCommandHelloFromRemote(
         DCPPacket *packet)
 {}
@@ -265,7 +259,7 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandBye(DCPPacket *pac
 void DCPPacketHandlerCommandStationNotConnected::handleCommandConnectToDrone(DCPPacket *packet)
 {}
 
-void DCPPacketHandlerCommandStationNotConnected::handleCommandUnconnectFromDrone(
+void DCPPacketHandlerCommandStationNotConnected::handleCommandDisconnect(
         DCPPacket *packet)
 {}
 
@@ -333,9 +327,6 @@ void DCPPacketHandlerCentralStation::handleCommandThrottle(DCPPacket *packet)
 {}
 
 void DCPPacketHandlerCentralStation::handleCommandSetSessID(DCPPacket *packet)
-{}
-
-void DCPPacketHandlerCentralStation::handleCommandUnsetSessID(DCPPacket *packet)
 {}
 
 void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *packet)
@@ -412,8 +403,7 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
     }
 }
 
-void DCPPacketHandlerCentralStation::handleCommandUnconnectFromDrone(
-        DCPPacket *packet)
+void DCPPacketHandlerCentralStation::handleCommandDisconnect(DCPPacket *packet)
 {}
 
 struct newRemote* DCPPacketHandlerCentralStation::findNewRemoteByPacket(

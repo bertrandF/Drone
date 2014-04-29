@@ -122,28 +122,6 @@ private:
     qint8   droneSessId;
 };
 
-/*
- * DCP -- Unset SessID.
- * */
-class DCPCommandUnsetSessID : public DCPPacket
-{
-    friend class DCPPacketFactory;
-
-public:
-    DCPCommandUnsetSessID(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
-    void handle(DCPPacketHandlerInterface *handler);
-
-protected:
-    QByteArray  buildPayload();
-    void        unbuildPayload();
-
-private:
-    qint8 droneDessID;
-};
-
-
-
-
 
 /*
  * DCP -- Hello From Remote Node
@@ -267,13 +245,6 @@ public:
     DCPCommandDisconnect(qint8 sessID=DCP_SESSIDCENTRAL,
                                  qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
-
-protected:
-    QByteArray  buildPayload();
-    void        unbuildPayload();
-
-private:
-    qint8 droneID;
 };
 
 /*

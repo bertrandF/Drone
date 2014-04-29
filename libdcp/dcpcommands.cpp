@@ -155,33 +155,6 @@ QString DCPCommandSetSessID::toString()
     return str;
 }
 
-
-/*
- * DCP -- Unset SessID.
- * */
-DCPCommandUnsetSessID::DCPCommandUnsetSessID(qint8 sessID, qint32 timestamp) :
-    DCPPacket(DCP_CMDUNSETSESSID, sessID, timestamp)
-{}
-
-void DCPCommandUnsetSessID::handle(DCPPacketHandlerInterface *handler)
-{
-    handler->handleCommandUnsetSessID(this);
-}
-
-QByteArray DCPCommandUnsetSessID::buildPayload()
-{
-    this->payload.clear();
-    this->payload.append((char)this->droneDessID);
-    return this->payload;
-}
-
-void DCPCommandUnsetSessID::unbuildPayload()
-{
-    if(this->payload.length() != 1) return;
-
-    this->droneDessID = this->payload.at(0);
-}
-
 /*
  * DCP -- Hello From Remote.
  * */
@@ -370,21 +343,7 @@ DCPCommandDisconnect::DCPCommandDisconnect(qint8 sessID, qint32 timestamp) :
 
 void DCPCommandDisconnect::handle(DCPPacketHandlerInterface *handler)
 {
-    handler->handleCommandUnconnectFromDrone(this);
-}
-
-QByteArray DCPCommandDisconnect::buildPayload()
-{
-    this->payload.clear();
-    this->payload.append((char)this->droneID);
-    return this->payload;
-}
-
-void DCPCommandDisconnect::unbuildPayload()
-{
-    if(this->payload.length() != 1) return;
-
-    this->droneID = this->payload.at(0);
+    handler->handleCommandDisconnect(this);
 }
 
 
@@ -416,10 +375,6 @@ DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
         break;
     case DCP_CMDSETSESSID:
         packet = new DCPCommandSetSessID();
-        packet->buildFromData(data, len);
-        break;
-    case DCP_CMDUNSETSESSID:
-        packet = new DCPCommandUnsetSessID();
         packet->buildFromData(data, len);
         break;
     case DCP_CMDHELLOFROMREMOTE:
