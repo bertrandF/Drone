@@ -279,7 +279,21 @@ void DCPPacketHandlerCommandStationConnected::handleCommandAilerons(DCPPacket *p
 {}
 
 void DCPPacketHandlerCommandStationConnected::handleCommandIsAlive(DCPPacket *packet)
-{}
+{
+    DCPServerCommand *command =
+            dynamic_cast<DCPServerCommand*> (this->server);
+    qint8 packetSessId = packet->getSessionID();
+
+    if(packetSessId == command->getSessionIdCentralStation() ||
+            packetSessId == command->getSessionIdDrone())
+    {
+        DCPCommandAck *ack = new DCPCommandAck(packetSessId);
+        ack->setTimestamp(packet->getTimestamp());
+        ack->setAddrDst(packet->getAddrDst());
+        ack->setPortDst(packet->getPortDst());
+        command->sendPacket(ack);
+    }
+}
 
 void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet)
 {
