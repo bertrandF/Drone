@@ -114,7 +114,7 @@ bool DCPServerCentral::addNewSession(qint8 sessId, qint8 droneId,
 {
     QSqlQuery query(this->db);
     query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSTABLE) +
-                  "VALUES (?, ?, ?, ?)");
+                  " VALUES (?, ?, ?, ?)");
     query.bindValue(0, sessId);
     query.bindValue(1, droneId);
     query.bindValue(2, remoteId);
