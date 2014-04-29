@@ -61,6 +61,8 @@ public:
     // TODO: Make avaliable only to friends
     void            setSessionIdDrone(qint8 sessIdDrone);
     void            setSessionIdCentralStation(qint8 sessIdCentralStation);
+    inline void     setDroneId(qint8 id)
+        { this->droneId = id; }
 
     void            sayHello(QString description);
     void            connectToDrone(qint8 id);
@@ -69,6 +71,7 @@ signals:
     void statusChanged(enum DCPServerCommandStatus status);
 
 protected:
+    qint8           droneId;
     qint8           sessIdDrone;
     qint8           sessIdCentralStation;
     QHostAddress    addrDrone;

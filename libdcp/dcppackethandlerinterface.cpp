@@ -234,6 +234,7 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandSetSessID(DCPPacke
         if(conn)
         {
             command->setSessionIdDrone(sess->getDroneSessId());
+            command->setDroneId(conn->getDroneId());
             command->removeFromAckQueue(conn);
 
             DCPCommandAck *ack = new DCPCommandAck(packetSessId);

@@ -23,6 +23,7 @@
 
 DCPServerCommand::DCPServerCommand(QUdpSocket *sock) :
     DCPServer(sock),
+    droneId(DCP_IDNULL),
     sessIdDrone(DCP_IDNULL),
     sessIdCentralStation(DCP_SESSIDCENTRAL),
     status(Init)
