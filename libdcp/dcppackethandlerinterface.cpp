@@ -149,9 +149,9 @@ void DCPPacketHandlerCommandStationHello::handleCommandHelloFromCentral(
 
             command->setMyId(IdCommand);
             command->setSessionIdCentralStation(sessIdCentral);
-            command->setStatus(NotConnected);
             command->setHandler(
                         new DCPPacketHandlerCommandStationNotConnected(command));
+            command->setStatus(NotConnected);
         }
     }
 }
@@ -240,9 +240,9 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandSetSessID(DCPPacke
             ack->setTimestamp(packet->getTimestamp());
             command->sendPacket(ack);
 
-            command->setStatus(Connected);
             command->setHandler(
                         new DCPPacketHandlerCommandStationConnected(command));
+            command->setStatus(Connected);
         }
     }
 }
