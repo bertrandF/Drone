@@ -63,6 +63,7 @@ public:
     session_central_t*   addNewSessionCentralDrone(qint8 iddrone);
     session_central_t*   addNewSessionCentralCommand(qint8 idcommand);
     bool        deleteSessionForCommandId(qint8 id);
+    bool        deleteCommandById(qint8 id);
     remote_t*   getCommandFromCentralSessionId(qint8 id);
 
 private:

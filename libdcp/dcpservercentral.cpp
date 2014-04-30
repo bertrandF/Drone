@@ -269,6 +269,24 @@ bool DCPServerCentral::deleteSessionForCommandId(qint8 id)
     return true;
 }
 
+bool DCPServerCentral::deleteCommandById(qint8 id)
+{
+    QSqlQuery query(this->db);
+    query.prepare("DELETE FROM " + QString(DCP_DBCOMMANDSTATIONSTABLE) +
+                  " WHERE id = ?");
+    query.bindValue(0, id);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully deleted Command Station:" << query.lastQuery();
+    return true;
+}
+
 DCPServerCentral::remote_t*
 DCPServerCentral::getCommandFromCentralSessionId(qint8 id)
 {
