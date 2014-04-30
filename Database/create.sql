@@ -46,3 +46,5 @@ CREATE TABLE sessions_central_commands (
 	idcommand	integer			REFERENCES command_stations (id) NOT NULL,
 	date			timestamp with time zone NOT NULL default current_timestamp
 );
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO dronedbreader;
