@@ -268,3 +268,32 @@ bool DCPServerCentral::deleteSession(qint8 id)
     qWarning() << "Sucessfully deleted Session:" << query.lastQuery();
     return true;
 }
+
+DCPServerCentral::remote_t*
+DCPServerCentral::getCommandFromCentralSessionId(qint8 id)
+{
+    DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
+
+    QSqlQuery query(this->db);
+    query.prepare("SELECT idcommand, ip, port, command_stations.date, info "
+                  "FROM command_stations "
+                  "INNER JOIN sessions_central_commands "
+                  "ON command_stations.id=sessions_central_commands.idcommand "
+                  "WHERE sessions_central_commands.id=?");
+    query.bindValue(0, id);
+    if(!query.exec() || !query.next())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+
+    remote->id      = query.value(0).toInt();
+    remote->addr    = QHostAddress(query.value(1).toString());
+    remote->port    = query.value(2).toInt();
+    remote->date    = query.value(3).toDateTime();
+    remote->info    = query.value(4).toString();
+
+    return remote;
+}
