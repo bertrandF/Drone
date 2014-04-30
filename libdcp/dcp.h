@@ -53,11 +53,18 @@
 /* --- DataBase query --- */
 #define DCP_DBQUERYERROR                ((qint8)-1)
 #define DCP_DBNOAVALIABLEIDS            ((qint8)-2)
+
 #define DCP_DBCOMMANDSTATIONSTABLE      "command_stations"
 #define DCP_DBDRONESTABLE               "drones"
 #define DCP_DBSESSIONSTABLE             "sessions"
 #define DCP_DBSESSIONSCENTRALDRONES     "sessions_central_drones"
 #define DCP_DBSESSIONSCENTRALCOMMANDS   "sessions_central_commands"
+
+#define DCP_DBCOMMANDSCOLUMNS           "(ip, port, info)"
+#define DCP_DBDRONESCOLUMNS             "(ip, port, info)"
+#define DCP_DBSESSIONSCOLUMNS           "(iddrone, idcommand)"
+#define DCP_DBSESSIONSCOMMANDSCOLUMNS   "(idcommand)"
+#define DCP_DBSESSIONSDRONESCOLUMNS     "(iddrone)"
 
 /* --- REMOTE TYPES --- */
 #define DCP_REMOTETYPECOMMANDSTATION    ((char)'C')
