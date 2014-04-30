@@ -269,6 +269,24 @@ bool DCPServerCentral::deleteSession(qint8 id)
     return true;
 }
 
+bool DCPServerCentral::deleteSessionForCommandId(qint8 id)
+{
+    QSqlQuery query(this->db);
+    query.prepare("DELETE FROM " + QString(DCP_DBSESSIONSTABLE) +
+                  " WHERE idcommand = ?");
+    query.bindValue(0, id);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully deleted Session:" << query.lastQuery();
+    return true;
+}
+
 DCPServerCentral::remote_t*
 DCPServerCentral::getCommandFromCentralSessionId(qint8 id)
 {
