@@ -57,8 +57,8 @@ public:
         QDateTime date;
     } session_central_t;
     // TODO: make avaliable only to packet handler
-    remote_t*   addNewDrone(QHostAddress addr, quint8 port, QString info);
-    remote_t*   addNewCommandStation(QHostAddress addr, quint8 port, QString info);
+    remote_t*   addNewDrone(QHostAddress addr, quint16 port, QString info);
+    remote_t*   addNewCommandStation(QHostAddress addr, quint16 port, QString info);
     session_t*  addNewSession(qint8 iddrone, qint8 idcommand);
     session_central_t*   addNewSessionCentralDrone(qint8 iddrone);
     session_central_t*   addNewSessionCentralCommand(qint8 idcommand);

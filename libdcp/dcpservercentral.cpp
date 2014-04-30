@@ -34,7 +34,7 @@ DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db) :
 }
 
 DCPServerCentral::remote_t*
-DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
+DCPServerCentral::addNewDrone(QHostAddress addr, quint16 port, QString info)
 {
     DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
 
@@ -79,7 +79,7 @@ DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
 }
 
 DCPServerCentral::remote_t*
-DCPServerCentral::addNewCommandStation(QHostAddress addr, quint8 port,
+DCPServerCentral::addNewCommandStation(QHostAddress addr, quint16 port,
                                        QString info)
 {
     DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
@@ -236,7 +236,7 @@ DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
     query.clear();
     query.prepare("SELECT id, date FROM " +
                   QString(DCP_DBSESSIONSCENTRALCOMMANDS) +
-                  " WHERE iddrone=?");
+                  " WHERE idcommand=?");
     query.bindValue(0, idcommand);
     if(!query.exec() || !query.next())
     {
