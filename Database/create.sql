@@ -1,5 +1,12 @@
-﻿CREATE TABLE command_stations (
-	id 		smallserial 	PRIMARY KEY,
+﻿CREATE SEQUENCE remotes_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 10
+	START WITH 1
+	NO CYCLE;
+
+CREATE TABLE command_stations (
+	id 		smallint		 	DEFAULT nextval('remotes_id_seq') PRIMARY KEY,
 	ip		inet					NOT NULL,
 	port	integer				CHECK (port>0) CHECK (port<65536),
 	date	timestamp			with time zone NOT NULL default current_timestamp,
@@ -7,7 +14,7 @@
 );
 
 CREATE TABLE drones (
-	id		smallserial	PRIMARY KEY,
+	id		smallint		DEFAULT nextval('remotes_id_seq') PRIMARY KEY,
 	ip		inet				NOT NULL,
 	port	integer			CHECK (port>0) CHECK (port<65536),
 	date	timestamp		with time zone NOT NULL default current_timestamp,
