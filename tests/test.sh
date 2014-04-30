@@ -41,6 +41,7 @@ usage_db()
 	echo "Actions:"
 	echo "  create    Executes create.sql script."
 	echo "  drop      Executes drop.sql script."
+	echo "  dump      Dumps tables."
 	echo "  fill      Executes dummy.sql script."
 	echo "  help      Prints help this message."
 	echo "  inter     Interactive psql session."
@@ -65,6 +66,17 @@ test_db()
 		psql -d $DBNAME -U $DBUSER -f $DBCREATEFILE
 	elif [ "$2" == "drop" ]; then
 		psql -d $DBNAME -U $DBUSER -f $DBDROPFILE
+	elif [ "$2" == "dump" ]; then
+		echo "/**** command_station ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM command_stations'
+		echo "/**** drones ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM drones'
+		echo "/**** sessions ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions'
+		echo "/**** sessions_central_commands ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions_central_commands'
+		echo "/**** sessions_central_drones ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions_central_drones'
 	elif [ "$2" == "fill" ]; then
 		psql -d $DBNAME -U $DBUSER -f $DBFILLFILE_1
 	elif [ "$2" == "help" ]; then
