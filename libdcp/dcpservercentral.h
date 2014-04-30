@@ -26,6 +26,7 @@
 #include <QHostAddress>
 #include <QString>
 #include <QUdpSocket>
+#include <QDateTime>
 
 #include <dcp.h>
 #include <dcpserver.h>
@@ -37,13 +38,31 @@ class DCPServerCentral : public DCPServer
 public:
     DCPServerCentral(QUdpSocket *socket, QSqlDatabase db);
 
+    typedef struct remote_s {
+        qint8 id;
+        QHostAddress addr;
+        quint16 port;
+        QDateTime date;
+        QString info;
+    } remote_t;
+    typedef struct session_s {
+        qint8 id;
+        qint8 iddrone;
+        qint8 idcommand;
+        QDateTime date;
+    } session_t;
+    typedef struct session_central_s {
+        qint8 id;
+        qint8 idremote;
+        QDateTime date;
+    } session_central_t;
     // TODO: make avaliable only to packet handler
-    bool    addNewDrone(QHostAddress addr, quint8 port, QString info);
-    bool    addNewCommandStation(QHostAddress addr, quint8 port, QString info);
-    bool    addNewSession(qint8 iddrone, qint8 idcommand);
-    bool    addNewSessionCentralDrone(qint8 iddrone);
-    bool    addNewSessionCentralCommand(qint8 idcommand);
-    bool    deleteSession(qint8 id);
+    remote_t*   addNewDrone(QHostAddress addr, quint8 port, QString info);
+    remote_t*   addNewCommandStation(QHostAddress addr, quint8 port, QString info);
+    session_t*  addNewSession(qint8 iddrone, qint8 idcommand);
+    session_central_t*   addNewSessionCentralDrone(qint8 iddrone);
+    session_central_t*   addNewSessionCentralCommand(qint8 idcommand);
+    bool        deleteSession(qint8 id);
 
 private:
     QSqlDatabase db;

@@ -33,8 +33,12 @@ DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db) :
     this->handler = new DCPPacketHandlerCentralStation(this);
 }
 
-bool DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
+DCPServerCentral::remote_t*
+DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
 {
+    DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
+
+    // Insert new entry
     QSqlQuery query(this->db);
     query.prepare("INSERT INTO " + QString(DCP_DBDRONESTABLE) + " " +
                   QString(DCP_DBDRONESCOLUMNS) + " VALUES (?, ?, ?)");
@@ -46,16 +50,41 @@ bool DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
-        return false;
+        return NULL;
     }
 
     qWarning() << "Sucessfully added new Drone:" << query.lastQuery();
-    return true;
+    remote->addr = addr;
+    remote->port = port;
+    remote->info = info;
+
+    // Get new entry id and date
+    query.clear();
+    query.prepare("SELECT (id, date) FROM " + QString(DCP_DBDRONESTABLE) +
+                  " WHERE ip=? AND port=? AND info=?");
+    query.bindValue(0, addr.toString());
+    query.bindValue(1, port);
+    query.bindValue(2, info);
+    if(!query.exec() || !query.next())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    remote->id      = query.value(0).toInt();
+    remote->date    = query.value(1).toDateTime();
+
+    return remote;
 }
 
-bool DCPServerCentral::addNewCommandStation(QHostAddress addr, quint8 port,
-                                            QString info)
+DCPServerCentral::remote_t*
+DCPServerCentral::addNewCommandStation(QHostAddress addr, quint8 port,
+                                       QString info)
 {
+    DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
+
+    // Insert new entry
     QSqlQuery query(this->db);
     query.prepare("INSERT INTO " + QString(DCP_DBCOMMANDSTATIONSTABLE) + " " +
                   QString(DCP_DBCOMMANDSCOLUMNS) + " VALUES (?, ?, ?)");
@@ -67,15 +96,41 @@ bool DCPServerCentral::addNewCommandStation(QHostAddress addr, quint8 port,
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
-        return false;
+        return NULL;
     }
 
     qWarning() << "Sucessfully added new Command Station:" << query.lastQuery();
-    return true;
+    remote->addr = addr;
+    remote->port = port;
+    remote->info = info;
+
+    // Get new entry id and date
+    query.clear();
+    query.prepare("SELECT (id, date) FROM " +
+                  QString(DCP_DBCOMMANDSTATIONSTABLE) +
+                  " WHERE ip=? AND port=? AND info=?");
+    query.bindValue(0, addr.toString());
+    query.bindValue(1, port);
+    query.bindValue(2, info);
+    if(!query.exec() || !query.next())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    remote->id      = query.value(0).toInt();
+    remote->date    = query.value(1).toDateTime();
+
+    return remote;
 }
 
-bool DCPServerCentral::addNewSession(qint8 iddrone, qint8 idcommand)
+DCPServerCentral::session_t*
+DCPServerCentral::addNewSession(qint8 iddrone, qint8 idcommand)
 {
+    DCPServerCentral::session_t* session = new DCPServerCentral::session_t;
+
+    // Insert new entry
     QSqlQuery query(this->db);
     query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSTABLE) + " " +
                   QString(DCP_DBSESSIONSCOLUMNS) + " VALUES (?, ?)");
@@ -86,15 +141,39 @@ bool DCPServerCentral::addNewSession(qint8 iddrone, qint8 idcommand)
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
-        return false;
+        return NULL;
     }
 
     qWarning() << "Sucessfully added new Session:" << query.lastQuery();
-    return true;
+    session->iddrone    = iddrone;
+    session->idcommand  = idcommand;
+
+    // Get new entry id and date
+    query.clear();
+    query.prepare("SELECT (id, date) FROM " + QString(DCP_DBSESSIONSTABLE) +
+                  " WHERE iddrone=? AND idcommand=?");
+    query.bindValue(0, iddrone);
+    query.bindValue(1, idcommand);
+    if(!query.exec() || !query.next())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    session->id      = query.value(0).toInt();
+    session->date    = query.value(1).toDateTime();
+
+    return session;
 }
 
-bool DCPServerCentral::addNewSessionCentralDrone(qint8 iddrone)
+DCPServerCentral::session_central_t*
+DCPServerCentral::addNewSessionCentralDrone(qint8 iddrone)
 {
+    DCPServerCentral::session_central_t* session =
+            new DCPServerCentral::session_central_t;
+
+    // Insert new entry
     QSqlQuery query(this->db);
     query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSCENTRALDRONES) + " " +
                   QString(DCP_DBSESSIONSDRONESCOLUMNS) + " VALUES (?)");
@@ -104,16 +183,39 @@ bool DCPServerCentral::addNewSessionCentralDrone(qint8 iddrone)
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
-        return false;
+        return NULL;
     }
 
     qWarning() << "Sucessfully added new Session central/drone:"
                << query.lastQuery();
-    return true;
+    session->idremote = iddrone;
+
+    // Get new entry id and date
+    query.clear();
+    query.prepare("SELECT (id, date) FROM " +
+                  QString(DCP_DBSESSIONSCENTRALDRONES) +
+                  " WHERE iddrone=?");
+    query.bindValue(0, iddrone);
+    if(!query.exec() || !query.next())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    session->id      = query.value(0).toInt();
+    session->date    = query.value(1).toDateTime();
+
+    return session;
 }
 
-bool DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
+DCPServerCentral::session_central_t*
+DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
 {
+    DCPServerCentral::session_central_t* session =
+            new DCPServerCentral::session_central_t;
+
+    // Insert new entry
     QSqlQuery query(this->db);
     query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSCENTRALCOMMANDS) + " " +
                   QString(DCP_DBSESSIONSCOMMANDSCOLUMNS) + " VALUES (?)");
@@ -123,12 +225,30 @@ bool DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
-        return false;
+        return NULL;
     }
 
     qWarning() << "Sucessfully added new Session central/command:"
                << query.lastQuery();
-    return true;
+    session->idremote = idcommand;
+
+    // Get new entry id and date
+    query.clear();
+    query.prepare("SELECT (id, date) FROM " +
+                  QString(DCP_DBSESSIONSCENTRALCOMMANDS) +
+                  " WHERE iddrone=?");
+    query.bindValue(0, idcommand);
+    if(!query.exec() || !query.next())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    session->id      = query.value(0).toInt();
+    session->date    = query.value(1).toDateTime();
+
+    return session;
 }
 
 bool DCPServerCentral::deleteSession(qint8 id)
