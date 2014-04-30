@@ -2,7 +2,7 @@
 	id 		smallserial 	PRIMARY KEY,
 	ip		inet					NOT NULL,
 	port	integer				CHECK (port>0) CHECK (port<65536),
-	date	timestamp			with time zone NOT NULL,
+	date	timestamp			with time zone NOT NULL default current_timestamp,
 	info	varchar(1024)	
 );
 
@@ -10,7 +10,7 @@ CREATE TABLE drones (
 	id		smallserial	PRIMARY KEY,
 	ip		inet				NOT NULL,
 	port	integer			CHECK (port>0) CHECK (port<65536),
-	date	timestamp		with time zone NOT NULL,
+	date	timestamp		with time zone NOT NULL default current_timestamp,
 	info	varchar(1024)	
 );
 
@@ -25,17 +25,17 @@ CREATE TABLE sessions (
 	id				smallint	DEFAULT nextval('sessions_id_seq') PRIMARY KEY,
 	iddrone		integer 	REFERENCES drones (id) NOT NULL,
 	idcommand	integer 	REFERENCES command_stations (id) NOT NULL,
-	date			timestamp	with time zone NOT NULL
+	date			timestamp	with time zone NOT NULL default current_timestamp
 );
 
 CREATE TABLE sessions_central_drones (
 	id			smallint 		DEFAULT nextval('sessions_id_seq') PRIMARY KEY,
 	iddrone	integer			REFERENCES drones (id) NOT NULL,
-	date		timestamp with time zone NOT NULL
+	date		timestamp with time zone NOT NULL default current_timestamp
 );
 
 CREATE TABLE sessions_central_commands (
 	id				smallint 		DEFAULT nextval('sessions_id_seq') PRIMARY KEY,
 	idcommand	integer			REFERENCES command_stations (id) NOT NULL,
-	date			timestamp with time zone NOT NULL
+	date			timestamp with time zone NOT NULL default current_timestamp
 );
