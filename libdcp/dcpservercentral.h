@@ -41,6 +41,8 @@ public:
     bool    addNewDrone(QHostAddress addr, quint8 port, QString info);
     bool    addNewCommandStation(QHostAddress addr, quint8 port, QString info);
     bool    addNewSession(qint8 iddrone, qint8 idcommand);
+    bool    addNewSessionCentralDrone(qint8 iddrone);
+    bool    addNewSessionCentralCommand(qint8 idcommand);
     bool    deleteSession(qint8 id);
 
 private:

@@ -93,6 +93,44 @@ bool DCPServerCentral::addNewSession(qint8 iddrone, qint8 idcommand)
     return true;
 }
 
+bool DCPServerCentral::addNewSessionCentralDrone(qint8 iddrone)
+{
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSCENTRALDRONES) + " " +
+                  QString(DCP_DBSESSIONSDRONESCOLUMNS) + " VALUES (?)");
+    query.bindValue(0, iddrone);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully added new Session central/drone:"
+               << query.lastQuery();
+    return true;
+}
+
+bool DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
+{
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSCENTRALCOMMANDS) + " " +
+                  QString(DCP_DBSESSIONSCOMMANDSCOLUMNS) + " VALUES (?)");
+    query.bindValue(0, idcommand);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully added new Session central/command:"
+               << query.lastQuery();
+    return true;
+}
+
 bool DCPServerCentral::deleteSession(qint8 id)
 {
     QSqlQuery query(this->db);
