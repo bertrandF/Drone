@@ -374,44 +374,16 @@ void DCPPacketHandlerCentralStation::handleCommandIsAlive(DCPPacket *packet)
 void DCPPacketHandlerCentralStation::handleCommandAck(DCPPacket *packet)
 {
     DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
-    struct newRemote* remote;
 
     // Hello Ack
     if(packet->getSessionID() == DCP_SESSIDCENTRAL)
     {
-        DCPPacket* myHello;
-        if((remote=findNewRemoteByPacket(packet))!=NULL &&
-                (myHello=central->findInAckQueue(packet->getTimestamp()))!=NULL)
-        {
-            central->addNewRemote(
-                        (DCPCommandHelloFromRemote::remoteType)remote->type,
-                        remote->id, remote->addr, remote->port,
-                        remote->description);
-            this->pendingRemotes.removeOne(remote);
-            this->registeredRemotes.append(remote);
-            central->removeFromAckQueue(myHello);
-        }
+        // TODO: Remote object confirmed rcv ids
     }
     // Other commands Acks
     else
     {
-        DCPPacket* ackedPacket;
-        if((ackedPacket=central->findInAckQueue(packet->getTimestamp())) != NULL
-                && (remote=this->findRegisteredRemoteBySessId(
-                        packet->getSessionID())) != NULL)
-        {
-            switch(ackedPacket->getCommandID())
-            {
-            case DCP_CMDSETSESSID:
-                central->addNewSession(remote->sessIdDrone, remote->droneId,
-                                       remote->id);
-                central->removeFromAckQueue(ackedPacket);
-                break;
-            default:
-                break;
-            }
-            central->removeFromAckQueue(ackedPacket);
-        }
+        // TODO: If remote object is registered, then process...
     }
 }
 
@@ -434,15 +406,11 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
                 dynamic_cast<DCPCommandHelloFromRemote*>(packet);
         QString description(hello->getDescription());
 
-        if(hello->getRemoteType() ==
-                DCPCommandHelloFromRemote::remoteTypeCommandStation)
-            clientID = central->nextCommandStationId();
-        else if(hello->getRemoteType() ==
-                DCPCommandHelloFromRemote::remoteTypeDrone)
-            clientID = central->nextDroneId();
-        clientSessID = central->nextSessId();
-        // TODO: Handle no more ID avaliables
+        // TODO: Push new ids to db
+        // TODO: handle no more ids
 
+        clientID = 5;
+        clientSessID = 1;
         DCPCommandHelloFromCentralStation *myHello =
                 new DCPCommandHelloFromCentralStation(DCP_SESSIDCENTRAL);
         myHello->setIdRemote(clientID);
@@ -450,18 +418,6 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
         myHello->setAddrDst(packet->getAddrDst());
         myHello->setPortDst(packet->getPortDst());
         central->sendPacket(myHello);
-
-        struct newRemote* remote = new newRemote();
-        remote->description             = description;
-        remote->id                      = clientID;
-        remote->sessIdCentralStation    = clientSessID;
-        remote->droneId                 = DCP_IDNULL;
-        remote->sessIdDrone             = DCP_IDNULL;
-        remote->type                    = hello->getRemoteType();
-        remote->addr                    = hello->getAddrDst();
-        remote->port                    = hello->getPortDst();
-        remote->myHello                 = myHello;
-        this->pendingRemotes.append(remote);
     }
 }
 
@@ -470,21 +426,9 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromCentral(DCPPacket *pa
 
 void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
 {
-    struct newRemote *remote;
     DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
-    if((remote = this->findRegisteredRemoteBySessId(packet->getSessionID()))
-            != NULL)
-    {
-        DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
-        ack->setAddrDst(packet->getAddrDst());
-        ack->setPortDst(packet->getPortDst());
-        ack->setTimestamp(packet->getTimestamp());
-        central->sendPacket(ack);
 
-        if(remote->sessIdDrone != DCP_IDNULL)
-            central->deleteSession(remote->sessIdDrone);
-        this->registeredRemotes.removeOne(remote);
-    }
+    // TODO: Remove all db info on remote object
 }
 
 void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *packet)
@@ -493,63 +437,14 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
             dynamic_cast<DCPServerCentral*> (this->server);
     DCPCommandConnectToDrone *conn =
             dynamic_cast<DCPCommandConnectToDrone*> (packet);
-    struct newRemote* remote;
-    if((remote = this->findRegisteredRemoteBySessId(packet->getSessionID()))
-            != NULL)
-    {
-        qint8 droneSessId = central->nextSessId();
-        DCPCommandSetSessID *sess = new DCPCommandSetSessID(
-                    packet->getSessionID());
-        sess->setAddrDst(packet->getAddrDst());
-        sess->setPortDst(packet->getPortDst());
-        sess->setDroneSessId(droneSessId);
-        sess->setTimestamp(packet->getTimestamp());
-        central->sendPacket(sess);
 
-        remote->sessIdDrone = droneSessId;
-        remote->droneId     = conn->getDroneId();
-    }
+    // If remote exists: push new data to db
 }
 
 void DCPPacketHandlerCentralStation::handleCommandDisconnect(DCPPacket *packet)
 {
     struct newRemote *remote;
     DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
-    if((remote = this->findRegisteredRemoteBySessId(packet->getSessionID()))
-            != NULL)
-    {
-        DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
-        ack->setAddrDst(packet->getAddrDst());
-        ack->setPortDst(packet->getPortDst());
-        ack->setTimestamp(packet->getTimestamp());
-        central->sendPacket(ack);
 
-        central->deleteSession(remote->sessIdDrone);
-        remote->sessIdDrone = DCP_IDNULL;
-        remote->droneId     = DCP_IDNULL;
-    }
-}
-
-struct newRemote* DCPPacketHandlerCentralStation::findNewRemoteByPacket(
-        DCPPacket *packet)
-{
-    struct newRemote *remote;
-    foreach (remote, this->pendingRemotes) {
-        if(remote->addr == packet->getAddrDst() &&
-                remote->port == packet->getPortDst() &&
-                remote->myHello->getTimestamp() == packet->getTimestamp())
-            return remote;
-    }
-    return NULL;
-}
-
-struct newRemote* DCPPacketHandlerCentralStation::findRegisteredRemoteBySessId(
-        qint8 sessId)
-{
-    struct newRemote *remote;
-    foreach (remote, this->registeredRemotes) {
-        if(remote->sessIdCentralStation == sessId)
-            return remote;
-    }
-    return NULL;
+    // TODO: remove session drone/cmd from db
 }

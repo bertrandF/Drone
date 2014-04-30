@@ -141,18 +141,6 @@ public:
 /*
  * CENTRAL STATION -- Packet Handler for central station normal operations
  * */
-struct newRemote {
-    QString         description;
-    qint8           id;
-    qint8           sessIdCentralStation;
-    qint8           droneId;
-    qint8           sessIdDrone;
-    int             type;
-    QHostAddress    addr;
-    quint16         port;
-    DCPCommandHelloFromCentralStation* myHello;
-};
-
 class DCPPacketHandlerCentralStation : public DCPPacketHandlerInterface
 {
 public:
@@ -170,11 +158,6 @@ public:
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandDisconnect            (DCPPacket* packet);
 
-private:
-    QList<struct newRemote*>    pendingRemotes;
-    QList<struct newRemote*>    registeredRemotes;
-    struct newRemote*           findNewRemoteByPacket(DCPPacket* packet);
-    struct newRemote*           findRegisteredRemoteBySessId(qint8 sessId);
 };
 
 #endif // DCPPACKETHANDLERINTERFACE_H
