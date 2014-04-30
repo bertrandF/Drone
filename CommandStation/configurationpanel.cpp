@@ -154,9 +154,12 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
         {
             while(query.next())
             {
+
                 this->ui->dronesListComboBox->addItem(
                             query.value(0).toString() + " -- " +
-                            query.value(1).toString());
+                            query.value(1).toString(),
+                            QVariant(query.value(0).toInt())
+                            );
             }
             this->db.close();
         }
@@ -249,8 +252,8 @@ void ConfigurationPanel::on_nextButton_clicked()
         return;
     }
     else
-        this->cmdP->droneId = this->ui->dronesListComboBox->currentIndex();
-
+        this->cmdP->droneId =
+            this->ui->dronesListComboBox->currentData().toInt();
 
     emit signal_configuration_done(this->cmdP);
 }
