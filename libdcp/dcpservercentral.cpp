@@ -33,70 +33,14 @@ DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db) :
     this->handler = new DCPPacketHandlerCentralStation(this);
 }
 
-qint8 DCPServerCentral::nextDroneId()
+bool DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
 {
-    QSqlQuery query("SELECT max(id) FROM drones", this->db);
-    if(query.next())
-    {
-        qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
-        return ((currentMax>=0x0F) ?
-                    DCP_DBNOAVALIABLEIDS : currentMax+1 );
-    }
-    return DCP_DBQUERYERROR;
-}
-
-qint8 DCPServerCentral::nextCommandStationId()
-{
-    QSqlQuery query("SELECT max(id) FROM command_stations", this->db);
-    if(query.next())
-    {
-        qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
-        return ((currentMax>=0x0F) ?
-                    DCP_DBNOAVALIABLEIDS : currentMax+1 );
-    }
-    return DCP_DBQUERYERROR;
-}
-
-qint8 DCPServerCentral::nextSessId()
-{
-    QSqlQuery query("SELECT max(id) FROM sessions", this->db);
-    if(query.next())
-    {
-        qint8 currentMax = (qint8)(query.value(0).toInt() & (int)0x0F);
-        return ((currentMax>=0x0F) ?
-                    DCP_DBNOAVALIABLEIDS : currentMax+1 );
-    }
-    return DCP_DBQUERYERROR;
-}
-
-bool DCPServerCentral::addNewRemote(
-        DCPCommandHelloFromRemote::remoteType type, qint8 id, QHostAddress addr,
-        quint8 port, QString description)
-{
-    QString table;
-    switch(type)
-    {
-    case DCPCommandHelloFromRemote::remoteTypeCommandStation:
-        table = DCP_DBCOMMANDSTATIONSTABLE;
-        break;
-    case DCPCommandHelloFromRemote::remoteTypeDrone:
-        table = DCP_DBDRONESTABLE;
-        break;
-    default:
-        qWarning() << "DCPServerCentral: Got request to add remote for"
-                      "something not a drone nor a command station!";
-        return false;
-    }
-
-
     QSqlQuery query(this->db);
-    query.prepare("INSERT INTO " + table +
-                  " VALUES (?, ?, ?, ?, ?)");
-    query.bindValue(0, id);
-    query.bindValue(1, addr.toString());
-    query.bindValue(2, port);
-    query.bindValue(3, QDateTime::currentDateTime().toString(Qt::ISODate));
-    query.bindValue(4, description);
+    query.prepare("INSERT INTO " + QString(DCP_DBDRONESTABLE) + " " +
+                  QString(DCP_DBDRONESCOLUMNS) + " VALUES (?, ?, ?)");
+    query.bindValue(0, addr.toString());
+    query.bindValue(1, port);
+    query.bindValue(2, info);
     if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
@@ -105,20 +49,19 @@ bool DCPServerCentral::addNewRemote(
         return false;
     }
 
-    qWarning() << "Sucessfully added new remote:" << query.lastQuery();
+    qWarning() << "Sucessfully added new Drone:" << query.lastQuery();
     return true;
 }
 
-bool DCPServerCentral::addNewSession(qint8 sessId, qint8 droneId,
-                                     qint8 remoteId)
+bool DCPServerCentral::addNewCommandStation(QHostAddress addr, quint8 port,
+                                            QString info)
 {
     QSqlQuery query(this->db);
-    query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSTABLE) +
-                  " VALUES (?, ?, ?, ?)");
-    query.bindValue(0, sessId);
-    query.bindValue(1, droneId);
-    query.bindValue(2, remoteId);
-    query.bindValue(3, QDateTime::currentDateTime().toString(Qt::ISODate));
+    query.prepare("INSERT INTO " + QString(DCP_DBCOMMANDSTATIONSTABLE) + " " +
+                  QString(DCP_DBCOMMANDSCOLUMNS) + " VALUES (?, ?, ?)");
+    query.bindValue(0, addr.toString());
+    query.bindValue(1, port);
+    query.bindValue(2, info);
     if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
@@ -127,16 +70,35 @@ bool DCPServerCentral::addNewSession(qint8 sessId, qint8 droneId,
         return false;
     }
 
-    qWarning() << "Sucessfully added new session:" << query.lastQuery();
+    qWarning() << "Sucessfully added new Command Station:" << query.lastQuery();
     return true;
 }
 
-bool DCPServerCentral::deleteSession(qint8 sessId)
+bool DCPServerCentral::addNewSession(qint8 iddrone, qint8 idcommand)
+{
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + QString(DCP_DBSESSIONSTABLE) + " " +
+                  QString(DCP_DBSESSIONSCOLUMNS) + " VALUES (?, ?)");
+    query.bindValue(0, iddrone);
+    query.bindValue(1, idcommand);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully added new Session:" << query.lastQuery();
+    return true;
+}
+
+bool DCPServerCentral::deleteSession(qint8 id)
 {
     QSqlQuery query(this->db);
     query.prepare("DELETE FROM " + QString(DCP_DBSESSIONSTABLE) +
                   " WHERE id = ?");
-    query.bindValue(0, sessId);
+    query.bindValue(0, id);
     if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
@@ -145,6 +107,6 @@ bool DCPServerCentral::deleteSession(qint8 sessId)
         return false;
     }
 
-    qWarning() << "Sucessfully deleted session:" << query.lastQuery();
+    qWarning() << "Sucessfully deleted Session:" << query.lastQuery();
     return true;
 }

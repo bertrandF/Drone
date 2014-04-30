@@ -38,13 +38,10 @@ public:
     DCPServerCentral(QUdpSocket *socket, QSqlDatabase db);
 
     // TODO: make avaliable only to packet handler
-    qint8   nextDroneId();
-    qint8   nextCommandStationId();
-    qint8   nextSessId();
-    bool    addNewRemote(DCPCommandHelloFromRemote::remoteType type, qint8 id,
-                         QHostAddress addr, quint8 port, QString description);
-    bool    addNewSession(qint8 sessId, qint8 droneId, qint8 remoteId);
-    bool    deleteSession(qint8 sessId);
+    bool    addNewDrone(QHostAddress addr, quint8 port, QString info);
+    bool    addNewCommandStation(QHostAddress addr, quint8 port, QString info);
+    bool    addNewSession(qint8 iddrone, qint8 idcommand);
+    bool    deleteSession(qint8 id);
 
 private:
     QSqlDatabase db;
