@@ -60,7 +60,7 @@ DCPServerCentral::addNewDrone(QHostAddress addr, quint8 port, QString info)
 
     // Get new entry id and date
     query.clear();
-    query.prepare("SELECT (id, date) FROM " + QString(DCP_DBDRONESTABLE) +
+    query.prepare("SELECT id, date FROM " + QString(DCP_DBDRONESTABLE) +
                   " WHERE ip=? AND port=? AND info=?");
     query.bindValue(0, addr.toString());
     query.bindValue(1, port);
@@ -106,7 +106,7 @@ DCPServerCentral::addNewCommandStation(QHostAddress addr, quint8 port,
 
     // Get new entry id and date
     query.clear();
-    query.prepare("SELECT (id, date) FROM " +
+    query.prepare("SELECT id, date FROM " +
                   QString(DCP_DBCOMMANDSTATIONSTABLE) +
                   " WHERE ip=? AND port=? AND info=?");
     query.bindValue(0, addr.toString());
@@ -150,7 +150,7 @@ DCPServerCentral::addNewSession(qint8 iddrone, qint8 idcommand)
 
     // Get new entry id and date
     query.clear();
-    query.prepare("SELECT (id, date) FROM " + QString(DCP_DBSESSIONSTABLE) +
+    query.prepare("SELECT id, date FROM " + QString(DCP_DBSESSIONSTABLE) +
                   " WHERE iddrone=? AND idcommand=?");
     query.bindValue(0, iddrone);
     query.bindValue(1, idcommand);
@@ -192,7 +192,7 @@ DCPServerCentral::addNewSessionCentralDrone(qint8 iddrone)
 
     // Get new entry id and date
     query.clear();
-    query.prepare("SELECT (id, date) FROM " +
+    query.prepare("SELECT id, date FROM " +
                   QString(DCP_DBSESSIONSCENTRALDRONES) +
                   " WHERE iddrone=?");
     query.bindValue(0, iddrone);
@@ -234,7 +234,7 @@ DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
 
     // Get new entry id and date
     query.clear();
-    query.prepare("SELECT (id, date) FROM " +
+    query.prepare("SELECT id, date FROM " +
                   QString(DCP_DBSESSIONSCENTRALCOMMANDS) +
                   " WHERE iddrone=?");
     query.bindValue(0, idcommand);
