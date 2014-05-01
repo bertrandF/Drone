@@ -151,18 +151,22 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
         this->ui->dronesListComboBox->clear();
         this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
 
-        QString queryStr = QString("SELECT id,info FROM " DCP_DBDRONESTABLE);
+        QString queryStr = QString("SELECT id, ip, port, info FROM "
+                                   DCP_DBDRONESTABLE);
         QSqlQuery query(db);
         if(query.exec(queryStr))
         {
             while(query.next())
             {
+                QMap<QString, QVariant> userData;
+                userData.insert("id", QVariant(query.value(0).toInt()));
+                userData.insert("ip", QVariant(query.value(1).toString()));
+                userData.insert("port", QVariant(query.value(2).toInt()));
+                userData.insert("info", QVariant(query.value(3).toString()));
 
                 this->ui->dronesListComboBox->addItem(
                             query.value(0).toString() + " -- " +
-                            query.value(1).toString(),
-                            QVariant(query.value(0).toInt())
-                            );
+                            query.value(3).toString(), userData);
             }
             this->db.close();
         }
@@ -255,8 +259,14 @@ void ConfigurationPanel::on_nextButton_clicked()
         return;
     }
     else
-        this->cmdP->droneId =
-            this->ui->dronesListComboBox->currentData().toInt();
+    {
+        QMap<QString, QVariant> userData =
+            this->ui->dronesListComboBox->currentData().toMap();
+        this->cmdP->droneId     = userData.value("id").toInt();
+        this->cmdP->droneHost   = QHostAddress(userData.value("ip").toString());
+        this->cmdP->dronePort   = userData.value("port").toInt();
+        this->cmdP->droneInfo   = userData.value("info").toString();
+    }
 
     emit signal_configuration_done(this->cmdP);
 }
