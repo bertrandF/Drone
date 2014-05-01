@@ -46,13 +46,14 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     ui->dcpServerInterface->addItem("AddressAny ( * )");
     foreach (interface, QNetworkInterface::allInterfaces()) {
         if(!interface.addressEntries().isEmpty())
-        {
-            ComboBoxItem *item =
-                    new ComboBoxItem(interface.name().append(" ( ").append(
-                                         interface.addressEntries().first().ip()
-                                         .toString()).append(" )"), interface);
-            ui->dcpServerInterface->addItem(*item);
-            this->interfaces.append(item);
+        {   
+            QString text = interface.name().
+                    append(" ( ").
+                    append(interface.addressEntries().first().ip().toString()).
+                    append(" ) ");
+            QVariant userData = QVariant(
+                        interface.addressEntries().first().ip().toString() );
+            ui->dcpServerInterface->addItem(text, userData);
         }
     }
 
@@ -223,9 +224,8 @@ void ConfigurationPanel::on_nextButton_clicked()
        this->cmdP->dcpServerHost = QHostAddress::Any;
     else
     {
-        ComboBoxItem *interface = this->interfaces.at(
-                    ui->dcpServerInterface->currentIndex()-1);
-        this->cmdP->dcpServerHost = interface->allAddresses().first();
+        QString addr = this->ui->dcpServerInterface->currentData().toString();
+        this->cmdP->dcpServerHost = QHostAddress(addr);
     }
     this->cmdP->dcpServerPort = this->ui->dcpServerPort->value();
 

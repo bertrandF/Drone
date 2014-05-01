@@ -51,17 +51,6 @@ private:
     Ui::ConfigurationPanel  *ui;
     CommandStationParameters *cmdP;
     QSqlDatabase    db;
-
-    class ComboBoxItem : public QString, public QNetworkInterface
-    {
-    public:
-        ComboBoxItem(QString str, QNetworkInterface interface) :
-            QString(str),
-            QNetworkInterface(interface)
-        {}
-    };
-
-    QList<ComboBoxItem*> interfaces;
 };
 
 #endif // CONFIGURATIONPANEL_H
