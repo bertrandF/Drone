@@ -66,6 +66,7 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     QUdpSocket *sock = new QUdpSocket();
     sock->bind(cmdP->dcpServerHost, cmdP->dcpServerPort);
     this->commandServer = new DCPServerCommand(sock);
+    this->commandServer->setDroneHost(cmdP->droneHost, cmdP->dronePort);
     this->commandServer->setCentralStationHost(cmdP->centralStationHost,
                                                cmdP->centralStationPort);
     connect(this->commandServer, SIGNAL(statusChanged(DCPServerCommandStatus)),
