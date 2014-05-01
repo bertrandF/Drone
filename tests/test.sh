@@ -67,16 +67,12 @@ test_db()
 	elif [ "$2" == "drop" ]; then
 		psql -d $DBNAME -U $DBUSER -f $DBDROPFILE
 	elif [ "$2" == "dump" ]; then
-		echo "/**** command_station ****/"
-		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM command_stations'
-		echo "/**** drones ****/"
-		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM drones'
+		echo "/**** stations ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM stations'
 		echo "/**** sessions ****/"
 		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions'
-		echo "/**** sessions_central_commands ****/"
-		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions_central_commands'
-		echo "/**** sessions_central_drones ****/"
-		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions_central_drones'
+		echo "/**** logs ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM logs'
 	elif [ "$2" == "fill" ]; then
 		psql -d $DBNAME -U $DBUSER -f $DBFILLFILE_1
 	elif [ "$2" == "help" ]; then
