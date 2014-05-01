@@ -31,7 +31,7 @@
 #include "dcp.h"
 #include "commandstationparameters.h"
 
-
+#define DRONESCOMBOBOX_WELCOMEMSG   " -- Please select a drone -- "
 
 ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     QWidget(parent),
@@ -57,7 +57,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     }
 
     this->db = QSqlDatabase::addDatabase("QPSQL", DBREADER_CONNECTIONNAME);
-    this->ui->dronesListComboBox->addItem(" -- Please select a drone -- ");
+    this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
 
     connect(this->ui->frontVideoUrl, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
     connect(this->ui->dbServerHost, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
@@ -148,6 +148,9 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
 
     if(db.open())
     {
+        this->ui->dronesListComboBox->clear();
+        this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
+
         QString queryStr = QString("SELECT id,info FROM " DCP_DBDRONESTABLE);
         QSqlQuery query(db);
         if(query.exec(queryStr))
