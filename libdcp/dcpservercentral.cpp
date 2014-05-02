@@ -28,9 +28,9 @@
 
 DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db) :
     DCPServer(sock),
-    myID(DCP_IDCENTRAL),
     db(db)
 {
+    this->myID = DCP_IDCENTRAL;
     this->handler = new DCPPacketHandlerCentralStation(this);
 }
 
@@ -66,11 +66,16 @@ DCPServerCentral::addNewDrone(QHostAddress addr, quint16 port, QString info)
     query.bindValue(0, addr.toString());
     query.bindValue(1, port);
     query.bindValue(2, info);
-    if(!query.exec() || !query.next())
+    if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
+        return NULL;
+    }
+    if(!query.next())
+    {
+        // TODO: log ?
         return NULL;
     }
     remote->id      = query.value(0).toInt();
@@ -112,11 +117,16 @@ DCPServerCentral::addNewCommandStation(QHostAddress addr, quint16 port,
     query.bindValue(0, addr.toString());
     query.bindValue(1, port);
     query.bindValue(2, info);
-    if(!query.exec() || !query.next())
+    if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
+        return NULL;
+    }
+    if(!query.next())
+    {
+        // TODO: log ?
         return NULL;
     }
     remote->id      = query.value(0).toInt();
@@ -154,11 +164,16 @@ DCPServerCentral::addNewSession(qint8 station1, qint8 station2)
                   " WHERE station1=? AND station2=?");
     query.bindValue(0, station1);
     query.bindValue(1, station2);
-    if(!query.exec() || !query.next())
+    if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
+        return NULL;
+    }
+    if(!query.next())
+    {
+        // TODO: log ?
         return NULL;
     }
     session->id      = query.value(0).toInt();
@@ -186,25 +201,6 @@ bool DCPServerCentral::deleteSession(qint8 id)
     return true;
 }
 
-bool DCPServerCentral::deleteSessionsForStation(qint8 id)
-{
-    QSqlQuery query(this->db);
-    query.prepare("DELETE FROM " + QString(DCP_DBSESSIONS) +
-                  " WHERE id=?");
-    query.bindValue(0, id);
-    if(!query.exec())
-    {
-        qWarning() << query.lastError().driverText() << endl;
-        qWarning() << query.lastError().databaseText() << endl;
-        qWarning() << query.lastQuery();
-        return false;
-    }
-
-    qWarning() << "Sucessfully deleted Session for station id" << id << " :"
-               << query.lastQuery();
-    return true;
-}
-
 bool DCPServerCentral::deleteStationById(qint8 id)
 {
     QSqlQuery query(this->db);
@@ -223,39 +219,14 @@ bool DCPServerCentral::deleteStationById(qint8 id)
 }
 
 DCPServerCentral::session_t*
-DCPServerCentral::getSessionFromId(qint8 id)
+DCPServerCentral::getDroneSessionForStation(qint8 id)
 {
     DCPServerCentral::session_t* session = new DCPServerCentral::session_t;
 
-    // Get session
-    QSqlQuery query(this->db);
-    query.prepare("SELECT station1, station2, date FROM " +
-                  QString(DCP_DBSESSIONS) + " WHERE id=?");
-    query.bindValue(0, id);
-    if(!query.exec() || !query.next())
-    {
-        qWarning() << query.lastError().driverText() << endl;
-        qWarning() << query.lastError().databaseText() << endl;
-        qWarning() << query.lastQuery();
-        return NULL;
-    }
-    session->id         = id;
-    session->station1   = query.value(0).toInt();
-    session->station2   = query.value(1).toInt();
-    session->date       = query.value(2).toDateTime();
-
-    return session;
-}
-
-QList<DCPServerCentral::session_t*>
-DCPServerCentral::getSessionsForStation(qint8 id)
-{
-    QList<DCPServerCentral::session_t*> sessions;
-
-    // Get sessions
     QSqlQuery query(this->db);
     query.prepare("SELECT id, station1, station2, date FROM " +
-                  QString(DCP_DBSESSIONS) + " WHERE station1=? OR station2=?");
+                  QString(DCP_DBSESSIONS) + " WHERE (station1=? OR station2=?)"
+                  " AND (station1!=0 AND station2!=0)");
     query.bindValue(0, id);
     query.bindValue(1, id);
     if(!query.exec())
@@ -265,83 +236,47 @@ DCPServerCentral::getSessionsForStation(qint8 id)
         qWarning() << query.lastQuery();
         return NULL;
     }
-
-    while(query.next())
+    if(!query.next())
     {
-        DCPServerCentral::session_t* session = new DCPServerCentral::session_t;
-        session->id         = query.value(0).toInt();
-        session->station1   = query.value(1).toInt();
-        session->station2   = query.value(2).toInt();
-        session->date       = query.value(3).toDateTime();
-        sessions.append(session);
+        // TODO: log ?
+        return NULL;
     }
 
-    return sessions;
+    session->id = query.value(0).toInt();
+    session->station1 = query.value(1).toInt();
+    session->station2 = query.value(2).toInt();
+    session->date = QDateTime::fromString(query.value(3).toString());
+
+    return session;
 }
 
-DCPServerCentral::remote_t**
-DCPServerCentral::getStationsFromSessionId(qint8 id)
+DCPServerCentral::remote_t*
+DCPServerCentral::stationIsDrone(qint8 id)
 {
-    DCPServerCentral::remote_t** remoteTab = new DCPServerCentral::remote_t*[2];
-    remoteTab[0] = new DCPServerCentral::remote_t;
-    remoteTab[1] = new DCPServerCentral::remote_t;
+    DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
 
     QSqlQuery query(this->db);
-    query.prepare("SELECT t1.id, t1.type, t1.ip, t1.port, t1.date, t1.info,"
-                  " sess.id, t2.id, t2.type, t2.ip, t2.port, t2.date, t2.info"
-                  " FROM (SELECT * FROM sessions WHERE sessions.id=?)"
-                  " AS sess"
-                  " LEFT JOIN stations t1 ON t1.id=sess.station1"
-                  " LEFT JOIN stations t2 ON t2.id=sess.station2");
+    query.prepare("SELECT type, ip, port, date, info FROM " +
+                  QString(DCP_DBSTATIONS) + " WHERE type='drone' AND id=?");
     query.bindValue(0, id);
-    if(!query.exec() || !query.next())
+    if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
         return NULL;
     }
-
-    remoteTab[0]->id     = query.value(0).toInt();
-    remoteTab[0]->type   = query.value(1).toString();
-    remoteTab[0]->addr   = QHostAddress(query.value(2).toString());
-    remoteTab[0]->port   = query.value(3).toInt();
-    remoteTab[0]->date   = query.value(4).toDateTime();
-    remoteTab[0]->info   = query.value(5).toString();
-
-    remoteTab[1]->id     = query.value(7).toInt();
-    remoteTab[1]->type   = query.value(8).toString();
-    remoteTab[1]->addr   = QHostAddress(query.value(9).toString());
-    remoteTab[1]->port   = query.value(10).toInt();
-    remoteTab[1]->date   = query.value(11).toDateTime();
-    remoteTab[1]->info   = query.value(12).toString();
-
-    return remoteTab;
-}
-
-DCPServerCentral::remote_t*
-DCPServerCentral::stationIsDrone(qint8 id)
-{
-    DCPServerCentral::remote_t* remote;
-
-    QSqlQuery query(this->db);
-    query.prepare("SELECT type, ip, port, date, info" +
-                  " FROM " +  QString(DCP_DBSTATIONS) +
-                  " WHERE type='drone' AND id=?");
-    query.bindValue(0, id);
-    if(!query.exec() || !query.next())
+    if(!query.next())
     {
-        qWarning() << query.lastError().driverText() << endl;
-        qWarning() << query.lastError().databaseText() << endl;
-        qWarning() << query.lastQuery();
+        // TODO: log ?
         return NULL;
     }
 
     remote->id      = id;
     remote->type    = query.value(0).toString();
     remote->addr    = QHostAddress(query.value(1).toString());
-    remote->port    = query.value(2).toString();
-    remote->date    = QDateTime(query.value(3).toString());
+    remote->port    = query.value(2).toInt();
+    remote->date    = QDateTime::fromString(query.value(3).toString());
     remote->info    = query.value(4).toString();
 
     return remote;
@@ -350,26 +285,30 @@ DCPServerCentral::stationIsDrone(qint8 id)
 DCPServerCentral::remote_t*
 DCPServerCentral::stationIsCommand(qint8 id)
 {
-    DCPServerCentral::remote_t* remote;
+    DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
 
     QSqlQuery query(this->db);
-    query.prepare("SELECT type, ip, port, date, info" +
-                  " FROM " +  QString(DCP_DBSTATIONS) +
-                  " WHERE type='command' AND id=?");
+    query.prepare("SELECT type, ip, port, date, info FROM " +
+                  QString(DCP_DBSTATIONS) + " WHERE type='command' AND id=?");
     query.bindValue(0, id);
-    if(!query.exec() || !query.next())
+    if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
         return NULL;
     }
+    if(!query.next())
+    {
+        // TODO: log ?
+        return NULL;
+    }
 
     remote->id      = id;
     remote->type    = query.value(0).toString();
     remote->addr    = QHostAddress(query.value(1).toString());
-    remote->port    = query.value(2).toString();
-    remote->date    = QDateTime(query.value(3).toString());
+    remote->port    = query.value(2).toInt();
+    remote->date    = QDateTime::fromString(query.value(3).toString());
     remote->info    = query.value(4).toString();
 
     return remote;
@@ -378,25 +317,30 @@ DCPServerCentral::stationIsCommand(qint8 id)
 DCPServerCentral::session_t*
 DCPServerCentral::sessionIsCentral(qint8 id)
 {
-    DCPServerCentral::session_t* session;
+    DCPServerCentral::session_t* session = new DCPServerCentral::session_t;
 
     QSqlQuery query(this->db);
-    query.prepare("SELECT station1, station2, date" +
-                  " FROM " +  QString(DCP_DBSESSIONS) +
+    query.prepare("SELECT station1, station2, date FROM " +
+                  QString(DCP_DBSESSIONS) +
                   " WHERE id=? AND (station1=0 OR station2=0)");
     query.bindValue(0, id);
-    if(!query.exec() || !query.next())
+    if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
         qWarning() << query.lastError().databaseText() << endl;
         qWarning() << query.lastQuery();
         return NULL;
     }
+    if(!query.next())
+    {
+        // TODO: log ?
+        return NULL;
+    }
 
     session->id         = id;
     session->station1   = query.value(0).toInt();
     session->station2   = query.value(1).toInt();
-    session->date       = QDateTime(query.value(2).toString());
+    session->date       = QDateTime::fromString(query.value(2).toString());
 
     return session;
 }

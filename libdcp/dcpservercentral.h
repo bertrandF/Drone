@@ -59,12 +59,9 @@ public:
     session_t*  addNewSession(qint8 station1, qint8 station2);
 
     bool        deleteSession(qint8 id);
-    bool        deleteSessionsForStation(qint8 id);
     bool        deleteStationById(qint8 id);
 
-    session_t*          getSessionFromId(qint8 id);
-    QList<session_t*>   getSessionsForStation(qint8 id);
-    remote_t**          getStationsFromSessionId(qint8 id);
+    session_t*  getDroneSessionForStation(qint8 id);
 
     remote_t*   stationIsDrone(qint8 id);
     remote_t*   stationIsCommand(qint8 id);
