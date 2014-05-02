@@ -192,6 +192,40 @@ private:
 };
 
 
+/*
+ * DCP -- Log message
+ * */
+
+class DCPCommandLog : public DCPPacket
+{
+    friend class DCPPacketFactory;
+
+public:
+    enum logLevel {
+        Info, Warning, Critical, Fatal
+    };
+
+    DCPCommandLog(qint8 sessID=DCP_SESSIDCENTRAL,
+                              qint32 timestamp=0);
+    void handle(DCPPacketHandlerInterface *handler);
+
+    inline void setMsg(QString msg)
+        { this->msg = msg; }
+    inline QString getMsg()
+        { return this->msg; }
+    void setLogLevel(enum logLevel level);
+    enum logLevel getLogLevel();
+
+    QString toString();
+
+protected:
+    QByteArray  buildPayload();
+    void        unbuildPayload();
+
+private:
+    char        level;
+    QString     msg;
+};
 
 
 

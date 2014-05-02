@@ -199,6 +199,8 @@ void CommandPanel::serverStatusChanged(
         this->commandServer->connectToDrone(this->cmdP->droneId);
         break;
     case Connected:
+        this->commandServer->log(DCPCommandLog::Info, "What is the Fuck !");
+        QThread::sleep(3);
         this->commandServer->disconnectFromDrone();
         break;
     case Disconnected:
