@@ -517,6 +517,10 @@ DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
         packet = new DCPCommandHelloFromCentralStation();
         packet->buildFromData(data, len);
         break;
+    case DCP_CMDLOG:
+        packet = new DCPCommandLog();
+        packet->buildFromData(data, len);
+        break;
     case DCP_CMDBYE:
         packet = new DCPCommandBye();
         packet->buildFromData(data, len);
