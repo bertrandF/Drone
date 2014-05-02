@@ -77,6 +77,8 @@ test_db()
 		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions_central_commands'
 		echo "/**** sessions_central_drones ****/"
 		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions_central_drones'
+		echo "/**** logs ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM logs'
 	elif [ "$2" == "fill" ]; then
 		psql -d $DBNAME -U $DBUSER -f $DBFILLFILE_1
 	elif [ "$2" == "help" ]; then
