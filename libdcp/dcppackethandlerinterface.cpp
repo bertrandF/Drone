@@ -448,7 +448,24 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromCentral(DCPPacket *pa
 {}
 
 void DCPPacketHandlerCentralStation::handleCommandLog(DCPPacket *packet)
-{}
+{
+    DCPServerCentral::remote_t *command;
+    DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+    DCPCommandLog *log = dynamic_cast<DCPCommandLog*> (packet);
+
+    command = central->getCommandFromCentralSessionId(packet->getSessionID());
+    if(command)
+    {
+        central->addNewLog(packet->getSessionID(), log->getLogLevel(),
+                           log->getMsg());
+
+        DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
+        ack->setAddrDst(packet->getAddrDst());
+        ack->setPortDst(packet->getPortDst());
+        ack->setTimestamp(packet->getTimestamp());
+        central->sendPacket(ack);
+    }
+}
 
 void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
 {

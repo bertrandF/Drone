@@ -59,12 +59,14 @@
 #define DCP_DBSESSIONSTABLE             "sessions"
 #define DCP_DBSESSIONSCENTRALDRONES     "sessions_central_drones"
 #define DCP_DBSESSIONSCENTRALCOMMANDS   "sessions_central_commands"
+#define DCP_DBLOGSTABLE                 "logs"
 
 #define DCP_DBCOMMANDSCOLUMNS           "(ip, port, info)"
 #define DCP_DBDRONESCOLUMNS             "(ip, port, info)"
 #define DCP_DBSESSIONSCOLUMNS           "(iddrone, idcommand)"
 #define DCP_DBSESSIONSCOMMANDSCOLUMNS   "(idcommand)"
 #define DCP_DBSESSIONSDRONESCOLUMNS     "(iddrone)"
+#define DCP_DBLOGSCOLUMNS               "(level, msg)"
 
 
 

@@ -56,15 +56,20 @@ public:
         qint8 idremote;
         QDateTime date;
     } session_central_t;
+
     // TODO: make avaliable only to packet handler
     remote_t*   addNewDrone(QHostAddress addr, quint16 port, QString info);
     remote_t*   addNewCommandStation(QHostAddress addr, quint16 port, QString info);
     session_t*  addNewSession(qint8 iddrone, qint8 idcommand);
     session_central_t*   addNewSessionCentralDrone(qint8 iddrone);
     session_central_t*   addNewSessionCentralCommand(qint8 idcommand);
+    bool        addNewLog(qint8 sessId, DCPCommandLog::logLevel level,
+                          QString msg);
+
     bool        deleteSessionForCommandId(qint8 id);
     bool        deleteSessionCentralForCommandId(qint8 id);
     bool        deleteCommandById(qint8 id);
+
     remote_t*   getCommandFromCentralSessionId(qint8 id);
 
 private:

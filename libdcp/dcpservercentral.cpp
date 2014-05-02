@@ -251,6 +251,42 @@ DCPServerCentral::addNewSessionCentralCommand(qint8 idcommand)
     return session;
 }
 
+bool DCPServerCentral::addNewLog(qint8 sessId, DCPCommandLog::logLevel level,
+                                 QString msg)
+{
+    QString levelStr;
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + QString(DCP_DBLOGSTABLE) + " " +
+            QString(DCP_DBLOGSCOLUMNS) + " VALUES (?, ?)");
+    switch(level)
+    {
+    case DCPCommandLog::Info:
+        levelStr = QString("Info");
+        break;
+    case DCPCommandLog::Warning:
+        levelStr = QString("Warning");
+        break;
+    case DCPCommandLog::Critical:
+        levelStr = QString("Critical");
+        break;
+    case DCPCommandLog::Fatal:
+        levelStr = QString("Fatal");
+        break;
+    default:
+        return false;
+    }
+    query.bindValue(0, levelStr);
+    query.bindValue(1, "seesID(" + QString::number(sessId) + "): " + msg);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+    return true;
+}
+
 bool DCPServerCentral::deleteSessionForCommandId(qint8 id)
 {
     QSqlQuery query(this->db);
