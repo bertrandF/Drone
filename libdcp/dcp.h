@@ -58,6 +58,11 @@
 #define DCP_DBSESSIONS                  "sessions"
 #define DCP_DBLOGS                      "logs"
 
+#define DCP_DBLOGINFO                   "info"
+#define DCP_DBLOGWARNING                "warning"
+#define DCP_DBLOGCRITICAL               "critical"
+#define DCP_DBLOGFATAL                  "fatal"
+
 
 
 #endif // DCP_H
