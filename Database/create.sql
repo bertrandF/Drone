@@ -21,6 +21,8 @@ CREATE TABLE drones (
 	info	varchar(1024)	
 );
 
+
+
 CREATE SEQUENCE sessions_id_seq 
 	INCREMENT BY 1
 	MINVALUE 1
@@ -46,5 +48,21 @@ CREATE TABLE sessions_central_commands (
 	idcommand	integer			REFERENCES command_stations (id) NOT NULL,
 	date			timestamp with time zone NOT NULL default current_timestamp
 );
+
+
+
+CREATE TYPE logLevel AS ENUM (
+	'Info',
+	'Warning',
+	'Critical',
+	'Fatal'
+);
+
+CREATE TABLE logs (
+	date			timestamp with time zone NOT NULL default current_timestamp,
+	level			logLevel NOT NULL,
+	msg				varchar(2048)
+);
+
 
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO dronedbreader;
