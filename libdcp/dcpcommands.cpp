@@ -20,6 +20,17 @@
 
 #include "dcpcommands.h"
 
+/* --- REMOTE TYPES --- */
+#define DCP_REMOTETYPECOMMANDSTATION    ((char)'C')
+#define DCP_REMOTETYPEDRONE             ((char)'D')
+#define DCP_REMOTETYPENOTSET            ((char)'\0')
+
+/* --- LOG LEVELS --- */
+#define DCP_LOGLEVELINFO                ((char)'I')
+#define DCP_LOGLEVELWARNING             ((char)'W')
+#define DCP_LOGLEVELCRITICAL            ((char)'C')
+#define DCP_LOGLEVELFATAL               ((char)'F')
+
 
 /*
  * DCP -- Ailerons command.
@@ -280,6 +291,107 @@ QString DCPCommandHelloFromCentralStation::toString()
     text << "Remote Id: " << this->IdRemote << endl;
 
     return str;
+}
+
+
+
+
+
+/*
+ * DCP -- Log
+ * */
+DCPCommandLog::DCPCommandLog(qint8 sessID, qint32 timestamp) :
+    DCPPacket(DCP_CMDLOG, sessID, timestamp),
+    level(DCP_LOGLEVELINFO)
+{}
+
+void DCPCommandLog::handle(
+        DCPPacketHandlerInterface *handler)
+{
+    handler->handleCommandLog(this);
+}
+
+QByteArray DCPCommandLog::buildPayload()
+{
+    this->payload.clear();
+    this->payload.append(this->level);
+    this->payload.append(this->msg.toUtf8());
+    return this->payload;
+}
+
+void DCPCommandLog::unbuildPayload()
+{
+    this->level = this->payload.at(0);
+    this->msg   = QString::fromUtf8(this->payload.data()+1);
+}
+
+QString DCPCommandLog::toString()
+{
+    QString str("--- DCPCommandLog ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+    text << "Log Level: ";
+    switch(this->level)
+    {
+    case DCP_LOGLEVELINFO:
+        text << "Info";
+        break;
+    case DCP_LOGLEVELWARNING:
+        text << "Warning";
+        break;
+    case DCP_LOGLEVELCRITICAL:
+        text << "Critical";
+        break;
+    case DCP_LOGLEVELFATAL:
+        text << "Fatal";
+        break;
+    default:
+        text << "Bad log level";
+        break;
+    }
+    text << endl;
+    text << "msg: " << this->msg << endl;
+
+    return str;
+}
+
+void DCPCommandLog::setLogLevel(enum logLevel level)
+{
+    switch(level)
+    {
+    case Info:
+        this->level = DCP_LOGLEVELINFO;
+        break;
+    case Warning:
+        this->level = DCP_LOGLEVELWARNING;
+        break;
+    case Critical:
+        this->level = DCP_LOGLEVELCRITICAL;
+        break;
+    case Fatal:
+        this->level = DCP_LOGLEVELFATAL;
+        break;
+    default:
+        break;
+    }
+}
+
+DCPCommandLog::logLevel DCPCommandLog::getLogLevel()
+{
+    switch(this->level)
+    {
+    case DCP_LOGLEVELINFO:
+        return Info;
+    case DCP_LOGLEVELWARNING:
+        return Warning;
+    case DCP_LOGLEVELCRITICAL:
+        return Critical;
+    case DCP_LOGLEVELFATAL:
+        return Fatal;
+    default:
+        return Info;
+    }
 }
 
 

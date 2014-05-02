@@ -31,7 +31,7 @@
 #define DCP_CMDAILERON              ((qint8)0x02)
 #define DCP_CMDTHROTTLE             ((qint8)0x03)
 #define DCP_CMDSETSESSID            ((qint8)0x04)
-
+#define DCP_CMDLOG                  ((qint8)0x05)
 #define DCP_CMDHELLOFROMCENTRAL     ((qint8)0x06)
 #define DCP_CMDHELLOFROMREMOTE      ((qint8)0x07)
 #define DCP_CMDBYE                  ((qint8)0x08)
@@ -65,11 +65,6 @@
 #define DCP_DBSESSIONSCOLUMNS           "(iddrone, idcommand)"
 #define DCP_DBSESSIONSCOMMANDSCOLUMNS   "(idcommand)"
 #define DCP_DBSESSIONSDRONESCOLUMNS     "(iddrone)"
-
-/* --- REMOTE TYPES --- */
-#define DCP_REMOTETYPECOMMANDSTATION    ((char)'C')
-#define DCP_REMOTETYPEDRONE             ((char)'D')
-#define DCP_REMOTETYPENOTSET            ((char)'\0')
 
 
 

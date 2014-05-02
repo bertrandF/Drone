@@ -121,3 +121,16 @@ void DCPServerCommand::sayByeBye()
     bye->setTimestamp(this->time.elapsed());
     this->sendPacket(bye);
 }
+
+void DCPServerCommand::log(DCPCommandLog::logLevel level, QString msg)
+{
+    if(this->getStatus() < NotConnected) return;
+
+    DCPCommandLog *log = new DCPCommandLog(this->sessIdCentralStation);
+    log->setAddrDst(this->addrCentralStation);
+    log->setPortDst(this->portCentralStation);
+    log->setLogLevel(level);
+    log->setMsg(msg);
+    log->setTimestamp(this->time.elapsed());
+    this->sendPacket(log);
+}

@@ -156,6 +156,9 @@ void DCPPacketHandlerCommandStationHello::handleCommandHelloFromCentral(
     }
 }
 
+void DCPPacketHandlerCommandStationHello::handleCommandLog(DCPPacket *packet)
+{}
+
 void DCPPacketHandlerCommandStationHello::handleCommandBye(DCPPacket *packet)
 {}
 
@@ -254,6 +257,9 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandHelloFromCentral(
         DCPPacket *packet)
 {}
 
+void DCPPacketHandlerCommandStationNotConnected::handleCommandLog(DCPPacket *packet)
+{}
+
 void DCPPacketHandlerCommandStationNotConnected::handleCommandBye(DCPPacket *packet)
 {}
 
@@ -342,6 +348,9 @@ void DCPPacketHandlerCommandStationConnected::handleCommandHelloFromRemote(
 
 void DCPPacketHandlerCommandStationConnected::handleCommandHelloFromCentral(
         DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandLog(DCPPacket *packet)
 {}
 
 void DCPPacketHandlerCommandStationConnected::handleCommandBye(DCPPacket *packet)
@@ -436,6 +445,9 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
 }
 
 void DCPPacketHandlerCentralStation::handleCommandHelloFromCentral(DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCentralStation::handleCommandLog(DCPPacket *packet)
 {}
 
 void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)

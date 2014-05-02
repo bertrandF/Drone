@@ -69,6 +69,7 @@ public:
     void            connectToDrone(qint8 id);
     void            disconnectFromDrone();
     void            sayByeBye();
+    void            log(DCPCommandLog::logLevel level, QString msg);
 
 signals:
     void statusChanged(enum DCPServerCommandStatus status);
