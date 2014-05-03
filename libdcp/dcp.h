@@ -59,6 +59,7 @@
 #define DCP_DBNOAVALIABLEIDS            ((qint8)-2)
 
 #define DCP_DBSTATIONS                  "stations"
+#define DCP_DBVIDEOSERVERS              "videos"
 #define DCP_DBSESSIONS                  "sessions"
 #define DCP_DBLOGS                      "logs"
 

@@ -22,6 +22,11 @@ CREATE TABLE stations (
 
 
 
+CREATE TABLE videos (
+	id			smallint 			REFERENCES stations (id) PRIMARY KEY,
+	videos	varchar(4096)	NOT NULL
+);
+
 
 
 CREATE SEQUENCE sessions_id_seq 

@@ -69,6 +69,8 @@ test_db()
 	elif [ "$2" == "dump" ]; then
 		echo "/**** stations ****/"
 		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM stations'
+		echo "/**** video ****/"
+		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM videos'
 		echo "/**** sessions ****/"
 		psql -d $DBNAME -U $DBUSER -c 'SELECT * FROM sessions'
 		echo "/**** logs ****/"

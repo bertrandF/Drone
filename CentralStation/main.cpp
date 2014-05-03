@@ -51,13 +51,12 @@ int main(int argc, char *argv[])
         DCPServerCentral *central = new DCPServerCentral(sock, db);
 
         QSqlQuery query(db);
-        query.prepare("INSERT INTO " DCP_DBSTATIONS " (id, type, ip, port, info)"
-                      " VALUES (?, ?, ?, ?, ?)");
-        query.bindValue(0, 0);
-        query.bindValue(1, "central");
-        query.bindValue(2, strAddr);
-        query.bindValue(3, strPort.toInt());
-        query.bindValue(4, "Central station in charge of this NET");
+        query.prepare("INSERT INTO " DCP_DBSTATIONS " (type, ip, port, info)"
+                      " VALUES (?, ?, ?, ?)");
+        query.bindValue(0, "central");
+        query.bindValue(1, strAddr);
+        query.bindValue(2, strPort.toInt());
+        query.bindValue(3, "Central station in charge of this NET");
         if(!query.exec())
         {
             qWarning() << query.lastError().driverText() << endl;
