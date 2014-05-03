@@ -71,7 +71,7 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
                                                cmdP->centralStationPort);
     connect(this->commandServer, SIGNAL(statusChanged(DCPServerCommandStatus)),
             this, SLOT(serverStatusChanged(DCPServerCommandStatus)));
-    this->commandServer->sayHello("I am a command station !");
+    this->commandServer->sayHello(cmdP->dcpServerInfo);
 
 
     /* ----- DB SERVER ----- */

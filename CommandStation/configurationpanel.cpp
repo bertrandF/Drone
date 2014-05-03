@@ -26,6 +26,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDateTime>
 
 #include "constants.h"
 #include "dcp.h"
@@ -59,12 +60,6 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
 
     this->db = QSqlDatabase::addDatabase("QPSQL", DBREADER_CONNECTIONNAME);
     this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
-
-    connect(this->ui->frontVideoUrl, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
-    connect(this->ui->dbServerHost, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
-    connect(this->ui->dbName, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
-    connect(this->ui->dbUserName, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
-    connect(this->ui->dbUserPassword, SIGNAL(textEdited(QString)), this, SLOT(confUpdate(QString)));
 }
 
 ConfigurationPanel::~ConfigurationPanel()
@@ -72,12 +67,7 @@ ConfigurationPanel::~ConfigurationPanel()
     delete ui;
 }
 
-void ConfigurationPanel::confUpdate(QString)
-{
-
-}
-
-void ConfigurationPanel::on_getDronesListButton_clicked()
+void ConfigurationPanel::on_getConfigFromDBButton_clicked()
 {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
@@ -152,7 +142,8 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
         this->ui->dronesListComboBox->clear();
         this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
 
-        QString queryStr("SELECT id, ip, port, info FROM " DCP_DBSTATIONS
+        // ---- get drones list ----
+        QString queryStr("SELECT id, ip, port, date, info FROM " DCP_DBSTATIONS
                          " WHERE type='drone'");
         QSqlQuery query(db);
         if(query.exec(queryStr))
@@ -163,18 +154,52 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
                 userData.insert("id", QVariant(query.value(0).toInt()));
                 userData.insert("ip", QVariant(query.value(1).toString()));
                 userData.insert("port", QVariant(query.value(2).toInt()));
-                userData.insert("info", QVariant(query.value(3).toString()));
+                userData.insert("date", QVariant(query.value(3).toDateTime()));
+                userData.insert("info", QVariant(query.value(4).toString()));
 
                 this->ui->dronesListComboBox->addItem(
                             query.value(0).toString() + " -- " +
-                            query.value(3).toString(), userData);
+                            query.value(4).toString(), userData);
             }
-            this->db.close();
         }
         else
         {
             msgBox.setInformativeText("Error while executing query to " \
                                       "retreive drone list:\n" +
+                                      query.lastError().driverText() + "\n" +
+                                      query.lastError().databaseText() + "\n" +
+                                      "Query was:\n" + queryStr);
+            msgBox.exec();
+            this->db.close();
+            return;
+        }
+
+        // ---- get central station ----
+        queryStr.clear();
+        queryStr = "SELECT id, ip, port, date, info FROM " DCP_DBSTATIONS
+                " WHERE type='central'";
+        query.clear();
+        if(query.exec(queryStr))
+        {
+            if(query.next())
+            {
+                ui->centralIPText->setText(query.value(1).toString());
+                ui->centralPortText->setText(query.value(2).toString());
+                ui->centralDateText->setText(query.value(3).toString());
+                ui->centralInfoText->setText(query.value(4).toString());
+            }
+            else
+            {
+                msgBox.setInformativeText("No central station registered in database.");
+                msgBox.exec();
+                this->db.close();
+                return;
+            }
+        }
+        else
+        {
+            msgBox.setInformativeText("Error while executing query to " \
+                                      "retreive central station:\n" +
                                       query.lastError().driverText() + "\n" +
                                       query.lastError().databaseText() + "\n" +
                                       "Query was:\n" + queryStr);
@@ -188,6 +213,20 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
         msgBox.setInformativeText("Cannot open DB!\nCheck your configuration.");
         msgBox.exec();
         return;
+    }
+    this->db.close();
+}
+
+void ConfigurationPanel::on_dronesListComboBox_currentIndexChanged()
+{
+    if(ui->dronesListComboBox->currentIndex() != 0)
+    {
+        QMap<QString, QVariant> userData =
+            this->ui->dronesListComboBox->currentData().toMap();
+        this->ui->droneIPText->setText(userData.value("ip").toString());
+        this->ui->dronePortText->setText(userData.value("port").toString());
+        this->ui->droneDateText->setText(userData.value("date").toString());
+        this->ui->droneInfoText->setText(userData.value("info").toString());
     }
 }
 
@@ -228,27 +267,28 @@ void ConfigurationPanel::on_nextButton_clicked()
         this->cmdP->dcpServerHost = QHostAddress(addr);
     }
     this->cmdP->dcpServerPort = this->ui->dcpServerPort->value();
-
-
-
-    // ---- Central Station setup ----
-    if(this->ui->centralStationHost->text().isEmpty())
+    if(ui->commandInfoText->text().isEmpty())
     {
-        msgBox.setInformativeText("Central Station Host is empty !");
+        msgBox.setInformativeText("Please set Informative text for command Station.");
         msgBox.exec();
         return;
     }
     else
     {
-        QHostInfo info = QHostInfo::fromName(this->ui->centralStationHost->text());
-        if(info.addresses().isEmpty())
-        {
-            msgBox.setInformativeText("Central Station host is not valid !");
-            msgBox.exec();
-            return;
-        }
-        this->cmdP->centralStationHost = info.addresses().first();
-        this->cmdP->centralStationPort = this->ui->centralStationPort->value();
+        this->cmdP->dcpServerInfo = ui->commandInfoText->text();
+    }
+
+    // ---- Central Station setup ----
+    if(this->ui->centralIPText->text().isEmpty())
+    {
+        msgBox.setInformativeText("Please fetch data from Database first.");
+        msgBox.exec();
+        return;
+    }
+    else
+    {
+        this->cmdP->centralStationHost = QHostAddress(ui->centralIPText->text());
+        this->cmdP->centralStationPort = ui->centralPortText->text().toInt();
     }
 
     // ---- Check that a drone is selected ----

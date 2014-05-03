@@ -33,12 +33,14 @@ public:
 
     QHostAddress    dcpServerHost;
     quint16         dcpServerPort;
+    QString         dcpServerInfo;
 
     QHostAddress    dbServerHost;
     quint16         dbServerPort;
     QString         dbName;
     QString         dbUserName;
     QString         dbUserPassword;
+
     qint8           droneId;
     QHostAddress    droneHost;
     quint16         dronePort;

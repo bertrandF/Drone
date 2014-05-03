@@ -37,8 +37,8 @@ class ConfigurationPanel : public QWidget
 
 public slots:
     void on_nextButton_clicked();
-    void on_getDronesListButton_clicked();
-    void confUpdate(QString);
+    void on_getConfigFromDBButton_clicked();
+    void on_dronesListComboBox_currentIndexChanged();
 
 signals:
     void signal_configuration_done(CommandStationParameters *cmdP);
