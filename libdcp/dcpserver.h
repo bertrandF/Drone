@@ -47,6 +47,8 @@ public:
 
     // TODO: Make avaliable only to friends
     void            setMyId(qint8 myID);
+    inline qint8    getMyId()
+        { return this->myID; }
     void            setHandler(DCPPacketHandlerInterface *handler);
 
 public slots:

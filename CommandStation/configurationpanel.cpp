@@ -152,8 +152,8 @@ void ConfigurationPanel::on_getDronesListButton_clicked()
         this->ui->dronesListComboBox->clear();
         this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
 
-        QString queryStr = QString("SELECT id, ip, port, info FROM "
-                                   DCP_DBDRONESTABLE);
+        QString queryStr("SELECT id, ip, port, info FROM " DCP_DBSTATIONS
+                         " WHERE type='drone'");
         QSqlQuery query(db);
         if(query.exec(queryStr))
         {

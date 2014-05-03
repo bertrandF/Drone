@@ -396,50 +396,47 @@ void DCPPacketHandlerCentralStation::handleCommandSetSessID(DCPPacket *packet)
 
 void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *packet)
 {
-    DCPServerCentral::remote_t *command;
-    DCPServerCentral::session_central_t *session;
-
+    DCPServerCentral::remote_t *remote;
+    DCPServerCentral::session_t *session;
     DCPServerCentral *central =
             dynamic_cast<DCPServerCentral*>(this->server);
+
+    // Check is usind default central sessId
     if(packet->getSessionID() == DCP_SESSIDCENTRAL)
     {
         DCPCommandHelloFromRemote *hello =
                 dynamic_cast<DCPCommandHelloFromRemote*>(packet);
-        QString description(hello->getDescription());
+        if(!hello) return; // Not Hello from remote packet = abort
 
-        if(hello->getRemoteType() ==
-                DCPCommandHelloFromRemote::remoteTypeCommandStation)
+        // Switch on remote type
+        switch(hello->getRemoteType())
         {
-            command = central->addNewCommandStation(hello->getAddrDst(),
+        case DCPCommandHelloFromRemote::remoteTypeCommandStation:
+            remote = central->addNewCommandStation(hello->getAddrDst(),
                                           hello->getPortDst(),
                                           hello->getDescription());
-        }
-        else if(hello->getRemoteType() ==
-                DCPCommandHelloFromRemote::remoteTypeDrone)
-        {
-            command = central->addNewDrone(hello->getAddrDst(),
+            break;
+        case DCPCommandHelloFromRemote::remoteTypeDrone:
+            remote = central->addNewDrone(hello->getAddrDst(),
                                           hello->getPortDst(),
                                           hello->getDescription());
-        }
-        else
-        {
-            // TODO: Unknown type
-            return;
+            break;
+        default:
+            // TODO: Unknwon type
+            return; // Abort
         }
 
-        if(command)
+        // If session Id is available
+        if((session = central->addNewSession(central->getMyId(), remote->id))
+                != NULL)
         {
-            session = central->addNewSessionCentralCommand(command->id);
-            if(session)
-            {
-                DCPCommandHelloFromCentralStation *myHello =
-                   new DCPCommandHelloFromCentralStation(DCP_SESSIDCENTRAL);
-                myHello->setIdRemote(session->idremote);
-                myHello->setSessIdCentralStation(session->id);
-                myHello->setAddrDst(packet->getAddrDst());
-                myHello->setPortDst(packet->getPortDst());
-                central->sendPacket(myHello);
-            }
+            DCPCommandHelloFromCentralStation *myHello =
+               new DCPCommandHelloFromCentralStation(DCP_SESSIDCENTRAL);
+            myHello->setIdRemote(remote->id);
+            myHello->setSessIdCentralStation(session->id);
+            myHello->setAddrDst(packet->getAddrDst());
+            myHello->setPortDst(packet->getPortDst());
+            central->sendPacket(myHello);
         }
     }
 }
@@ -449,15 +446,18 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromCentral(DCPPacket *pa
 
 void DCPPacketHandlerCentralStation::handleCommandLog(DCPPacket *packet)
 {
-    DCPServerCentral::remote_t *command;
-    DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+    int remoteId;
+    DCPServerCentral::session_t *sessionCentral;
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*>(this->server);
     DCPCommandLog *log = dynamic_cast<DCPCommandLog*> (packet);
 
-    command = central->getCommandFromCentralSessionId(packet->getSessionID());
-    if(command)
+    // sessId is valid to speak with central station ?
+    if((sessionCentral = central->sessionIsCentral(packet->getSessionID()))
+            != NULL)
     {
-        central->addNewLog(packet->getSessionID(), log->getLogLevel(),
-                           log->getMsg());
+        remoteId = (sessionCentral->station1==0) ? sessionCentral->station2 :
+                                                   sessionCentral->station1;
 
         DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
         ack->setAddrDst(packet->getAddrDst());
@@ -469,16 +469,38 @@ void DCPPacketHandlerCentralStation::handleCommandLog(DCPPacket *packet)
 
 void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
 {
+    int remoteId;
     DCPServerCentral::remote_t *command;
-    DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+    DCPServerCentral::remote_t *drone;
+    DCPServerCentral::session_t *sessionCentral;
+    DCPServerCentral::session_t *sessionDrone;
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*>(this->server);
+    DCPCommandBye *bye =
+            dynamic_cast<DCPCommandBye*> (packet);
 
-    command = central->getCommandFromCentralSessionId(packet->getSessionID());
-    if(command)
+    // sessId is valid to speak with central station ?
+    if((sessionCentral = central->sessionIsCentral(packet->getSessionID()))
+            != NULL)
     {
-        central->deleteSessionForCommandId(command->id);
-        central->deleteSessionCentralForCommandId(command->id);
-        central->deleteCommandById(command->id);
+        remoteId = (sessionCentral->station1==0) ? sessionCentral->station2 :
+                                                   sessionCentral->station1;
 
+        // Is remote connected to something ?
+        if((sessionDrone=central->getDroneSessionForStation(remoteId)) != NULL)
+        {
+            central->deleteSession(sessionDrone->id);
+            // TODO: Send info to other end of the connection
+        }
+
+        // If problem while deleting
+        if(!central->deleteSession(sessionCentral->id) ||
+                !central->deleteStationById(remoteId))
+        {
+            // TODO: Handle problem
+        }
+
+        // Even if we could not delete we say farewell to the drone/command
         DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
         ack->setAddrDst(packet->getAddrDst());
         ack->setPortDst(packet->getPortDst());
@@ -489,51 +511,81 @@ void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
 
 void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *packet)
 {
+    int remoteId;
     DCPServerCentral::remote_t *command;
-    DCPServerCentral::session_t *session;
-
+    DCPServerCentral::remote_t *drone;
+    DCPServerCentral::session_t *sessionCentral;
+    DCPServerCentral::session_t *sessionDrone;
     DCPServerCentral *central =
-            dynamic_cast<DCPServerCentral*> (this->server);
+            dynamic_cast<DCPServerCentral*>(this->server);
     DCPCommandConnectToDrone *conn =
             dynamic_cast<DCPCommandConnectToDrone*> (packet);
 
-    command = central->getCommandFromCentralSessionId(conn->getSessionID());
-    if(command)
+    // sessId is valid to speak with central station ?
+    if((sessionCentral = central->sessionIsCentral(packet->getSessionID()))
+            != NULL)
     {
-        session = central->addNewSession(conn->getDroneId(), command->id);
-        if(session)
-        {
-            DCPCommandSetSessID *sess = new DCPCommandSetSessID(
-                        conn->getSessionID());
-            sess->setAddrDst(conn->getAddrDst());
-            sess->setPortDst(conn->getPortDst());
-            sess->setDroneSessId(session->id);
-            sess->setTimestamp(conn->getTimestamp());
-            central->sendPacket(sess);
 
-            // TODO: send to drone
-        }
-        else
+        remoteId = (sessionCentral->station1==0) ? sessionCentral->station2 :
+                                                   sessionCentral->station1;
+        // Only command stations can connect to drones
+        if((command=central->stationIsCommand(remoteId)) != NULL)
         {
-            // TODO: no more sessId available
+            // Can only connect to drone
+            if((drone=central->stationIsDrone(conn->getDroneId())) != NULL)
+            {
+                if(central->getDroneSessionForStation(remoteId))
+                {
+                    // TODO: Command Station already connected
+                }
+                else if(central->getDroneSessionForStation(drone->id))
+                {
+                    // TODO: Drone already connected
+                }
+                else
+                {
+                    sessionDrone = central->addNewSession(remoteId, drone->id);
+                    // TODO: Send info to drone
+
+                    DCPCommandSetSessID *setSess =
+                            new DCPCommandSetSessID(packet->getSessionID());
+                    setSess->setAddrDst(packet->getAddrDst());
+                    setSess->setPortDst(packet->getPortDst());
+                    setSess->setTimestamp(packet->getTimestamp());
+                    setSess->setDroneSessId(sessionDrone->id);
+                    central->sendPacket(setSess);
+                }
+            }
         }
     }
 }
 
 void DCPPacketHandlerCentralStation::handleCommandDisconnect(DCPPacket *packet)
 {
-    DCPServerCentral::remote_t *command;
-    DCPServerCentral *central = dynamic_cast<DCPServerCentral*> (this->server);
+    int remoteId;
+    DCPServerCentral::session_t *sessionCentral;
+    DCPServerCentral::session_t *sessionDrone;
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*>(this->server);
 
-    command = central->getCommandFromCentralSessionId(packet->getSessionID());
-    if(command)
+    // SessionId exists and is with central station ?
+    if((sessionCentral = central->sessionIsCentral(packet->getSessionID()))
+            != NULL)
     {
-        central->deleteSessionForCommandId(command->id);
+        remoteId = (sessionCentral->station1==0) ? sessionCentral->station2 :
+                                                   sessionCentral->station1;
 
-        DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
-        ack->setAddrDst(packet->getAddrDst());
-        ack->setPortDst(packet->getPortDst());
-        ack->setTimestamp(packet->getTimestamp());
-        central->sendPacket(ack);
+        // Is remote connected to something ?
+        if((sessionDrone=central->getDroneSessionForStation(remoteId)) != NULL)
+        {
+            central->deleteSession(sessionDrone->id);
+            // TODO: Send info to other end of the connection
+
+            DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
+            ack->setAddrDst(packet->getAddrDst());
+            ack->setPortDst(packet->getPortDst());
+            ack->setTimestamp(packet->getTimestamp());
+            central->sendPacket(ack);
+        }
     }
 }
