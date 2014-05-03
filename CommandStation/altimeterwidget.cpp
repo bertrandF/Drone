@@ -37,9 +37,9 @@ AltimeterWidget::AltimeterWidget(QWidget *parent) :
     QGraphicsView(parent),
     scene(),
     back(),
-    tenthousands(),
+    hundreds(),
     thousands(),
-    hundreds()
+    tenthousands()
 {
     // TODO: size of QGraphicsView (150x150) is hardcoded -> get it whith size()
     // TODO: We need to draw the Pixmap when the QGraphicsView is shown (before
