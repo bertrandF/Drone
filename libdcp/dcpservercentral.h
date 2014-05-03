@@ -56,9 +56,11 @@ public:
     // TODO: make avaliable only to packet handler
     remote_t*   addNewDrone(QHostAddress addr, quint16 port, QString info);
     remote_t*   addNewCommandStation(QHostAddress addr, quint16 port, QString info);
+    bool        addNewVideoServers(qint8 id, QString videoServers);
     session_t*  addNewSession(qint8 station1, qint8 station2);
     bool        addNewLog(qint8 id, DCPCommandLog::logLevel level, QString msg);
 
+    bool        deleteVideoServers(qint8 id);
     bool        deleteSession(qint8 id);
     bool        deleteStationById(qint8 id);
 

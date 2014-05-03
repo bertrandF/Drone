@@ -600,4 +600,36 @@ void DCPPacketHandlerCentralStation::handleCommandDisconnect(DCPPacket *packet)
 }
 
 void DCPPacketHandlerCentralStation::handleCommandVideoServers(DCPPacket *packet)
-{}
+{
+    int remoteId;
+    DCPServerCentral::session_t *sessionCentral;
+    DCPServerCentral::remote_t  *drone;
+    DCPServerCentral *central =
+            dynamic_cast<DCPServerCentral*>(this->server);
+    DCPCommandVideoServers *video =
+            dynamic_cast<DCPCommandVideoServers*> (packet);
+
+    // SessionId exists and is with central station ?
+    if((sessionCentral = central->sessionIsCentral(packet->getSessionID()))
+            != NULL)
+    {
+        remoteId = (sessionCentral->station1==0) ? sessionCentral->station2 :
+                                                   sessionCentral->station1;
+
+        // Only drones can register video servers
+        if((drone=central->stationIsDrone(remoteId)) != NULL)
+        {
+            // Delete previously registered video servers if any
+            central->deleteVideoServers(remoteId);
+            // Register new servers
+            if(central->addNewVideoServers(remoteId, video->getRawUrlList()))
+            {
+                DCPCommandAck *ack = new DCPCommandAck(packet->getSessionID());
+                ack->setAddrDst(packet->getAddrDst());
+                ack->setPortDst(packet->getPortDst());
+                ack->setTimestamp(packet->getTimestamp());
+                central->sendPacket(ack);
+            }
+        }
+    }
+}

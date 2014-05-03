@@ -135,6 +135,25 @@ DCPServerCentral::addNewCommandStation(QHostAddress addr, quint16 port,
     return remote;
 }
 
+bool DCPServerCentral::addNewVideoServers(qint8 id, QString videoServers)
+{
+
+    QSqlQuery query(this->db);
+    query.prepare("INSERT INTO " + QString(DCP_DBVIDEOSERVERS) +
+                  " (id, videos) VALUES (?, ?)");
+    query.bindValue(0, id);
+    query.bindValue(1, videoServers);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+    qWarning() << "Sucessfully added new Video servers:" << query.lastQuery();
+    return true;
+}
+
 DCPServerCentral::session_t*
 DCPServerCentral::addNewSession(qint8 station1, qint8 station2)
 {
@@ -217,6 +236,25 @@ bool DCPServerCentral::addNewLog(qint8 id, DCPCommandLog::logLevel level,
         qWarning() << query.lastQuery();
         return false;
     }
+    return true;
+}
+
+bool DCPServerCentral::deleteVideoServers(qint8 id)
+{
+    QSqlQuery query(this->db);
+    query.prepare("DELETE FROM " + QString(DCP_DBVIDEOSERVERS) +
+                  " WHERE id=?");
+    query.bindValue(0, id);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return false;
+    }
+
+    qWarning() << "Sucessfully deleted video servers :"
+               << query.lastQuery();
     return true;
 }
 
