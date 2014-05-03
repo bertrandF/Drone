@@ -50,6 +50,7 @@ public:
     virtual void handleCommandBye                   (DCPPacket *packet) = 0;
     virtual void handleCommandConnectToDrone        (DCPPacket *packet) = 0;
     virtual void handleCommandDisconnect            (DCPPacket *packet) = 0;
+    virtual void handleCommandVideoServers          (DCPPacket *packet) = 0;
 
 protected:
     DCPServer* server;
@@ -96,6 +97,7 @@ public:
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandDisconnect            (DCPPacket* packet);
+    virtual void handleCommandVideoServers          (DCPPacket *packet);
 };
 
 /*
@@ -118,6 +120,7 @@ public:
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandDisconnect            (DCPPacket* packet);
+    virtual void handleCommandVideoServers          (DCPPacket *packet);
 };
 
 /*
@@ -140,6 +143,7 @@ public:
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandDisconnect            (DCPPacket* packet);
+    virtual void handleCommandVideoServers          (DCPPacket *packet);
 };
 
 /*
@@ -162,7 +166,7 @@ public:
     virtual void handleCommandBye                   (DCPPacket* packet);
     virtual void handleCommandConnectToDrone        (DCPPacket* packet);
     virtual void handleCommandDisconnect            (DCPPacket* packet);
-
+    virtual void handleCommandVideoServers          (DCPPacket *packet);
 };
 
 #endif // DCPPACKETHANDLERINTERFACE_H

@@ -37,7 +37,11 @@
 #define DCP_CMDBYE                  ((qint8)0x08)
 #define DCP_CMDCONNECTTODRONE       ((qint8)0x09)
 #define DCP_CMDDISCONNECT           ((qint8)0x0A)
+#define DCP_CMDVIDEOSERVERS         ((qint8)0x0B)
 
+
+/* --- VIDEO SERVERS --- */
+#define DCP_VIDEOSERVERSSEPARATOR   ((char)'$')
 
 /* --- DEFAULTS IDS --- */
 #define DCP_IDNULL                  ((qint8)0x00)

@@ -169,6 +169,9 @@ void DCPPacketHandlerCommandStationHello::handleCommandDisconnect(
         DCPPacket *packet)
 {}
 
+void DCPPacketHandlerCommandStationHello::handleCommandVideoServers(DCPPacket *packet)
+{}
+
 
 /*
  * COMMAND STATION -- Packet Handler Not Connected
@@ -270,6 +273,9 @@ void DCPPacketHandlerCommandStationNotConnected::handleCommandDisconnect(
         DCPPacket *packet)
 {}
 
+void DCPPacketHandlerCommandStationNotConnected::handleCommandVideoServers(DCPPacket *packet)
+{}
+
 /*
  * COMMAND STATION -- Packet Handler Connected
  * */
@@ -361,6 +367,9 @@ void DCPPacketHandlerCommandStationConnected::handleCommandConnectToDrone(DCPPac
 
 void DCPPacketHandlerCommandStationConnected::handleCommandDisconnect(
         DCPPacket *packet)
+{}
+
+void DCPPacketHandlerCommandStationConnected::handleCommandVideoServers(DCPPacket *packet)
 {}
 
 
@@ -589,3 +598,6 @@ void DCPPacketHandlerCentralStation::handleCommandDisconnect(DCPPacket *packet)
         }
     }
 }
+
+void DCPPacketHandlerCentralStation::handleCommandVideoServers(DCPPacket *packet)
+{}

@@ -286,6 +286,36 @@ public:
 };
 
 /*
+ * DCP -- Declare video servers.
+ * */
+class DCPCommandVideoServers : public DCPPacket
+{
+        friend class DCPPacketFactory;
+
+public:
+    DCPCommandVideoServers(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
+    void handle(DCPPacketHandlerInterface *handler);
+
+    bool addVideoUrl(QUrl url);
+    inline QStringList getUrls()
+        { return this->urls; }
+    inline QString getRawUrlList()
+        { return this->urls.join(QChar(DCP_VIDEOSERVERSSEPARATOR)); }
+    inline void clearUrls()
+        { this->urls.clear(); }
+
+    QString toString();
+
+protected:
+    QByteArray  buildPayload();
+    void        unbuildPayload();
+
+private:
+    QStringList urls;
+};
+
+
+/*
  * DCP -- Packet Factory.
  * */
 class DCPPacketFactory

@@ -478,6 +478,43 @@ QString DCPCommandDisconnect::toString()
     return str;
 }
 
+/*
+ * DCP -- Declare video servers.
+ * */
+DCPCommandVideoServers::DCPCommandVideoServers(qint8 sessID, qint32 timestamp) :
+    DCPPacket(DCP_CMDVIDEOSERVERS, sessID, timestamp)
+{}
+
+void DCPCommandVideoServers::handle(DCPPacketHandlerInterface *handler)
+{
+    handler->handleCommandVideoServers(this);
+}
+
+QByteArray DCPCommandVideoServers::buildPayload()
+{
+    this->payload.clear();
+    this->payload.append(
+                this->urls.join(QChar(DCP_VIDEOSERVERSSEPARATOR)).toUtf8());
+    return this->payload;
+}
+
+void DCPCommandVideoServers::unbuildPayload()
+{
+    this->urls = QString::fromUtf8(this->payload).
+            split(QChar(DCP_VIDEOSERVERSSEPARATOR));
+}
+
+QString DCPCommandVideoServers::toString()
+{
+    QString str("--- DCPCommandVideoServers ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+    text << "URLs: " << this->urls.join(QChar(';')) << endl;
+
+    return str;
+}
+
 
 /*
  * DCP -- Packet Factory.
@@ -533,10 +570,13 @@ DCPPacket* DCPPacketFactory::commandPacketFromData(char *data, qint64 len)
         packet = new DCPCommandDisconnect();
         packet->buildFromData(data, len);
         break;
+    case DCP_CMDVIDEOSERVERS:
+        packet = new DCPCommandVideoServers();
+        packet->buildFromData(data, len);
+        break;
     default:
         qDebug("Bad Packet cmdID.");
         return NULL;
-        break;
     }
 
     return packet;
