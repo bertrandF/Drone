@@ -23,6 +23,9 @@
 #include <QUdpSocket>
 #include <QThread>
 #include <QtSql/QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
 
 #include <dcp.h>
 #include <dcpservercentral.h>
@@ -46,6 +49,22 @@ int main(int argc, char *argv[])
     if(db.open())
     {
         DCPServerCentral *central = new DCPServerCentral(sock, db);
+
+        QSqlQuery query(db);
+        query.prepare("INSERT INTO " DCP_DBSTATIONS " (id, type, ip, port, info)"
+                      " VALUES (?, ?, ?, ?, ?)");
+        query.bindValue(0, 0);
+        query.bindValue(1, "central");
+        query.bindValue(2, strAddr);
+        query.bindValue(3, strPort.toInt());
+        query.bindValue(4, "Central station in charge of this NET");
+        if(!query.exec())
+        {
+            qWarning() << query.lastError().driverText() << endl;
+            qWarning() << query.lastError().databaseText() << endl;
+            qWarning() << query.lastQuery();
+            qFatal("Central station: BYE cruel world !");
+        }
     }
 
     return a.exec();
