@@ -66,7 +66,8 @@ void DCPServerCommand::setStatus(DCPServerCommandStatus status)
 
 void DCPServerCommand::sayHello(QString description)
 {
-    if(this->getStatus() != Init) return;
+    enum DCPServerCommandStatus status = this->getStatus();
+    if(status != Init &&  status != Stopped) return;
     this->setStatus(SayingHello);
 
     DCPCommandHelloFromRemote *hello =
