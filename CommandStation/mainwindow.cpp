@@ -70,6 +70,12 @@ void MainWindow::on_actionAbout_triggered()
     msgBox.exec();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    this->cmdPanel->quit();
+    event->accept();
+}
+
 void MainWindow::doneConfiguration(CommandStationParameters *cmdP)
 {
     delete this->confPanel;

@@ -53,6 +53,7 @@ public slots:
     void    mplayerReadyReadOutput      ();
     void    serverStatusChanged     (
             enum DCPServerCommandStatus status);
+    void    quit();
 
 private:
     Ui::CommandPanel            *ui;

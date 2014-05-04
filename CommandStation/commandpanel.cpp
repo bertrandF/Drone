@@ -195,18 +195,41 @@ void CommandPanel::serverStatusChanged(
 {
     switch (status)
     {
+    case Init:
+        break;
+    case SayingHello:
+        break;
     case NotConnected:
         this->commandServer->connectToDrone(this->cmdP->droneId);
         break;
+    case Connecting:
+        break;
     case Connected:
         this->commandServer->log(DCPCommandLog::Info, "What is the Fuck !");
-        QThread::sleep(3);
-        this->commandServer->disconnectFromDrone();
+        //QThread::sleep(3);
+        //this->commandServer->disconnectFromDrone();
+        break;
+    case Disconnecting:
         break;
     case Disconnected:
-        this->commandServer->sayByeBye();
+        //this->commandServer->sayByeBye();
+        break;
+    case Stopping:
+        break;
+    case Stopped:
         break;
     default:
         break;
     }
+}
+
+void CommandPanel::quit()
+{
+    this->commandServer->disconnectFromDrone();
+    while(this->commandServer->getStatus() < Disconnected)
+        QCoreApplication::processEvents();
+
+    this->commandServer->sayByeBye();
+    while(this->commandServer->getStatus() < Stopped)
+        QCoreApplication::processEvents();
 }
