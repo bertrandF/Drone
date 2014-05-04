@@ -225,11 +225,16 @@ void CommandPanel::serverStatusChanged(
 
 void CommandPanel::quit()
 {
+    this->logBox->setTextColor(Qt::green);
+    this->logBox->append("\nEXITING ...");
     this->commandServer->disconnectFromDrone();
+    this->logBox->append("Waiting state DICONNECTED ...");
     while(this->commandServer->getStatus() < Disconnected)
         QCoreApplication::processEvents();
 
     this->commandServer->sayByeBye();
+    this->logBox->append("Waiting state STOPPED ...");
     while(this->commandServer->getStatus() < Stopped)
         QCoreApplication::processEvents();
+    this->logBox->append("Exit process done ...");
 }
