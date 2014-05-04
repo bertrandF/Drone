@@ -332,7 +332,7 @@ void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet
                 command->setSessionIdCentralStation(DCP_IDCENTRAL);
                 command->setHandler(
                             new DCPPacketHandlerCommandStationHello(command));
-                command->setStatus(Init);
+                command->setStatus(Stopped);
                 break;
             default:
                 break;
