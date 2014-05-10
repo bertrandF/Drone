@@ -61,7 +61,7 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
 
     ui->compass->setBearing(74);
     ui->artificialHorizon->setRollPitch(33, 10);
-    ui->altimeterWidget->setAltitudeFt(1586);
+    ui->altimeter->setAltitude(265);
 
     /* ----- DCP SERVER ----- */
     QUdpSocket *sock = new QUdpSocket();

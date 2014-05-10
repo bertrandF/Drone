@@ -17,19 +17,19 @@ SOURCES += main.cpp\
     configurationpanel.cpp \
     commandpanel.cpp \
     mplayerwidget.cpp \
-    altimeterwidget.cpp \
     compass.cpp \
-    artificialhorizon.cpp
+    artificialhorizon.cpp \
+    altimeter.cpp
 
 HEADERS  += mainwindow.h \
     configurationpanel.h \
     commandpanel.h \
     mplayerwidget.h \
     commandstationparameters.h \
-    altimeterwidget.h \
     constants.h \
     compass.h \
-    artificialhorizon.h
+    artificialhorizon.h \
+    altimeter.h
 
 FORMS    += mainwindow.ui \
     configurationpanel.ui \

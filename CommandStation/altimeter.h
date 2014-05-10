@@ -1,6 +1,6 @@
 /*
- *  This file is part of the CommandStation Project
- *  Copyright (C) 15/04/2014 -- altimeterwidget.h -- bertrand
+ *  This file is part of the Altimeter project
+ *  Copyright (C) 10/05/2014 -- altimeter.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,35 +18,49 @@
  *
  * */
 
-#ifndef ALTIMETERWIDGET_H
-#define ALTIMETERWIDGET_H
+#ifndef ALTIMETER_H
+#define ALTIMETER_H
 
-#include <QWidget>
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
+#include <QPixmap>
+#include <QBrush>
+#include <QPen>
+#include <QFont>
 
-class AltimeterWidget : public QGraphicsView
+class Altimeter : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit AltimeterWidget(QWidget *parent = 0);
+    explicit Altimeter(QWidget *parent = 0);
 
 signals:
 
 public slots:
-    void    setAltitudeFt(long ft);
-    void    setAltitudeMtr(long mtr);
+    void setAltitude(double feets);
 
 protected:
-    void wheelEvent(QWheelEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private:
-    QGraphicsScene scene;
-    QGraphicsPixmapItem back;
-    QGraphicsPixmapItem hundreds;
-    QGraphicsPixmapItem thousands;
-    QGraphicsPixmapItem tenthousands;
+    void paint(QPainter *painter, QPaintEvent *event);
+
+    double feets;
+
+    QBrush  backgroundBrush;
+    QPen    circlePen;
+    QPixmap backgroundPixmap;
+    QPen    graduationPen;
+    QFont   graduationFont;
+
+    QPen    handPenFront;
+    QPen    handPenBack;
+    QBrush  handBrushFront;
+    QBrush  handBrushBack;
+    QPixmap feetsHand;
+    QPixmap tenthHand;
+    QPixmap hundredsHand;
+
+
 };
 
-#endif // ALTIMETERWIDGET_H
+#endif // ALTIMETER_H
