@@ -3,4 +3,5 @@ TEMPLATE = subdirs
 SUBDIRS += \
     libdcp \
     CommandStation \
-    CentralStation
+    CentralStation \
+    flightIntruments
