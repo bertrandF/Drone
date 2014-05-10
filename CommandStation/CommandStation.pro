@@ -16,20 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     configurationpanel.cpp \
     commandpanel.cpp \
-    mplayerwidget.cpp \
-    compass.cpp \
-    artificialhorizon.cpp \
-    altimeter.cpp
+    mplayerwidget.cpp
 
 HEADERS  += mainwindow.h \
     configurationpanel.h \
     commandpanel.h \
     mplayerwidget.h \
     commandstationparameters.h \
-    constants.h \
-    compass.h \
-    artificialhorizon.h \
-    altimeter.h
+    constants.h
 
 FORMS    += mainwindow.ui \
     configurationpanel.ui \
@@ -42,9 +36,18 @@ RESOURCES += \
 OTHER_FILES += \
     LICENSE.txt
 
+# LibDCP
 unix:!macx: LIBS += -L$$OUT_PWD/../libdcp/ -ldcp
 
 INCLUDEPATH += $$PWD/../libdcp
 DEPENDPATH += $$PWD/../libdcp
 
 unix:!macx: PRE_TARGETDEPS += $$OUT_PWD/../libdcp/libdcp.a
+
+# Lib flightInstruments
+unix:!macx: LIBS += -L$$OUT_PWD/../flightIntruments/ -lflightIntruments
+
+INCLUDEPATH += $$PWD/../flightIntruments
+DEPENDPATH += $$PWD/../flightIntruments
+
+unix:!macx: PRE_TARGETDEPS += $$OUT_PWD/../flightIntruments/libflightIntruments.a
