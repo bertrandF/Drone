@@ -18,8 +18,8 @@ SOURCES += main.cpp\
     commandpanel.cpp \
     mplayerwidget.cpp \
     altimeterwidget.cpp \
-    compasswidget.cpp \
-    horizonwidget.cpp
+    horizonwidget.cpp \
+    compass.cpp
 
 HEADERS  += mainwindow.h \
     configurationpanel.h \
@@ -27,9 +27,9 @@ HEADERS  += mainwindow.h \
     mplayerwidget.h \
     commandstationparameters.h \
     altimeterwidget.h \
-    compasswidget.h \
     horizonwidget.h \
     constants.h \
+    compass.h
 
 FORMS    += mainwindow.ui \
     configurationpanel.ui \

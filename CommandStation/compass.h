@@ -1,6 +1,6 @@
 /*
- *  This file is part of the CommandStation Project
- *  Copyright (C) 15/04/2014 -- compasswidget.h -- bertrand
+ *  This file is part of the Compass project
+ *  Copyright (C) 06/05/2014 -- compass.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,33 +18,43 @@
  *
  * */
 
-#ifndef COMPASSWIDGET_H
-#define COMPASSWIDGET_H
+#ifndef COMPASS_H
+#define COMPASS_H
 
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
+#include <QPaintEvent>
 
-class CompassWidget : public QGraphicsView
+
+class Compass : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit CompassWidget(QWidget *parent = 0);
+    explicit Compass(QWidget *parent = 0);
+
+    void setBearing(double bearing);
+    inline double getBearing()
+        { return this->bearing; }
 
 signals:
 
 public slots:
-    void    setBearing(float bearing);
 
 protected:
-    void wheelEvent(QWheelEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private:
-    QGraphicsScene      scene;
-    QGraphicsPixmapItem back;
-    QGraphicsPixmapItem wheel;
-    QGraphicsPixmapItem plane;
+    void paint(QPainter *painter, QPaintEvent *event);
 
+    QBrush  background;
+    QPen    circlePen;
+    QPen    graduationsPen;
+    QPen    textPen;
+    QFont   textFont;
+    QPen    planePen;
+
+    QVector<QLineF> plane;
+
+    double bearing;
 };
 
-#endif // COMPASSWIDGET_H
+#endif // COMPASS_H

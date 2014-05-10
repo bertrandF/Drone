@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>898</width>
-    <height>485</height>
+    <height>641</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -62,8 +62,8 @@
   <widget class="AltimeterWidget" name="altimeterWidget" native="true">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>190</y>
+     <x>700</x>
+     <y>240</y>
      <width>150</width>
      <height>150</height>
     </rect>
@@ -78,29 +78,10 @@
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="CompassWidget" name="compassWidget" native="true">
-   <property name="geometry">
-    <rect>
-     <x>730</x>
-     <y>10</y>
-     <width>150</width>
-     <height>150</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="autoFillBackground">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="HorizonWidget" name="horizonWidget" native="true">
    <property name="geometry">
     <rect>
-     <x>390</x>
+     <x>380</x>
      <y>10</y>
      <width>300</width>
      <height>360</height>
@@ -111,6 +92,16 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+  </widget>
+  <widget class="Compass" name="compass">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>10</y>
+     <width>200</width>
+     <height>200</height>
+    </rect>
    </property>
   </widget>
  </widget>
@@ -128,16 +119,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CompassWidget</class>
-   <extends>QWidget</extends>
-   <header>compasswidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>HorizonWidget</class>
    <extends>QWidget</extends>
    <header>horizonwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Compass</class>
+   <extends>QGraphicsView</extends>
+   <header>compass.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
