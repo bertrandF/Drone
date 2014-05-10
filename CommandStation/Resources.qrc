@@ -4,10 +4,5 @@
         <file>images/Altimeter_hundreds.png</file>
         <file>images/Altimeter_thousands.png</file>
         <file>images/Altimeter_tenthousands.png</file>
-        <file>images/Compass_background.png</file>
-        <file>images/Compass_wheel.png</file>
-        <file>images/Compass_plane.png</file>
-        <file>images/Horizon.png</file>
-        <file>images/Horizon_plane.png</file>
     </qresource>
 </RCC>
