@@ -60,6 +60,7 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     this->logBox = this->ui->logTextBox;
 
     ui->compass->setBearing(74);
+    ui->artificialHorizon->setRollPitch(33, 10);
     ui->altimeterWidget->setAltitudeFt(1586);
 
     /* ----- DCP SERVER ----- */

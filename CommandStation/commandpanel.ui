@@ -78,26 +78,20 @@
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="HorizonWidget" name="horizonWidget" native="true">
-   <property name="geometry">
-    <rect>
-     <x>380</x>
-     <y>10</y>
-     <width>300</width>
-     <height>360</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-  </widget>
   <widget class="Compass" name="compass">
    <property name="geometry">
     <rect>
      <x>690</x>
+     <y>10</y>
+     <width>200</width>
+     <height>200</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="ArtificialHorizon" name="artificialHorizon">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
      <y>10</y>
      <width>200</width>
      <height>200</height>
@@ -119,15 +113,14 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>HorizonWidget</class>
-   <extends>QWidget</extends>
-   <header>horizonwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>Compass</class>
    <extends>QGraphicsView</extends>
    <header>compass.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ArtificialHorizon</class>
+   <extends>QGraphicsView</extends>
+   <header>artificialhorizon.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
