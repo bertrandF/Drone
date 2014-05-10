@@ -10,6 +10,7 @@ QT       -= gui
 
 TARGET = dcp
 TEMPLATE = lib
+CONFIG += staticlib
 
 DEFINES += LIBDCP_LIBRARY
 

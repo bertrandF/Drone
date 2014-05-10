@@ -39,11 +39,12 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     Resources.qrc
 
+OTHER_FILES += \
+    LICENSE.txt
 
 unix:!macx: LIBS += -L$$OUT_PWD/../libdcp/ -ldcp
 
 INCLUDEPATH += $$PWD/../libdcp
 DEPENDPATH += $$PWD/../libdcp
 
-OTHER_FILES += \
-    LICENSE.txt
+unix:!macx: PRE_TARGETDEPS += $$OUT_PWD/../libdcp/libdcp.a
