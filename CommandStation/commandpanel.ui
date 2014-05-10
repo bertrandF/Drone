@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>898</width>
-    <height>641</height>
+    <width>624</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,10 +22,10 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>9</x>
-     <y>9</y>
-     <width>371</width>
-     <height>251</height>
+     <x>210</x>
+     <y>0</y>
+     <width>400</width>
+     <height>400</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -35,7 +35,7 @@
     </sizepolicy>
    </property>
    <property name="title">
-    <string>GroupBox</string>
+    <string>Video Feed</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
@@ -46,10 +46,10 @@
   <widget class="QTextEdit" name="logTextBox">
    <property name="geometry">
     <rect>
-     <x>9</x>
-     <y>261</y>
-     <width>371</width>
-     <height>192</height>
+     <x>210</x>
+     <y>400</y>
+     <width>400</width>
+     <height>200</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -62,8 +62,8 @@
   <widget class="Compass" name="compass">
    <property name="geometry">
     <rect>
-     <x>690</x>
-     <y>10</y>
+     <x>0</x>
+     <y>400</y>
      <width>200</width>
      <height>200</height>
     </rect>
@@ -72,8 +72,8 @@
   <widget class="ArtificialHorizon" name="artificialHorizon">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>10</y>
+     <x>0</x>
+     <y>0</y>
      <width>200</width>
      <height>200</height>
     </rect>
@@ -82,13 +82,19 @@
   <widget class="Altimeter" name="altimeter">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>230</y>
+     <x>0</x>
+     <y>200</y>
      <width>200</width>
      <height>200</height>
     </rect>
    </property>
   </widget>
+  <zorder>groupBox</zorder>
+  <zorder>logTextBox</zorder>
+  <zorder>compass</zorder>
+  <zorder>artificialHorizon</zorder>
+  <zorder>altimeter</zorder>
+  <zorder>frontVideoWidget</zorder>
  </widget>
  <customwidgets>
   <customwidget>
