@@ -143,19 +143,27 @@ void ConfigurationPanel::on_getConfigFromDBButton_clicked()
         this->ui->dronesListComboBox->addItem(DRONESCOMBOBOX_WELCOMEMSG);
 
         // ---- get drones list ----
-        QString queryStr("SELECT id, ip, port, date, info FROM " DCP_DBSTATIONS
-                         " WHERE type='drone'");
+        QString queryStr("SELECT " DCP_DBSTATIONS ".id, ip, port, date, info, "
+                         "videos FROM " DCP_DBSTATIONS " LEFT JOIN "
+                         DCP_DBVIDEOSERVERS " ON " DCP_DBSTATIONS ".id="
+                         DCP_DBVIDEOSERVERS ".id WHERE " DCP_DBSTATIONS
+                         ".type='drone'");
         QSqlQuery query(db);
         if(query.exec(queryStr))
         {
             while(query.next())
             {
                 QMap<QString, QVariant> userData;
-                userData.insert("id", QVariant(query.value(0).toInt()));
-                userData.insert("ip", QVariant(query.value(1).toString()));
-                userData.insert("port", QVariant(query.value(2).toInt()));
-                userData.insert("date", QVariant(query.value(3).toDateTime()));
-                userData.insert("info", QVariant(query.value(4).toString()));
+                userData.insert("id", query.value(0));
+                userData.insert("ip", query.value(1));
+                userData.insert("port", query.value(2));
+                userData.insert("date", query.value(3));
+                userData.insert("info", query.value(4));
+                userData.insert("videos", QVariant(
+                                    query.value(5).toString().
+                                    split(DCP_VIDEOSERVERSSEPARATOR)
+                                    )
+                                );
 
                 this->ui->dronesListComboBox->addItem(
                             query.value(0).toString() + " -- " +
@@ -227,6 +235,10 @@ void ConfigurationPanel::on_dronesListComboBox_currentIndexChanged()
         this->ui->dronePortText->setText(userData.value("port").toString());
         this->ui->droneDateText->setText(userData.value("date").toString());
         this->ui->droneInfoText->setText(userData.value("info").toString());
+
+        this->ui->droneVideosList->clear();
+        this->ui->droneVideosList->addItems(
+                    userData.value("videos").toStringList());
     }
 }
 
@@ -238,25 +250,6 @@ void ConfigurationPanel::on_nextButton_clicked()
     msgBox.setWindowTitle("Error");
     msgBox.setStandardButtons(QMessageBox::Close);
     msgBox.setDefaultButton(QMessageBox::Close);
-
-    // ---- FRONT VIDEO FEED URL ----
-    if(this->ui->frontVideoUrl->text().isEmpty())
-    {
-        msgBox.setInformativeText("Front Video Feed URL is empty !");
-        msgBox.exec();
-        return;
-    }
-    else
-    {
-        QUrl frontVideoFeed(this->ui->frontVideoUrl->text());
-        if(!frontVideoFeed.isValid())
-        {
-            msgBox.setInformativeText("Front Video Feed URL is not valid !");
-            msgBox.exec();
-            return;
-        }
-        this->cmdP->frontVideoFeed = QUrl(this->ui->frontVideoUrl->text());
-    }
 
     // ---- DCP Server setup ----
     if(ui->dcpServerInterface->currentIndex() == 0)
@@ -306,6 +299,7 @@ void ConfigurationPanel::on_nextButton_clicked()
         this->cmdP->droneHost   = QHostAddress(userData.value("ip").toString());
         this->cmdP->dronePort   = userData.value("port").toInt();
         this->cmdP->droneInfo   = userData.value("info").toString();
+        this->cmdP->droneVideos = userData.value("videos").toString();
     }
 
     emit signal_configuration_done(this->cmdP);

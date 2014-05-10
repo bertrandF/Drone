@@ -29,8 +29,6 @@ class CommandStationParameters
 public:
     CommandStationParameters() {};
 
-    QUrl            frontVideoFeed;
-
     QHostAddress    dcpServerHost;
     quint16         dcpServerPort;
     QString         dcpServerInfo;
@@ -45,6 +43,7 @@ public:
     QHostAddress    droneHost;
     quint16         dronePort;
     QString         droneInfo;
+    QString         droneVideos;
 
     QHostAddress    centralStationHost;
     quint16         centralStationPort;

@@ -52,8 +52,8 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
     // The following line spams the log text box, so unconnected.
     //connect(this->mpw, SIGNAL(readyReadStandardOutput()), this, SLOT(mplayerReadyReadOutput()));
     //this->mpw->setMediaFile(QUrl::fromLocalFile("/home/bertrand/Desktop/Goodfellas.avi"));
-    this->mpw->setMediaFile(cmdP->frontVideoFeed);
-    this->mpw->start();
+    // this->mpw->setMediaFile( /* TODO */);
+    //this->mpw->start();
 
     this->show(); // Need this to raise the panel at the foreground !!!
 
