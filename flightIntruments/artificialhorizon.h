@@ -1,5 +1,5 @@
 /*
- *  This file is part of the ArtificialHorizon project
+ *  This file is part of the Drone project
  *  Copyright (C) 04/05/2014 -- artificialhorizon.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify

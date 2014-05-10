@@ -1,5 +1,5 @@
 /*
- *  This file is part of the Altimeter project
+ *  This file is part of the Drone project
  *  Copyright (C) 10/05/2014 -- altimeter.cpp -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,12 +18,13 @@
  *
  * */
 
-#include "altimeter.h"
 #include <QBitmap>
 #include <QPolygon>
 
+#include "altimeter.h"
+#include "common.h"
+
 #define WIDGETSIZE      (200)
-#define CIRCLEPENWIDTH  (4)
 
 #define HANDHEIGHT      (140)
 #define HANDWIDTH       (25)
@@ -45,9 +46,8 @@ Altimeter::Altimeter(QWidget *parent) :
     this->setGeometry(0,0, WIDGETSIZE, WIDGETSIZE);
 
     // Style Setting
-    backgroundBrush = QBrush(Qt::black);//QBrush(QColor(0x53, 0x54, 0x48));
-    circlePen       = QPen(Qt::white);
-    circlePen.setWidth(CIRCLEPENWIDTH);
+    backgroundBrush = BACKGROUNDBRUSH; //QBrush(QColor(0x53, 0x54, 0x48));
+    circlePen       = CIRCLEPEN;
     graduationPen   = QPen(Qt::white);
     graduationPen.setWidth(2);
     graduationFont  = QFont("lucida");

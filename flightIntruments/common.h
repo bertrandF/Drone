@@ -1,6 +1,6 @@
 /*
  *  This file is part of the Drone project
- *  Copyright (C) 06/05/2014 -- compass.h -- bertrand
+ *  Copyright (C) 10/05/2014 -- common.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,43 +18,13 @@
  *
  * */
 
-#ifndef COMPASS_H
-#define COMPASS_H
+#ifndef COMMON_H
+#define COMMON_H
 
-#include <QGraphicsView>
-#include <QPaintEvent>
+#include <QBrush>
 
+#define BACKGROUNDBRUSH     (QBrush(Qt::black))
+#define CIRCLEPENWIDTH      (4)
+#define CIRCLEPEN          (QPen(QBrush(Qt::white), CIRCLEPENWIDTH))
 
-class Compass : public QGraphicsView
-{
-    Q_OBJECT
-public:
-    explicit Compass(QWidget *parent = 0);
-
-    void setBearing(double bearing);
-    inline double getBearing()
-        { return this->bearing; }
-
-signals:
-
-public slots:
-
-protected:
-    void paintEvent(QPaintEvent *event);
-
-private:
-    void paint(QPainter *painter, QPaintEvent *event);
-
-    QBrush  background;
-    QPen    circlePen;
-    QPen    graduationsPen;
-    QPen    textPen;
-    QFont   textFont;
-    QPen    planePen;
-
-    QVector<QLineF> plane;
-
-    double bearing;
-};
-
-#endif // COMPASS_H
+#endif // COMMON_H

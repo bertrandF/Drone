@@ -1,5 +1,5 @@
 /*
- *  This file is part of the ArtificialHorizon project
+ *  This file is part of the Drone project
  *  Copyright (C) 04/05/2014 -- artificialhorizon.cpp -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,13 +18,13 @@
  *
  * */
 
-#include "artificialhorizon.h"
 #include <cmath>
 
-// This is the size, (no scale sry !)
+#include "artificialhorizon.h"
+#include "common.h"
+
 #define WIDGETSIZE  (200)
 
-#define CIRCLEPENWIDTH      (4)
 #define INNERCIRCLERADIUS   (WIDGETSIZE/2-CIRCLEPENWIDTH-20)
 
 ArtificialHorizon::ArtificialHorizon(QWidget *parent) :
@@ -35,9 +35,8 @@ ArtificialHorizon::ArtificialHorizon(QWidget *parent) :
     this->setGeometry(0, 0, WIDGETSIZE, WIDGETSIZE);
 
     // Style settings
-    backgroundBrush      = QBrush(QColor(0x53, 0x54, 0x48));
-    circlePen       = QPen(Qt::black);
-    circlePen.setWidth(CIRCLEPENWIDTH);
+    backgroundBrush = BACKGROUNDBRUSH;
+    circlePen       = CIRCLEPEN;
     skyBrush        = QBrush(QColor(0x1d, 0x8e, 0xc6));
     groundBrush     = QBrush(QColor(0xb7, 0x71, 0x1c));
     linePen         = QPen(Qt::white);
@@ -192,6 +191,14 @@ void ArtificialHorizon::paint(QPainter *painter, QPaintEvent *event)
                 QRect(0,0,WIDGETSIZE,WIDGETSIZE)
                 );
 
+    // INNER CIRCLE
+    painter->save();
+    painter->translate(WIDGETSIZE/2, WIDGETSIZE/2);
+    painter->setPen(circlePen);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawEllipse(QPoint(0,0), INNERCIRCLERADIUS, INNERCIRCLERADIUS);
+    painter->restore();
+
     // INDICATOR
     painter->setPen(Qt::NoPen);
     painter->setBrush(indicatorBrush);
@@ -203,12 +210,15 @@ void ArtificialHorizon::paint(QPainter *painter, QPaintEvent *event)
     painter->drawLines(indicatorLines, 5);
     painter->restore();
 
-    // INNER CIRCLE
+    // OUTTER CIRCLE
+    // Drawn here to cover the Indicator bottom
     painter->save();
     painter->translate(WIDGETSIZE/2, WIDGETSIZE/2);
     painter->setPen(circlePen);
     painter->setBrush(Qt::NoBrush);
-    painter->drawEllipse(QPoint(0,0), INNERCIRCLERADIUS, INNERCIRCLERADIUS);
+    painter->drawEllipse(QPoint(0,0),
+                         (WIDGETSIZE/2-CIRCLEPENWIDTH),
+                         (WIDGETSIZE/2-CIRCLEPENWIDTH)
+                         );
     painter->restore();
-
 }

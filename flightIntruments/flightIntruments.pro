@@ -19,7 +19,8 @@ SOURCES += \
 HEADERS += \
     altimeter.h \
     artificialhorizon.h \
-    compass.h
+    compass.h \
+    common.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

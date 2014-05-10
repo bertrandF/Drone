@@ -1,5 +1,5 @@
 /*
- *  This file is part of the Altimeter project
+ *  This file is part of the Drone project
  *  Copyright (C) 10/05/2014 -- altimeter.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify

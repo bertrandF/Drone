@@ -1,5 +1,5 @@
 /*
- *  This file is part of the Compass project
+ *  This file is part of the Drone project
  *  Copyright (C) 06/05/2014 -- compass.cpp -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,18 +18,18 @@
  *
  * */
 
-#include "compass.h"
-
 #include <QPainter>
 #include <QLinearGradient>
 #include <QBrush>
 #include <QPaintEvent>
 #include <QSize>
 
+#include "compass.h"
+#include "common.h"
+
 // This is the size, (no scale sry !)
 #define COMPASSSIZE (200)
 
-#define CIRCLEPENWIDTH      (4)
 
 Compass::Compass(QWidget *parent) :
     QGraphicsView(parent),
@@ -37,9 +37,8 @@ Compass::Compass(QWidget *parent) :
 {
     QGraphicsView::setGeometry(0, 0, COMPASSSIZE, COMPASSSIZE);
 
-    background      = QBrush(QColor(0x53, 0x54, 0x48));
-    circlePen       = QPen(Qt::black);
-    circlePen.setWidth(CIRCLEPENWIDTH);
+    background      = BACKGROUNDBRUSH;
+    circlePen       = CIRCLEPEN;
     graduationsPen  = QPen(Qt::white);
     graduationsPen.setWidth(2);
     textPen         = QPen(Qt::white);
