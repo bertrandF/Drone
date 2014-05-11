@@ -43,7 +43,7 @@ public:
     QHostAddress    droneHost;
     quint16         dronePort;
     QString         droneInfo;
-    QString         droneVideos;
+    QStringList     droneVideos;
 
     QHostAddress    centralStationHost;
     quint16         centralStationPort;

@@ -299,7 +299,7 @@ void ConfigurationPanel::on_nextButton_clicked()
         this->cmdP->droneHost   = QHostAddress(userData.value("ip").toString());
         this->cmdP->dronePort   = userData.value("port").toInt();
         this->cmdP->droneInfo   = userData.value("info").toString();
-        this->cmdP->droneVideos = userData.value("videos").toString();
+        this->cmdP->droneVideos = userData.value("videos").toStringList();
     }
 
     emit signal_configuration_done(this->cmdP);
