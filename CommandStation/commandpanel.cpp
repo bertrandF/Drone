@@ -25,6 +25,7 @@
 #include "constants.h"
 #include "commandpanel.h"
 #include "ui_commandpanel.h"
+#include "videotab.h"
 
 #include <QtGlobal>
 #include <QThread>
@@ -41,19 +42,6 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
 {
     /* ----- UI SETUP ----- */
     ui->setupUi(this);
-
-    this->mpw = this->ui->frontVideoWidget;
-    connect(this->mpw, SIGNAL(error(QProcess::ProcessError)), this,\
-            SLOT(mplayerProcessError(QProcess::ProcessError)));
-    connect(this->mpw, SIGNAL(finished(int,QProcess::ExitStatus)), this,\
-            SLOT(mplayerProcessFinished(int,QProcess::ExitStatus)));
-    connect(this->mpw, SIGNAL(readyReadStandardError()), this,\
-            SLOT(mplayerReadyReadError()));
-    // The following line spams the log text box, so unconnected.
-    //connect(this->mpw, SIGNAL(readyReadStandardOutput()), this, SLOT(mplayerReadyReadOutput()));
-    //this->mpw->setMediaFile(QUrl::fromLocalFile("/home/bertrand/Desktop/Goodfellas.avi"));
-    // this->mpw->setMediaFile( /* TODO */);
-    //this->mpw->start();
 
     this->show(); // Need this to raise the panel at the foreground !!!
 
@@ -85,6 +73,12 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
         qCritical() << "CommandPanel: " << db.lastError().databaseText();
     }
 
+    /* ----- VIDEO FEED ----- */
+    foreach (QString video, cmdP->droneVideos) {
+        VideoTab *tab = new VideoTab(video);
+        ui->videosTabWidget->addTab(tab, video);
+    }
+
 }
 
 CommandPanel::~CommandPanel()
@@ -112,84 +106,7 @@ CommandPanel::~CommandPanel()
 //    log->setTextColor(prevColor);
 //}
 
-void CommandPanel::mplayerReadyReadError()
-{
-    QTextEdit*  log = this->logBox;
-    QByteArray  line;
-    QColor prevColor = log->textColor();
 
-    log->setTextColor(Qt::red);
-    line = this->mpw->readLineStandardError();
-    while(line.length() > 0) {
-        line.remove(line.length()-1, 1); // remove '\n'
-        log->append(QString(line));
-        line = this->mpw->readLineStandardError();
-    }
-    log->setTextColor(prevColor);
-}
-
-void CommandPanel::mplayerReadyReadOutput()
-{
-    QTextEdit*  log = this->logBox;
-    QByteArray  line;
-    QColor prevColor = log->textColor();
-
-    log->setTextColor(Qt::green);
-    line = this->mpw->readLineStandardOutput();
-    while(line.length() > 0) {
-        line.remove(line.length()-1, 1); // remove '\n'
-        log->append(QString(line));
-        line = this->mpw->readLineStandardOutput();
-    }
-    log->setTextColor(prevColor);
-}
-
-void CommandPanel::mplayerProcessError(QProcess::ProcessError err)
-{
-    switch (err) {
-    case QProcess::Crashed:
-        qWarning("WARN: MPlayer Crashed. Attempting restart...");
-        this->mpw->start();
-        break;
-    case QProcess::FailedToStart:
-        qWarning("WARN: MPlayer Failed to start. Attempting restart...");
-        this->mpw->start();
-        break;
-    case QProcess::ReadError:
-    case QProcess::WriteError:
-        qWarning("WARN: MPlayer IO error.");
-        break;
-    case QProcess::Timedout:
-        qWarning("WARN: MPlayer start timed out. Attempting restart...");
-        this->mpw->start();
-        break;
-    case QProcess::UnknownError:
-        qWarning("WARN: MPlayer unknown error.");
-        break;
-    default:
-        qWarning() << "WARN: MPlayer unknown QProcessError (" \
-                   << QString::number(err) << ")." << endl;
-        break;
-    }
-}
-
-void CommandPanel::mplayerProcessFinished(int exitCode, \
-                                            QProcess::ExitStatus exitStatus)
-{
-    switch (exitStatus) {
-    case QProcess::NormalExit:
-        qWarning("WARN: MPlayer Stopped.");
-        break;
-    case QProcess::CrashExit:
-        qWarning("WARN: MPlayer crash exited.");
-        break;
-    default:
-        qWarning() << "WARN: MPlayer unknown ExitStatus (" << exitStatus \
-                   << ")." << endl;
-        break;
-    }
-    qWarning() << "WARN: MPlayer exit code: (" << exitCode << ")." << endl;
-}
 
 void CommandPanel::serverStatusChanged(
         enum DCPServerCommandStatus status)

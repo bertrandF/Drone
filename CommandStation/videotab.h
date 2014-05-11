@@ -1,6 +1,6 @@
 /*
- *  This file is part of the CommandStation Project
- *  Copyright (C) 15/04/2014 -- commandpanel.h -- bertrand
+ *  This file is part of the Drone project
+ *  Copyright (C) 11/05/2014 -- videotab.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,42 +18,37 @@
  *
  * */
 
-#ifndef COMMANDPANEL_H
-#define COMMANDPANEL_H
+#ifndef VIDEOTAB_H
+#define VIDEOTAB_H
 
 #include <QWidget>
-#include <QProcess>
-#include <QTextEdit>
-#include <QSqlDatabase>
 
-#include <dcpservercommand.h>
-
-#include "commandstationparameters.h"
-
-
+#include "mplayerwidget.h"
 
 namespace Ui {
-class CommandPanel;
+class videoTab;
 }
 
-class CommandPanel : public QWidget
+class VideoTab : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit CommandPanel(CommandStationParameters *cmdP, QWidget *parent = 0);
-    ~CommandPanel();
+    explicit VideoTab(QString mediaFile, QWidget *parent = 0);
+    ~VideoTab();
+
+    MPlayerWidget   *player;
+    QString         mediaFile;
 
 public slots:
-    void    serverStatusChanged (enum DCPServerCommandStatus status);
-    void    quit();
+    void    mplayerProcessFinished  (int exitCode,
+                                     QProcess::ExitStatus exitStatus);
+    void    mplayerProcessError     (QProcess::ProcessError err);
+    void    mplayerReadyReadError   ();
+    void    mplayerReadyReadOutput  ();
 
 private:
-    Ui::CommandPanel            *ui;
-    QTextEdit                   *logBox;
-    CommandStationParameters    *cmdP;
-    QSqlDatabase                db;
-    DCPServerCommand            *commandServer;
+    Ui::videoTab *ui;
 };
 
-#endif // COMMANDPANEL_H
+#endif // VIDEOTAB_H

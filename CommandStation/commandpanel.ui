@@ -39,7 +39,11 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="MPlayerWidget" name="frontVideoWidget" native="true"/>
+     <widget class="QTabWidget" name="videosTabWidget">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -89,20 +93,8 @@
     </rect>
    </property>
   </widget>
-  <zorder>groupBox</zorder>
-  <zorder>logTextBox</zorder>
-  <zorder>compass</zorder>
-  <zorder>artificialHorizon</zorder>
-  <zorder>altimeter</zorder>
-  <zorder>frontVideoWidget</zorder>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>MPlayerWidget</class>
-   <extends>QWidget</extends>
-   <header>mplayerwidget.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>Compass</class>
    <extends>QGraphicsView</extends>

@@ -16,19 +16,22 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     configurationpanel.cpp \
     commandpanel.cpp \
-    mplayerwidget.cpp
+    mplayerwidget.cpp \
+    videotab.cpp
 
 HEADERS  += mainwindow.h \
     configurationpanel.h \
     commandpanel.h \
     mplayerwidget.h \
     commandstationparameters.h \
-    constants.h
+    constants.h \
+    videotab.h
 
 FORMS    += mainwindow.ui \
     configurationpanel.ui \
     commandpanel.ui \
-    configurationwindow.ui
+    configurationwindow.ui \
+    videotab.ui
 
 RESOURCES += \
     Resources.qrc
