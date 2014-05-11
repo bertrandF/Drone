@@ -147,12 +147,12 @@ void CommandPanel::quit()
     this->logBox->append("\nEXITING ...");
     this->commandServer->disconnectFromDrone();
     this->logBox->append("Waiting state DICONNECTED ...");
-    while(this->commandServer->getStatus() < Disconnected)
+    while(this->commandServer->getStatus() == Disconnecting)
         QCoreApplication::processEvents();
 
     this->commandServer->sayByeBye();
     this->logBox->append("Waiting state STOPPED ...");
-    while(this->commandServer->getStatus() < Stopped)
+    while(this->commandServer->getStatus() == Stopping)
         QCoreApplication::processEvents();
     this->logBox->append("Exit process done ...");
 }
