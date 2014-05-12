@@ -1,4 +1,18 @@
-/*
+/*!
+ *   \file  main.c
+ *   \brief Main file for UAV station.
+ *
+ *  Parses the command line, create the socket, starts the server.
+ *  
+ *  \author  Bertrand
+ *  
+ *  \internal
+ *       Created:  11/05/2014
+ *      Revision:  none
+ *      Compiler:  gcc
+ *  Organization:  
+ *     Copyright:  
+ *  
  *  This file is part of the Drone Project
  *  Copyright (C) 11/05/2014 -- main.c -- bertrand
  *
@@ -17,6 +31,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * */
+
 
 /* Linux socket includes */
 #include <sys/types.h>
@@ -67,6 +82,7 @@ static struct options_s options = {
  *  \brief  Prints program's help.
  *  
  *  \return 
+ *
  */
 void usage()
 {
@@ -84,6 +100,14 @@ void usage()
 }
 
 
+/*!
+ *  \brief  Main function.
+ *  
+ *  \param  argc    Number of arguments.
+ *  \param  argv    List or arguments.
+ *  \return         Exit status.
+ *
+ */
 int main(int argc, char** argv)
 {
     char opt;  
