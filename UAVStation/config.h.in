@@ -1,0 +1,4 @@
+/* File to pass some CMake configuration to the source code */
+#define PROGRAM_NAME            "@MYPROG_NAME@"
+#define PROGRAM_VERSION_MAJOR	@MYPROG_VERSION_MAJOR@
+#define PROGRAM_VERSION_MINOR	@MYPROG_VERSION_MINOR@
