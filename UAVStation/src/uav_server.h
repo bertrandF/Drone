@@ -31,6 +31,34 @@
 #ifndef __UAV_SERVER_H__
 #define __UAV_SERVER_H__
 
-extern void uavsrv_run(int sock);
+#include <sys/socket.h>
+
+#define UAVSRV_ERR_NOERR        (0)     ///< No errors.
+#define UAVSRV_ERR_RUNNING      (1)     ///< Server is running.
+#define UAVSRV_ERR_MALLOC       (2)     ///< Error in malloc() function call.
+#define UAVSRV_ERR_REQCREATED   (3)     ///< State CREATED required.
+#define UAVSRV_ERR_NULLPARAMS   (4)     ///< Supplied pointer to struct uavsrv_params_s is null.
+#define UAVSRV_ERR_SOCKET       (5)     ///< Error in socket() function call.
+#define UAVSRV_ERR_BIND         (6)     ///< Error in bind() function call.
+
+
+/*!
+ *  \brief  UAV server's user defined parameters.
+ *
+ *  Structure for the user to set paramters for the server.
+ *  This structure must be given to uavsrv_run().
+ *  
+ */
+struct uavsrv_params_s {
+    struct sockaddr sin_addr;   ///< Socket bind interface addr.
+};
+
+
+extern int          uavsrv_err;
+extern const char*  uavsrv_errstr   ();
+
+extern int          uavsrv_create   ();
+extern int          uavsrv_run      (struct uavsrv_params_s *params);
+extern void         uavsrv_destroy  ();
 
 #endif

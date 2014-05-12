@@ -28,13 +28,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
-/* Linux socket includes */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <netinet/in.h>
+/* Get interfaces addrs includes */
 #include <ifaddrs.h>
 
 /* Other includes */
@@ -129,8 +123,8 @@ void usage()
 int main(int argc, char** argv)
 {
     char opt;  
-    int srv_socket;
     struct ifaddrs *ifaddrs, *ifaddr ;
+    struct uavsrv_params_s uavparams;
 
     /* Parse command line arguments */
     while( (opt=getopt_long(argc, argv, "46hi:p:", long_options, NULL)) > 0) {
@@ -162,7 +156,6 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
-
     /* Find the interface configuration */
     if(getifaddrs(&ifaddrs) < 0)
         error(EXIT_FAILURE, errno, "Could not get interfaces configuration");
@@ -170,7 +163,7 @@ int main(int argc, char** argv)
         if(ifaddr->ifa_addr != NULL &&
                 ifaddr->ifa_addr->sa_family == options.sin_family &&
                 strcmp(options.if_name, ifaddr->ifa_name) == 0 ) {
-            memcpy(ifaddr->ifa_addr, &(options.if_addr), sizeof(struct sockaddr));
+            memcpy(&(options.if_addr), ifaddr->ifa_addr, sizeof(struct sockaddr));
             break;
         }
     }
@@ -180,14 +173,14 @@ int main(int argc, char** argv)
                 options.if_name, (options.sin_family==AF_INET) ? 4 : 6);
     }
 
-    /* Create server */
-    if((srv_socket=socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-        error(EXIT_FAILURE, errno, "Could not create socket");
-    if(bind(srv_socket, &(options.if_addr), sizeof(struct sockaddr)) < 0)
-        error(EXIT_FAILURE, errno, "Could not bind socket");
+    /* Create+Start UAV server */
+    if(uavsrv_create() < 0) 
+        error(EXIT_FAILURE, errno, uavsrv_errstr());
+    uavparams.sin_addr = options.if_addr;
+    if(uavsrv_run(&uavparams) < 0)
+        error(EXIT_FAILURE, errno, uavsrv_errstr());
+    uavsrv_destroy();
 
-
-    close(srv_socket);
     return 0;
 }
 
