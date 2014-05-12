@@ -1,21 +1,18 @@
 /*!
  *   \file  uav_server.c
- *   \brief  UAV server, receive commands from the command station 
+ *   \brief  UAV server, receive commands from the command station
  *   and send status report to central station.
  *  
  *  Takes care of all the DCP protocol steps for the UAV.
  *  
- *  \author  Bertrand
+ *  \author  Bertrand.F (), 
  *  
  *  \internal
  *       Created:  12/05/2014
  *      Revision:  none
  *      Compiler:  gcc
  *  Organization:  
- *     Copyright:  
- *  
- *  This file is part of the Drone Project
- *  Copyright (C) 12/05/2014 -- uav_server.c -- bertrand
+ *     Copyright:  Copyright (C), 2014, Bertrand.F
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,7 +27,6 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * */
+ */
 
-
+#include "uav_server.h"

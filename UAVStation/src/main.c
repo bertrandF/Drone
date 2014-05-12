@@ -4,17 +4,14 @@
  *
  *  Parses the command line, create the socket, starts the server.
  *  
- *  \author  Bertrand
+ *  \author  Bertrand.F (), 
  *  
  *  \internal
  *       Created:  11/05/2014
  *      Revision:  none
  *      Compiler:  gcc
  *  Organization:  
- *     Copyright:  
- *  
- *  This file is part of the Drone Project
- *  Copyright (C) 11/05/2014 -- main.c -- bertrand
+ *     Copyright:  Copyright (C), 2014, Bertrand.F
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,8 +26,7 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * */
+ */
 
 
 /* Linux socket includes */
@@ -50,9 +46,17 @@
 
 /* Local includes */
 #include "config.h"
+#include "uav_server.h"
 
 
-/* Options */
+/*!
+ *  \brief  Available long options
+ *  
+ *  This structure is meant to be given as an argument to
+ *  the getopt_long() function for reading the command line
+ *  options.
+ *
+ */
 static struct option long_options[] = {
     {"help",        no_argument,        NULL,   'h'},
     {"interface",   required_argument,  NULL,   'i'},
@@ -63,12 +67,19 @@ static struct option long_options[] = {
 };
 
 
-/* Configuration */
+
+/*!
+ *  \brief  Stores the command line options.
+ *
+ *  Store the user configuration given from the 
+ *  command line.
+ *  
+ */
 struct options_s {
-    char            *if_name;
-    struct sockaddr if_addr;
-    int             sin_family;
-    unsigned short  sin_port;
+    char            *if_name;       ///< Interface name
+    struct sockaddr if_addr;        ///< Interface sockaddr (IPv4 or IPv6)
+    int             sin_family;     ///< User required sock family (IPv4 or IPv6)
+    unsigned short  sin_port;       ///< Listening port of the server
 };
 static struct options_s options = {
     NULL,
@@ -80,8 +91,11 @@ static struct options_s options = {
 
 /*!
  *  \brief  Prints program's help.
+ *
+ *  Displays the version of the program and 
+ *  the available options.
  *  
- *  \return 
+ *  \return Void. 
  *
  */
 void usage()
@@ -102,6 +116,10 @@ void usage()
 
 /*!
  *  \brief  Main function.
+ *
+ *  Parses arguments of the command line and stores
+ *  configuration in struct options_s. Then creates and
+ *  binds the server's UDP socket.
  *  
  *  \param  argc    Number of arguments.
  *  \param  argv    List or arguments.
