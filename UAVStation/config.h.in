@@ -1,9 +1,40 @@
+/*!
+ *   \file  config.h
+ *   \brief Configuration file for UAV Server.
+ *  
+ *  Contains the parameters passed down by CMake during build.
+ *  
+ *  \author  Bertrand.F (), 
+ *  
+ *  \internal
+ *       Created:  12/05/2014
+ *      Revision:  none
+ *      Compiler:  gcc
+ *  Organization:  
+ *     Copyright:  Copyright (C), 2014, Bertrand.F
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
 /* File to pass some CMake configuration to the source code */
-#define PROGRAM_NAME            "@MYPROG_NAME@"
-#define PROGRAM_VERSION_MAJOR	@MYPROG_VERSION_MAJOR@
-#define PROGRAM_VERSION_MINOR	@MYPROG_VERSION_MINOR@
+#define PROGRAM_NAME            "@MYPROG_NAME@"             ///< Program name.
+#define PROGRAM_VERSION_MAJOR	@MYPROG_VERSION_MAJOR@      ///< Version's major number.
+#define PROGRAM_VERSION_MINOR	@MYPROG_VERSION_MINOR@      ///< Version's minor number.
 
 #endif
