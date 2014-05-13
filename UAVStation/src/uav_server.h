@@ -40,6 +40,7 @@
 #define UAVSRV_ERR_NULLPARAMS   (4)     ///< Supplied pointer to struct uavsrv_params_s is null.
 #define UAVSRV_ERR_SOCKET       (5)     ///< Error in socket() function call.
 #define UAVSRV_ERR_BIND         (6)     ///< Error in bind() function call.
+#define UAVSRV_ERR_REQREADY     (7)     ///< State SOCKREADY required.
 
 
 /*!

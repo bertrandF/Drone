@@ -45,6 +45,7 @@
 
 /* Local includes */
 #include "uav_server.h"
+#include "dcp.h"
 
 
 /*!
@@ -100,10 +101,11 @@ const char* errstrs [] = {
     "UAV SRV: no errors",
     "UAV SRV: srv running",
     "UAV SRV: cannot alloc mem",
-    "UAV SRV: requires stated CREATED",
+    "UAV SRV: requires state CREATED",
     "UAV SRV: params=NULL",
     "UAV SRV: cannot create socket",
-    "UAV SRV: cannot bind socket"
+    "UAV SRV: cannot bind socket",
+    "UAV SRV: requires state SOCKREADY"
 };
 
 
@@ -159,6 +161,15 @@ int uavsrv_create()
  */
 int uavsrv_start()
 {
+    /* Check required state */
+    if( uavsrv.state != SOCKREADY ) {
+        uavsrv_err = UAVSRV_ERR_REQREADY;
+        return -1;
+    }
+    
+    /* Say hello */
+
+
     return 0;
 }
 
