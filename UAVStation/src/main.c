@@ -29,6 +29,8 @@
  */
 
 /* Get interfaces addrs includes */
+#include <netdb.h>
+#include <sys/socket.h>
 #include <ifaddrs.h>
 
 /* Other includes */
@@ -52,10 +54,12 @@
  *
  */
 static struct option long_options[] = {
+    {"central-host",required_argument,  NULL,   'C'},
     {"help",        no_argument,        NULL,   'h'},
     {"interface",   required_argument,  NULL,   'i'},
     {"ipv4",        no_argument,        NULL,   '4'},
     {"ipv6",        no_argument,        NULL,   '6'},
+    {"central-port",required_argument,  NULL,   'P'},
     {"port",        required_argument,  NULL,   'p'},
     {0,             0,                  NULL,    0 }
 };
@@ -70,16 +74,22 @@ static struct option long_options[] = {
  *  
  */
 struct options_s {
-    char            *if_name;       ///< Interface name
-    struct sockaddr if_addr;        ///< Interface sockaddr (IPv4 or IPv6)
-    int             sin_family;     ///< User required sock family (IPv4 or IPv6)
-    unsigned short  sin_port;       ///< Listening port of the server
+    char            *if_name;       ///< Interface name.
+    struct sockaddr if_addr;        ///< Interface sockaddr (IPv4 or IPv6).
+    int             sin_family;     ///< User required sock family (IPv4 or IPv6).
+    unsigned short  sin_port;       ///< Listening port of the server.
+    char            *central_host;  ///< Central station host.
+    struct addrinfo *central_info;  ///< Central station host informations.
+    unsigned short  central_port;   ///< Central station port.
 };
 static struct options_s options = {
     NULL,
     {},
     AF_INET,
-    5868
+    5868,
+    NULL,
+    NULL, 
+    5867
 };
 
 
@@ -99,11 +109,13 @@ void usage()
     printf("Usage: %s [options]\n", PROGRAM_NAME);
     printf("\n");
     printf("Options:\n");
-    printf("  -4, --ipv4        Use IPv4 only.\n");
-    printf("  -6, --ipv6        Use IPv6 only.\n");
-    printf("  -h, --help        Prints this help.\n");
-    printf("  -i, --interface   Interface to bind server on.\n");
-    printf("  -p, --port        Port to bind the server on.\n");
+    printf("  -4, --ipv4         Use IPv4 only.\n");
+    printf("  -6, --ipv6         Use IPv6 only.\n");
+    printf("  -C, --central-host Central Station host.\n");
+    printf("  -h, --help         Prints this help.\n");
+    printf("  -i, --interface    Interface to bind server on.\n");
+    printf("  -P, --central-port Central Station port.\n");
+    printf("  -p, --port         Port to bind the server on.\n");
     printf("\n");
 }
 
@@ -122,12 +134,14 @@ void usage()
  */
 int main(int argc, char** argv)
 {
-    char opt;  
+    char opt;
+    int err;
     struct ifaddrs *ifaddrs, *ifaddr ;
     struct uavsrv_params_s uavparams;
+    struct addrinfo hints;
 
     /* Parse command line arguments */
-    while( (opt=getopt_long(argc, argv, "46hi:p:", long_options, NULL)) > 0) {
+    while( (opt=getopt_long(argc, argv, "46C:hi:P:p:", long_options, NULL)) > 0) {
         switch(opt) {
             case '4':
                 options.sin_family = AF_INET;
@@ -135,11 +149,17 @@ int main(int argc, char** argv)
             case '6':
                 options.sin_family = AF_INET6;
                 break;
+            case 'C':
+                options.central_host = optarg;
+                break;
             case 'h':
                 usage();
                 return EXIT_SUCCESS;
             case 'i':
                 options.if_name = optarg;
+                break;
+            case 'P':
+                options.central_port = atoi(optarg);
                 break;
             case 'p':
                 options.sin_port = atoi(optarg);
@@ -151,9 +171,25 @@ int main(int argc, char** argv)
         }
     }  
     if( !options.if_name ) {
-        fprintf(stderr, "Please specify interface through -i option.\n");
+        fprintf(stderr, "Please specify interface through the --interface option.\n");
         usage();
         return EXIT_SUCCESS;
+    }
+    if( !options.central_host ) {
+        fprintf(stderr, "Please specify central hostname/IP through the --central-host option.\n");
+        usage();
+        return EXIT_SUCCESS;
+    }
+    else {
+        memset(&hints, 0, sizeof(struct addrinfo));
+        hints.ai_family     = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+        hints.ai_socktype   = SOCK_DGRAM;   /* UDP */
+        hints.ai_flags      = 0;   /*  */
+        hints.ai_protocol   = 0;            /* Any protocol */
+
+        err = getaddrinfo(options.central_host, NULL, &hints, &(options.central_info));
+        if( err != 0) 
+            error(EXIT_FAILURE, 0, gai_strerror(err));
     }
 
     /* Find the interface configuration */
@@ -176,10 +212,14 @@ int main(int argc, char** argv)
     /* Create+Start UAV server */
     if(uavsrv_create() < 0) 
         error(EXIT_FAILURE, errno, uavsrv_errstr());
-    uavparams.sin_addr = options.if_addr;
+    uavparams.if_addr       = options.if_addr;
+    memcpy(&(uavparams.central_addr), options.central_info->ai_addr, sizeof(struct sockaddr));
+    uavparams.central_port  = options.central_port;
     if(uavsrv_run(&uavparams) < 0)
         error(EXIT_FAILURE, errno, uavsrv_errstr());
     uavsrv_destroy();
+
+    freeaddrinfo(options.central_info);
 
     return 0;
 }

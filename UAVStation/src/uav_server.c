@@ -159,7 +159,7 @@ int uavsrv_create()
  */
 int uavsrv_start()
 {
-    return -1;
+    return 0;
 }
 
 
@@ -197,21 +197,24 @@ int uavsrv_run(struct uavsrv_params_s *params)
     }
         
 
-    /* Create server */
-    if((uavsrv.sock=socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    /* Create socket+bind */
+    if((uavsrv.sock=socket(uavsrv.params.if_addr.sa_family, SOCK_DGRAM, 0)) < 0)
     {
         uavsrv_err = UAVSRV_ERR_SOCKET;
         return -1;
     }
-    if(bind(uavsrv.sock, &(uavsrv.params.sin_addr), sizeof(struct sockaddr)) < 0) 
+    if(bind(uavsrv.sock, &(uavsrv.params.if_addr), sizeof(struct sockaddr)) < 0) 
     {
         uavsrv_err = UAVSRV_ERR_BIND;
         return -1;
     }
     uavsrv.sock = SOCKREADY;
 
+    /* Say hello to central station */
+    if( uavsrv_start() < 0 )
+        return -1;
 
- 
+
     close(uavsrv.sock);
     return 0;
 }

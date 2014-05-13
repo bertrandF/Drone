@@ -50,7 +50,9 @@
  *  
  */
 struct uavsrv_params_s {
-    struct sockaddr sin_addr;   ///< Socket bind interface addr.
+    struct sockaddr if_addr;        ///< Socket bind interface addr.
+    struct sockaddr central_addr;   ///< Central Station host information.
+    unsigned short  central_port;   ///< Central Station port.
 };
 
 
