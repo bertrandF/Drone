@@ -26,37 +26,37 @@
 #define DCP_HEADERSIZE      (4)
 
 /* --- Commands --- */
-#define DCP_CMDACK                  ((qint8)0x00)
-#define DCP_CMDISALIVE              ((qint8)0x01)
-#define DCP_CMDAILERON              ((qint8)0x02)
-#define DCP_CMDTHROTTLE             ((qint8)0x03)
-#define DCP_CMDSETSESSID            ((qint8)0x04)
-#define DCP_CMDLOG                  ((qint8)0x05)
-#define DCP_CMDHELLOFROMCENTRAL     ((qint8)0x06)
-#define DCP_CMDHELLOFROMREMOTE      ((qint8)0x07)
-#define DCP_CMDBYE                  ((qint8)0x08)
-#define DCP_CMDCONNECTTODRONE       ((qint8)0x09)
-#define DCP_CMDDISCONNECT           ((qint8)0x0A)
-#define DCP_CMDVIDEOSERVERS         ((qint8)0x0B)
+#define DCP_CMDACK                  ((char)0x00)
+#define DCP_CMDISALIVE              ((char)0x01)
+#define DCP_CMDAILERON              ((char)0x02)
+#define DCP_CMDTHROTTLE             ((char)0x03)
+#define DCP_CMDSETSESSID            ((char)0x04)
+#define DCP_CMDLOG                  ((char)0x05)
+#define DCP_CMDHELLOFROMCENTRAL     ((char)0x06)
+#define DCP_CMDHELLOFROMREMOTE      ((char)0x07)
+#define DCP_CMDBYE                  ((char)0x08)
+#define DCP_CMDCONNECTTODRONE       ((char)0x09)
+#define DCP_CMDDISCONNECT           ((char)0x0A)
+#define DCP_CMDVIDEOSERVERS         ((char)0x0B)
 
 
 /* --- VIDEO SERVERS --- */
 #define DCP_VIDEOSERVERSSEPARATOR   ((char)'$')
 
 /* --- DEFAULTS IDS --- */
-#define DCP_IDNULL                  ((qint8)0x00)
-#define DCP_IDCENTRAL               ((qint8)0x00)
-#define DCP_SESSIDCENTRAL           ((qint8)0x00)
+#define DCP_IDNULL                  ((char)0x00)
+#define DCP_IDCENTRAL               ((char)0x00)
+#define DCP_SESSIDCENTRAL           ((char)0x00)
 
 /* --- Motors Defaults IDs --- */
 /* Those Motors IDs are reserved */
-#define DCP_MOTORSALL               ((qint8)0x00)
-#define DCP_MOTORSLEFT              ((qint8)0x01)
-#define DCP_MOTORSRIGHT             ((qint8)0x02)
+#define DCP_MOTORSALL               ((char)0x00)
+#define DCP_MOTORSLEFT              ((char)0x01)
+#define DCP_MOTORSRIGHT             ((char)0x02)
 
 /* --- DataBase query --- */
-#define DCP_DBQUERYERROR                ((qint8)-1)
-#define DCP_DBNOAVALIABLEIDS            ((qint8)-2)
+#define DCP_DBQUERYERROR                ((char)-1)
+#define DCP_DBNOAVALIABLEIDS            ((char)-2)
 
 #define DCP_DBSTATIONS                  "stations"
 #define DCP_DBVIDEOSERVERS              "videos"
