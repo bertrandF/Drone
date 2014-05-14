@@ -72,6 +72,7 @@ struct dcp_packet_s {
     uint32_t        timestamp;  ///< DCP packet timestmap.
     char            data[16];   ///< DCP packet payload.
     int             datalen;    ///< DCP packet payload length.
+    struct dcp_packet_s* next;  ///< For ackqueue, next packet in the queue.
 };
 
 
@@ -111,6 +112,8 @@ struct uavsrv_s {
     struct uavsrv_params_s  params;         ///< User given configuration structure.
     int                     sock;           ///< Server socket.
     dcp_handler_f           handlers[16];   ///< DCP packets handlers.
+    struct dcp_packet_s*    ackqueue;       ///< List of sent packet, waiting for ack.
+    struct dcp_packet_s**   ackqueue_tail;  ///< Pointer to next packet pointer; used to insert new packet at the tail of the queue.
 };
 
 
@@ -125,7 +128,9 @@ static struct uavsrv_s  uavsrv = {
     0,
     {},
     -1,
-    {}
+    {},
+    NULL,
+    NULL
 };
 
 
@@ -156,10 +161,66 @@ const char* errstrs [] = {
     "UAV SRV: cannot bind socket",
     "UAV SRV: requires state SOCKREADY",
     "UAV SRV: timed out",
-    "UAV SRV: error in select()"
+    "UAV SRV: error in select()",
+    "UAV SRV: no such packet in ackqueue"
 };
 
 
+//-----------------------------------------------------------------------------
+//  UAV ACK QUEUE HANDLING FUNCTIONS
+//-----------------------------------------------------------------------------
+/*!
+ *  \brief  Add new packet to ackqueue.
+ *  
+ *  \param  packet  Packet to add to ackqueue.
+ *  \return -1 is returned in case of failure. On Success 0 is
+ *          returned.
+ */
+int ackqueue_add(struct dcp_packet_s* packet)
+{
+    *(uavsrv.ackqueue_tail) = packet; 
+    uavsrv.ackqueue_tail = &(packet->next);
+    return 0;
+}
+
+
+
+/*!
+ *  \brief  Delete packet from ack queue.
+ *  
+ *  \param  packet  Packet to delete from ackqueue.
+ *  \return -1 is returned in case of failure. On Success 0 is
+ *          returned.
+ */
+int ackqueue_delete(struct dcp_packet_s* packet)
+{
+    struct dcp_packet_s *p, *prev=NULL;
+    for(p=uavsrv.ackqueue ; p!=NULL ; prev=p, p=p->next) {
+        if(p == packet) {
+            prev->next = p->next;
+            break;
+        }
+    } 
+    
+    return ((!p) ? -1 : 0);
+}
+
+
+/*!
+ *  \brief  Find packet in ackqueue by timestamp value.
+ *  
+ *  \param  timestamp The value of the timestamp to find.
+ *  \return A pointer to the dcp_packet_s structure or NULL on failure.
+ */
+struct dcp_packet_s* ackqueue_findbytimestamp(uint32_t timestamp)
+{
+    struct dcp_packet_s *p;
+    for(p=uavsrv.ackqueue ; p!=NULL ; p=p->next) {
+        if(p->timestamp == timestamp)
+            return p;
+    }
+    return NULL;
+}
 
 //-----------------------------------------------------------------------------
 //  CALLBACKS
@@ -191,6 +252,13 @@ int handler_null(struct dcp_packet_s* packet)
  */
 int handler_hellofromcentral(struct dcp_packet_s* packet)
 {
+    struct dcp_packet_s* ack_p = ackqueue_findbytimestamp(packet->timestamp);
+    if(!ack_p) {
+       uavsrv_err = UAVSRV_ERR_NOACKPACKET;
+       return -1;
+    }
+    
+
     return 0;
 }
 
@@ -238,7 +306,7 @@ int dcp_send(struct dcp_packet_s* packet)
     memcpy(buff+4, packet->data, packet->datalen);
 
     bsent=sendto(uavsrv.sock, buff, 4+packet->datalen, 0, &(packet->dstaddr), packet->dstaddrlen);
-    
+
     return ((bsent>0) ? 0 : -1);
 }
 
@@ -269,7 +337,11 @@ int dcp_hello(struct sockaddr* dst, char *str, int len)
     memcpy(&(packet.data), str, len);
     packet.datalen      = len;
 
-    return dcp_send(&packet);
+    if(dcp_send(&packet) < 0) {
+        return -1;
+    }
+    ackqueue_add(&packet);
+    return 0;
 }
 
 
@@ -395,6 +467,9 @@ int uavsrv_create()
         uavsrv.handlers[i] = handler_null;
     }
     uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_hellofromcentral;
+
+    /* Ack queue */
+    uavsrv.ackqueue_tail = &(uavsrv.ackqueue);
 
     uavsrv.state = CREATED;
     return 0;
