@@ -101,6 +101,23 @@ int handler_null(struct dcp_packet_s* packet)
 
 
 
+/*!
+ *  \brief  Handle DCP packet hello from central.
+ *  
+ *  This function handles the HelloFromCentral packet.
+ *
+ *  \param  packet  Hello from central packet.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_hellofromcentral(struct dcp_packet_s* packet)
+{
+    return 0;
+}
+
+
+
 
 //-----------------------------------------------------------------------------
 //  SEND DCP PACKETS
@@ -314,12 +331,21 @@ struct dcp_packet_s* uavsrv_dcp_waitone()
  */
 int uavsrv_create() 
 {
+    int i;
+
     /* Check the server is not already running. */
     if( uavsrv.state > NONE ) 
     {
         uavsrv_err = UAVSRV_ERR_RUNNING;
         return -1;
     }
+
+    /* Init DCP packet handlers*/
+    for(i=0 ; i<16 ; ++i) {
+        uavsrv.handlers[i] = handler_null;
+    }
+    uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_hellofromcentral;
+
     uavsrv.state = CREATED;
     return 0;
 }
