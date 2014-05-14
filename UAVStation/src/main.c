@@ -61,6 +61,7 @@ static struct option long_options[] = {
     {"ipv6",        no_argument,        NULL,   '6'},
     {"central-port",required_argument,  NULL,   'P'},
     {"port",        required_argument,  NULL,   'p'},
+    {"timeout",     required_argument,  NULL,   't'},
     {0,             0,                  NULL,    0 }
 };
 
@@ -81,6 +82,7 @@ struct options_s {
     char            *central_host;  ///< Central station host.
     struct addrinfo *central_info;  ///< Central station host informations.
     unsigned short  central_port;   ///< Central station port.
+    unsigned long   timeout;        ///< Select() timeout in milliseconds.
 };
 static struct options_s options = {
     NULL,
@@ -89,7 +91,8 @@ static struct options_s options = {
     5868,
     NULL,
     NULL, 
-    5867
+    5867,
+    1000
 };
 
 
@@ -116,6 +119,7 @@ void usage()
     printf("  -i, --interface    Interface to bind server on.\n");
     printf("  -P, --central-port Central Station port.\n");
     printf("  -p, --port         Port to bind the server on.\n");
+    printf("  -t, --timeout      Timeout to receive a packet.\n");
     printf("\n");
 }
 
@@ -163,6 +167,9 @@ int main(int argc, char** argv)
                 break;
             case 'p':
                 options.sin_port = atoi(optarg);
+                break;
+            case 't':
+                options.timeout = atol(optarg);
                 break;
             case '?':
                 break;
@@ -215,6 +222,8 @@ int main(int argc, char** argv)
     uavparams.if_addr       = options.if_addr;
     memcpy(&(uavparams.central_addr), options.central_info->ai_addr, sizeof(struct sockaddr));
     uavparams.central_port  = options.central_port;
+    uavparams.timeout.tv_sec    = options.timeout/1000;
+    uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
     if(uavsrv_run(&uavparams) < 0)
         error(EXIT_FAILURE, errno, uavsrv_errstr());
     uavsrv_destroy();

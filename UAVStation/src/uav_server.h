@@ -41,6 +41,8 @@
 #define UAVSRV_ERR_SOCKET       (5)     ///< Error in socket() function call.
 #define UAVSRV_ERR_BIND         (6)     ///< Error in bind() function call.
 #define UAVSRV_ERR_REQREADY     (7)     ///< State SOCKREADY required.
+#define UAVSRV_ERR_TIMEDOUT     (8)     ///< Waiting has timed out.
+#define UAVSRV_ERR_SELECT       (9)     ///< Error in select() call.
 
 
 /*!
@@ -54,6 +56,7 @@ struct uavsrv_params_s {
     struct sockaddr if_addr;        ///< Socket bind interface addr.
     struct sockaddr central_addr;   ///< Central Station host information.
     unsigned short  central_port;   ///< Central Station port.
+    struct timeval  timeout;        ///< Select() timeout.
 };
 
 
