@@ -114,6 +114,8 @@ struct uavsrv_s {
     dcp_handler_f           handlers[16];   ///< DCP packets handlers.
     struct dcp_packet_s*    ackqueue;       ///< List of sent packet, waiting for ack.
     struct dcp_packet_s**   ackqueue_tail;  ///< Pointer to next packet pointer; used to insert new packet at the tail of the queue.
+    int                     myid;           ///< UAV ID.
+    int                     central_sessid; ///< SessID to speak with central station.
 };
 
 
@@ -130,7 +132,9 @@ static struct uavsrv_s  uavsrv = {
     -1,
     {},
     NULL,
-    NULL
+    NULL,
+    DCP_IDNULL,
+    DCP_IDNULL
 };
 
 
@@ -258,6 +262,10 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
        return -1;
     }
     
+    uavsrv.myid             = (char)((packet->data[0]   ) & 0x0F);
+    uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
+
+    dcp_packetack(packet);
 
     return 0;
 }
