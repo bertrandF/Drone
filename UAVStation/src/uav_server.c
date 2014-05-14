@@ -370,13 +370,17 @@ int uavsrv_start()
         uavsrv_err = UAVSRV_ERR_REQREADY;
         return -1;
     }
-    
+   
+    /* Say hello */
     dcp_hello(&(uavsrv.params.central_addr), UAVDESC, UAVDESCLEN);
     do {
         packet = uavsrv_dcp_waitone();
-    } while(!packet || packet->cmd!=DCP_CMDHELLOFROMCENTRAL);
-    dcp_packetack(packet);
+    } while(packet!=NULL && packet->cmd!=DCP_CMDHELLOFROMCENTRAL);
+    if(!packet) {
+        return -1;
+    }
 
+    dcp_packetack(packet);
     return 0;
 }
 
