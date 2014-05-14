@@ -288,6 +288,10 @@ int dcp_hello(struct sockaddr* dst, char *str, int len)
  */
 int dcp_packetack(struct dcp_packet_s* packet)
 {
+    packet->cmd = DCP_CMDACK;
+    packet->datalen = 0;
+    dcp_send(packet);
+
     return 0;
 }
 
