@@ -561,7 +561,7 @@ int uavsrv_run(struct uavsrv_params_s *params)
         uavsrv_err = UAVSRV_ERR_BIND;
         return -1;
     }
-    uavsrv.sock = SOCKREADY;
+    uavsrv.state = SOCKREADY;
     uavsrv.start_time = time(NULL);
 
     /* Say hello to central station */
