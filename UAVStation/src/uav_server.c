@@ -49,7 +49,7 @@
 #include "dcp.h"
 
 /* Defines */
-#define UAVDESC     "UAV-XFL02648"
+#define UAVDESC     "DUAV-XFL02648"
 #define UAVDESCLEN  (12)
 
 
