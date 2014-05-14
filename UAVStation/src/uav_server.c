@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 /* Local includes */
 #include "uav_server.h"
@@ -50,10 +51,13 @@
 
 /* Defines */
 #define UAVDESC     "DUAV-XFL02648"
-#define UAVDESCLEN  (12)
+#define UAVDESCLEN  (13)
 
 
 
+//-----------------------------------------------------------------------------
+//  DCP DATATYPES
+//-----------------------------------------------------------------------------
 /*!
  *  \brief  DCP packet structure.
  *
@@ -72,10 +76,6 @@ struct dcp_packet_s {
 
 
 
-//-----------------------------------------------------------------------------
-//  CALLBACKS
-//-----------------------------------------------------------------------------
-
 /*!
  *  \brief  DCP packet handler callback functions type.
  *  
@@ -85,100 +85,8 @@ struct dcp_packet_s {
 typedef int(*dcp_handler_f)(struct dcp_packet_s* packet);
 
 
-
-/*!
- *  \brief Null DCP packet handler. 
- *  
- *  This function does nothing.
- *
- *  \param  packet  The DCP packet structure.
- *  \return Always return 0 (Sucess).
- */
-int handler_null(struct dcp_packet_s* packet) 
-{
-    return 0;
-}
-
-
-
-/*!
- *  \brief  Handle DCP packet hello from central.
- *  
- *  This function handles the HelloFromCentral packet.
- *
- *  \param  packet  Hello from central packet.
- *  \return -1 is returned in case of failure and uavsrv_err is set
- *          with the corresponding error code. On Success 0 is
- *          returned.
- */
-int handler_hellofromcentral(struct dcp_packet_s* packet)
-{
-    return 0;
-}
-
-
-
-
 //-----------------------------------------------------------------------------
-//  SEND DCP PACKETS
-//-----------------------------------------------------------------------------
-
-/*!
- *  \brief  Destroy a previously allocated packet structure.
- *  
- *  Free the memory allocated for a packet; for exmample after a call to 
- *  uavsrv_dcp_waitone().
- *
- *  \param  packet  pointer to the packet to destroy.
- *  \return Void.
- */
-void dcp_packetfree(struct dcp_packet_s* packet)
-{
-     free(packet);   
-}
-
-/*!
- *  \brief  Send Hello to central server.
- *  
- *  Sen hello to the central station. This function builds the DCP packet to send
- *  and call the sendto() function.
- *
- *  \param  dst Central station sockaddr structure.
- *  \param  str UAV description message to register to DB.
- *  \param  len Length of the desciption message in str.
- *  \return -1 is returned in case of failure and uavsrv_err is set
- *          with the corresponding error code. On Success 0 is
- *          returned.
- */
-int dcp_hello(struct sockaddr* dst, char *str, int len) 
-{
-    struct dcp_packet_s packet;
-    // TODO: send packet
-    
-    return 0;
-}
-
-
-
-
-/*!
- *  \brief  Send Ack for given packet.
- *  
- *  Send and Ack for the given packet. The packet already contains the struct sockaddr 
- *  of the sender. For performances purposes, it reusses the same struct to build the Ack.
- *
- *  \param  packet  The packet to send an Ack for.
- *  \return -1 is returned in case of failure and uavsrv_err is set
- *          with the corresponding error code. On Success 0 is
- *          returned.
- */
-int dcp_packetack(struct dcp_packet_s* packet)
-{
-    return 0;
-}
-
-//-----------------------------------------------------------------------------
-//  UAV STRUCTURES + FUNCTIONS
+//  UAV DATATYPES
 //-----------------------------------------------------------------------------
 
 /*!
@@ -199,6 +107,7 @@ enum uavsrv_state_e {
  */
 struct uavsrv_s {
     enum uavsrv_state_e     state;          ///< UAV Server state.
+    time_t                  start_time;     ///< UAV start time (used for timestamps).
     struct uavsrv_params_s  params;         ///< User given configuration structure.
     int                     sock;           ///< Server socket.
     dcp_handler_f           handlers[16];   ///< DCP packets handlers.
@@ -213,6 +122,7 @@ struct uavsrv_s {
  */
 static struct uavsrv_s  uavsrv = { 
     NONE, 
+    0,
     {},
     -1,
     {}
@@ -250,6 +160,142 @@ const char* errstrs [] = {
 };
 
 
+
+//-----------------------------------------------------------------------------
+//  CALLBACKS
+//-----------------------------------------------------------------------------
+/*!
+ *  \brief Null DCP packet handler. 
+ *  
+ *  This function does nothing.
+ *
+ *  \param  packet  The DCP packet structure.
+ *  \return Always return 0 (Sucess).
+ */
+int handler_null(struct dcp_packet_s* packet) 
+{
+    return 0;
+}
+
+
+
+/*!
+ *  \brief  Handle DCP packet hello from central.
+ *  
+ *  This function handles the HelloFromCentral packet.
+ *
+ *  \param  packet  Hello from central packet.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_hellofromcentral(struct dcp_packet_s* packet)
+{
+    return 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//  SEND DCP PACKETS
+//-----------------------------------------------------------------------------
+/*!
+ *  \brief  Destroy a previously allocated packet structure.
+ *  
+ *  Free the memory allocated for a packet; for exmample after a call to 
+ *  uavsrv_dcp_waitone().
+ *
+ *  \param  packet  pointer to the packet to destroy.
+ *  \return Void.
+ */
+void dcp_packetfree(struct dcp_packet_s* packet)
+{
+     free(packet);   
+}
+
+
+
+/*!
+ *  \brief  Send given DCP packet.
+ *  
+ *  Translate the given packet into a buffer and send it.
+ *
+ *  \param  packet  Packet to send
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int dcp_send(struct dcp_packet_s* packet) 
+{
+    char buff[32];
+    int bsent;
+
+    buff[0] = (packet->cmd & 0x0F)<<4 | (packet->sessid & 0x0F);
+    buff[1] = (char)((packet->timestamp>>16) & (uint32_t)0x000000FF);
+    buff[2] = (char)((packet->timestamp>> 8) & (uint32_t)0x000000FF);
+    buff[3] = (char)((packet->timestamp    ) & (uint32_t)0x000000FF);
+    memcpy(buff+4, packet->data, packet->datalen);
+
+    bsent=sendto(uavsrv.sock, buff, 4+packet->datalen, 0, &(packet->dstaddr), packet->dstaddrlen);
+    
+    return ((bsent>0) ? 0 : -1);
+}
+
+
+
+/*!
+ *  \brief  Send Hello to central server.
+ *  
+ *  Sen hello to the central station. This function builds the DCP packet to send
+ *  and call the sendto() function.
+ *
+ *  \param  dst Central station sockaddr structure.
+ *  \param  str UAV description message to register to DB.
+ *  \param  len Length of the desciption message in str.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int dcp_hello(struct sockaddr* dst, char *str, int len) 
+{
+    struct dcp_packet_s packet;
+
+    packet.dstaddr      = uavsrv.params.central_addr;
+    packet.dstaddrlen   = sizeof(uavsrv.params.central_addr);
+    packet.cmd          = DCP_CMDHELLOFROMREMOTE;
+    packet.sessid       = DCP_SESSIDCENTRAL;
+    packet.timestamp    = time(NULL)-uavsrv.start_time;
+    memcpy(&(packet.data), str, len);
+    packet.datalen      = len;
+
+    return dcp_send(&packet);
+}
+
+
+
+
+/*!
+ *  \brief  Send Ack for given packet.
+ *  
+ *  Send and Ack for the given packet. The packet already contains the struct sockaddr 
+ *  of the sender. For performances purposes, it reusses the same struct to build the Ack.
+ *
+ *  \param  packet  The packet to send an Ack for.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int dcp_packetack(struct dcp_packet_s* packet)
+{
+    return 0;
+}
+
+
+
+//-----------------------------------------------------------------------------
+//  UAV FUNCTIONS
+//-----------------------------------------------------------------------------
 /*!
  *  \brief  Returns a string decribing the last error message.
  *  
@@ -429,6 +475,7 @@ int uavsrv_run(struct uavsrv_params_s *params)
         return -1;
     }
     uavsrv.sock = SOCKREADY;
+    uavsrv.start_time = time(NULL);
 
     /* Say hello to central station */
     if( uavsrv_start() < 0 )
