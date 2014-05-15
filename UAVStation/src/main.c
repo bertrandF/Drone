@@ -272,12 +272,12 @@ int main(int argc, char** argv)
     if( !options.if_name ) {
         fprintf(stderr, "Please specify interface through the --interface option.\n");
         usage();
-        return EXIT_SUCCESS;
+        return EXIT_FAILURE;
     }
     if( !options.central_host ) {
         fprintf(stderr, "Please specify central hostname/IP through the --central-host option.\n");
         usage();
-        return EXIT_SUCCESS;
+        return EXIT_FAILURE;
     }
 
 
