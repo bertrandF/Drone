@@ -44,6 +44,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <syslog.h>
 
 /* Local includes */
 #include "uav_server.h"

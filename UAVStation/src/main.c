@@ -40,6 +40,7 @@
 #include <error.h>
 #include <string.h>
 #include <getopt.h>
+#include <syslog.h>
 
 /* Local includes */
 #include "config.h"
@@ -232,6 +233,9 @@ int main(int argc, char** argv)
     char opt; 
     struct uavsrv_params_s uavparams;
 
+    /* Open Logs */
+    openlog(PROGRAM_NAME, LOG_CONS | LOG_PERROR | LOG_PID, LOG_USER);
+
     /* Parse command line arguments */
     while( (opt=getopt_long(argc, argv, "46C:hi:P:p:", long_options, NULL)) > 0) {
         switch(opt) {
@@ -294,6 +298,9 @@ int main(int argc, char** argv)
     if(uavsrv_run(&uavparams) < 0)
         error(EXIT_FAILURE, errno, uavsrv_errstr());
     uavsrv_destroy();
+
+    /* Close Logs */
+    closelog();
 
     return EXIT_SUCCESS;
 }
