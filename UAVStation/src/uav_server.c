@@ -66,7 +66,7 @@
  */
 struct dcp_packet_s {
     struct sockaddr_storage dstaddr;    ///< Host from which the packet has been received.
-    int                     dstaddrlen; ///< Length of the dstaddr field.
+    socklen_t               dstaddrlen; ///< Length of the dstaddr field.
     uint8_t                 cmd;        ///< DCP command ID.
     uint8_t                 sessid;     ///< DCP packet session ID.
     uint32_t                timestamp;  ///< DCP packet timestmap.
@@ -168,6 +168,30 @@ const char* errstrs [] = {
     "UAV SRV: error in select()",
     "UAV SRV: no such packet in ackqueue"
 };
+
+
+
+//-----------------------------------------------------------------------------
+//  FUNCTIONS DECLARATION
+//-----------------------------------------------------------------------------
+int                     ackqueue_add                (struct dcp_packet_s*);
+int                     ackqueue_delete             (struct dcp_packet_s*);
+struct dcp_packet_s*    ackqueue_findbytimestamp    (uint32_t);
+
+int handler_null                (struct dcp_packet_s*);
+int handler_hellofromcentral    (struct dcp_packet_s*);
+
+void    dcp_packetfree  (struct dcp_packet_s*);
+int     dcp_send        (struct dcp_packet_s*); 
+int     dcp_hello       (struct sockaddr_storage*, char*, int);
+int     dcp_packetack   (struct dcp_packet_s*);
+
+const char*             uavsrv_errstr();
+struct dcp_packet_s*    uavsrv_dcp_waitone();
+int                     uavsrv_create();
+int                     uavsrv_start();
+int                     uavsrv_run(struct uavsrv_params_s*);
+void                    uavsrv_destroy();
 
 
 //-----------------------------------------------------------------------------

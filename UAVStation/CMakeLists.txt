@@ -9,6 +9,11 @@ set(MYPROG_NAME ${PROJECT_NAME})
 set(MYPROG_VERSION_MAJOR 0)
 set(MYPROG_VERSION_MINOR 1)
 
+# Compiler flags
+if(CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+endif()
+
 # Generate list of source files
 file (
     GLOB_RECURSE
