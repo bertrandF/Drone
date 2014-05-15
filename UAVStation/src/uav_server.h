@@ -31,6 +31,7 @@
 #ifndef __UAV_SERVER_H__
 #define __UAV_SERVER_H__
 
+#include <sys/types.h>
 #include <sys/socket.h>
 
 #define UAVSRV_ERR_NOERR        (0)     ///< No errors.
@@ -54,10 +55,11 @@
  *  
  */
 struct uavsrv_params_s {
-    struct sockaddr if_addr;        ///< Socket bind interface addr.
-    struct sockaddr central_addr;   ///< Central Station host information.
-    unsigned short  central_port;   ///< Central Station port.
-    struct timeval  timeout;        ///< Select() timeout.
+    struct sockaddr_storage if_addr;            ///< Socket bind interface sockaddr.
+    socklen_t               if_addrlen;         ///< Bind interface sockaddr length.
+    struct sockaddr_storage central_addr;       ///< Central Station sockaddr.
+    socklen_t               central_addrlen;    ///< Central station sockaddr length.
+    struct timeval          timeout;            ///< Select() timeout.
 };
 
 

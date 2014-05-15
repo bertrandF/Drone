@@ -65,14 +65,14 @@
  *  
  */
 struct dcp_packet_s {
-    struct sockaddr dstaddr;    ///< Host from which the packet has been received.
-    int             dstaddrlen; ///< Length of the dstaddr field.
-    uint8_t         cmd;        ///< DCP command ID.
-    uint8_t         sessid;     ///< DCP packet session ID.
-    uint32_t        timestamp;  ///< DCP packet timestmap.
-    char            data[16];   ///< DCP packet payload.
-    int             datalen;    ///< DCP packet payload length.
-    struct dcp_packet_s* next;  ///< For ackqueue, next packet in the queue.
+    struct sockaddr_storage dstaddr;    ///< Host from which the packet has been received.
+    int                     dstaddrlen; ///< Length of the dstaddr field.
+    uint8_t                 cmd;        ///< DCP command ID.
+    uint8_t                 sessid;     ///< DCP packet session ID.
+    uint32_t                timestamp;  ///< DCP packet timestmap.
+    char                    data[16];   ///< DCP packet payload.
+    int                     datalen;    ///< DCP packet payload length.
+    struct dcp_packet_s*    next;       ///< For ackqueue, next packet in the queue.
 };
 
 
@@ -313,7 +313,7 @@ int dcp_send(struct dcp_packet_s* packet)
     buff[3] = (char)((packet->timestamp    ) & (uint32_t)0x000000FF);
     memcpy(buff+4, packet->data, packet->datalen);
 
-    bsent=sendto(uavsrv.sock, buff, 4+packet->datalen, 0, &(packet->dstaddr), packet->dstaddrlen);
+    bsent=sendto(uavsrv.sock, buff, 4+packet->datalen, 0, (struct sockaddr*)&(packet->dstaddr), packet->dstaddrlen);
 
     return ((bsent>0) ? 0 : -1);
 }
@@ -333,12 +333,12 @@ int dcp_send(struct dcp_packet_s* packet)
  *          with the corresponding error code. On Success 0 is
  *          returned.
  */
-int dcp_hello(struct sockaddr* dst, char *str, int len) 
+int dcp_hello(struct sockaddr_storage* dst, char *str, int len) 
 {
     struct dcp_packet_s packet;
 
     packet.dstaddr      = uavsrv.params.central_addr;
-    packet.dstaddrlen   = sizeof(uavsrv.params.central_addr);
+    packet.dstaddrlen   = uavsrv.params.central_addrlen;
     packet.cmd          = DCP_CMDHELLOFROMREMOTE;
     packet.sessid       = DCP_SESSIDCENTRAL;
     packet.timestamp    = time(NULL)-uavsrv.start_time;
@@ -430,7 +430,7 @@ struct dcp_packet_s* uavsrv_dcp_waitone()
                 uavsrv_err = UAVSRV_ERR_MALLOC;
                 break;
             }
-            bread = recvfrom(uavsrv.sock, buff, bufflen, 0, &(packet->dstaddr), &(packet->dstaddrlen));
+            bread = recvfrom(uavsrv.sock, buff, bufflen, 0, (struct sockaddr*)&(packet->dstaddr), &(packet->dstaddrlen));
             packet->cmd     = (buff[0]>>4) & (char)0x0F;
             packet->sessid  = buff[0] & (char)0x0F;
             packet->timestamp = (uint32_t)((uint32_t)(buff[1]<<16) & (uint32_t)0xFF0000) |
@@ -551,12 +551,12 @@ int uavsrv_run(struct uavsrv_params_s *params)
     }
 
     /* Create socket+bind */
-    if((uavsrv.sock=socket(uavsrv.params.if_addr.sa_family, SOCK_DGRAM, 0)) < 0)
+    if((uavsrv.sock=socket(uavsrv.params.if_addr.ss_family, SOCK_DGRAM, 0)) < 0)
     {
         uavsrv_err = UAVSRV_ERR_SOCKET;
         return -1;
     }
-    if(bind(uavsrv.sock, &(uavsrv.params.if_addr), sizeof(struct sockaddr)) < 0) 
+    if(bind(uavsrv.sock, (struct sockaddr*)&(uavsrv.params.if_addr), uavsrv.params.if_addrlen) < 0) 
     {
         uavsrv_err = UAVSRV_ERR_BIND;
         return -1;

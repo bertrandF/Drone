@@ -75,14 +75,14 @@ static struct option long_options[] = {
  *  
  */
 struct options_s {
-    char            *if_name;       ///< Interface name.
-    struct sockaddr if_addr;        ///< Interface sockaddr (IPv4 or IPv6).
-    int             sin_family;     ///< User required sock family (IPv4 or IPv6).
-    unsigned short  sin_port;       ///< Listening port of the server.
-    char            *central_host;  ///< Central station host.
-    struct addrinfo *central_info;  ///< Central station host informations.
-    unsigned short  central_port;   ///< Central station port.
-    unsigned long   timeout;        ///< Select() timeout in milliseconds.
+    char                    *if_name;       ///< Interface name.
+    struct sockaddr_storage if_addr;        ///< Interface sockaddr (IPv4 or IPv6).
+    int                     sin_family;     ///< User required sock family (IPv4 or IPv6).
+    unsigned short          sin_port;       ///< Listening port of the server.
+    char                    *central_host;  ///< Central station host.
+    struct addrinfo         *central_info;  ///< Central station host informations.
+    unsigned short          central_port;   ///< Central station port.
+    unsigned long           timeout;        ///< Select() timeout in milliseconds.
 };
 static struct options_s options = {
     NULL,
@@ -140,9 +140,9 @@ int main(int argc, char** argv)
 {
     char opt;
     int err;
-    struct ifaddrs *ifaddrs, *ifaddr ;
     struct uavsrv_params_s uavparams;
-    struct addrinfo hints;
+    struct ifaddrs *if_addr, *if_addrs;
+    struct addrinfo hints, *res;
 
     /* Parse command line arguments */
     while( (opt=getopt_long(argc, argv, "46C:hi:P:p:", long_options, NULL)) > 0) {
@@ -177,53 +177,69 @@ int main(int argc, char** argv)
                 break;
         }
     }  
+    /* CHECK interface name */
     if( !options.if_name ) {
         fprintf(stderr, "Please specify interface through the --interface option.\n");
         usage();
         return EXIT_SUCCESS;
     }
+    
+    
+    /* GET central host sockaddr */
     if( !options.central_host ) {
         fprintf(stderr, "Please specify central hostname/IP through the --central-host option.\n");
         usage();
         return EXIT_SUCCESS;
     }
-    else {
-        memset(&hints, 0, sizeof(struct addrinfo));
-        hints.ai_family     = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
-        hints.ai_socktype   = SOCK_DGRAM;   /* UDP */
-        hints.ai_flags      = 0;   /*  */
-        hints.ai_protocol   = 0;            /* Any protocol */
 
-        err = getaddrinfo(options.central_host, NULL, &hints, &(options.central_info));
-        if( err != 0) 
-            error(EXIT_FAILURE, 0, gai_strerror(err));
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family     = options.sin_family;   /* IPv4 / IPv6 */
+    hints.ai_socktype   = SOCK_DGRAM;           /* UDP */
+    hints.ai_flags      = 0;                    /*  */
+    hints.ai_protocol   = 0;                    /* Any protocol */
+    err = getaddrinfo(options.central_host, NULL, &hints, &res);
+    if( err != 0) 
+        error(EXIT_FAILURE, 0, gai_strerror(err));
+    else if(!res)
+        error(EXIT_FAILURE, 0, "Could not get sockaddr for central station");
+    memcpy(&(uavparams.central_addr), res->ai_addr, res->ai_addrlen);
+    uavparams.central_addrlen = res->ai_addrlen;
+    
+
+    /* GET interface sockaddr */
+    if(getifaddrs(&if_addrs) < 0) {
+        error(EXIT_FAILURE, errno, "Could not get interfaces configuration");
     }
 
-    /* Find the interface configuration */
-    if(getifaddrs(&ifaddrs) < 0)
-        error(EXIT_FAILURE, errno, "Could not get interfaces configuration");
-    for( ifaddr=ifaddrs ; ifaddr!=NULL ; ifaddr=ifaddr->ifa_next ) {
-        if(ifaddr->ifa_addr != NULL &&
-                ifaddr->ifa_addr->sa_family == options.sin_family &&
-                strcmp(options.if_name, ifaddr->ifa_name) == 0 ) {
-            memcpy(&(options.if_addr), ifaddr->ifa_addr, sizeof(struct sockaddr));
-            break;
+    uavparams.if_addrlen = (options.sin_family==AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+    for(if_addr=if_addrs ; if_addr!=NULL ; if_addr=if_addr->ifa_next) {
+        if(if_addr->ifa_addr && if_addr->ifa_addr->sa_family == options.sin_family && strcmp(options.if_name, if_addr->ifa_name) == 0) {
+                            if(options.sin_family == AF_INET) {
+                memcpy(&(uavparams.if_addr), if_addr->ifa_addr, sizeof(struct sockaddr_in));
+                ((struct sockaddr_in*)&(uavparams.if_addr))->sin_port = htons(options.sin_port);
+                break;
+            }
+            else if(options.sin_family == AF_INET6 && IN6_IS_ADDR_LINKLOCAL(((struct sockaddr_in6*)if_addr->ifa_addr)->sin6_addr.s6_addr)) {
+                memcpy(&(uavparams.if_addr), if_addr->ifa_addr, sizeof(struct sockaddr_in6));
+                ((struct sockaddr_in6*)&(uavparams.if_addr))->sin6_port = htons(options.sin_port);
+                break;
+            }
         }
     }
-    freeifaddrs(ifaddrs);
-    if( ifaddr == NULL ) {
-        error(EXIT_FAILURE, 0, "Could not find suitable interface %s for protocol IPv%i.\n",
-                options.if_name, (options.sin_family==AF_INET) ? 4 : 6);
+    if(!if_addr) {
+        freeifaddrs(if_addrs);
+        error(EXIT_FAILURE, 0, "Could not find suitable address for local server");
     }
+    freeifaddrs(if_addrs);
 
-    /* Create+Start UAV server */
+
+    /* UAV params + UAV run */
     if(uavsrv_create() < 0) 
         error(EXIT_FAILURE, errno, uavsrv_errstr());
-    uavparams.if_addr       = options.if_addr;
-    memcpy(&(uavparams.central_addr), options.central_info->ai_addr, sizeof(struct sockaddr));
-    uavparams.central_port  = options.central_port;
+
     uavparams.timeout.tv_sec    = options.timeout/1000;
     uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
+    
     if(uavsrv_run(&uavparams) < 0)
         error(EXIT_FAILURE, errno, uavsrv_errstr());
     uavsrv_destroy();
