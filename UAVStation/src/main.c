@@ -76,7 +76,6 @@ static struct option long_options[] = {
  */
 struct options_s {
     char                    *if_name;       ///< Interface name.
-    struct sockaddr_storage if_addr;        ///< Interface sockaddr (IPv4 or IPv6).
     int                     sin_family;     ///< User required sock family (IPv4 or IPv6).
     unsigned short          sin_port;       ///< Listening port of the server.
     char                    *central_host;  ///< Central station host.
@@ -85,7 +84,6 @@ struct options_s {
 };
 static struct options_s options = {
     NULL,
-    {},
     AF_INET,
     5868,
     NULL,
