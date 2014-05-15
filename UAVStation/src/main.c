@@ -37,7 +37,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <error.h>
 #include <string.h>
 #include <getopt.h>
 #include <syslog.h>
@@ -150,11 +149,11 @@ int config_central(struct sockaddr_storage *saddr, socklen_t *slen)
     
     err = getaddrinfo(options.central_host, portstr, &hints, &res);
     if(err!=0) { 
-        error(0, 0, "getaddrinfo(): %s\n", gai_strerror(err));
+        syslog(LOG_ERR, "getaddrinfo(): %s", gai_strerror(err));
         return -1;
     }
     else if(!res) {
-        error(0, 0, "No sockaddr for given central station\n");
+        syslog(LOG_ERR, "No sockaddr for given central station");
         return -1;
     }
 
@@ -185,7 +184,7 @@ int config_interface(struct sockaddr_storage* saddr, socklen_t *slen)
     *slen = (options.sin_family==AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
 
     if(getifaddrs(&if_addrs) < 0) {
-        error(0, errno, "Could not get interfaces configuration");
+        syslog(LOG_ERR, "Could not get interfaces configuration\n\terrno: %m");
         return -1;
     }
 
@@ -208,7 +207,7 @@ int config_interface(struct sockaddr_storage* saddr, socklen_t *slen)
     }
     if(!if_addr) {
         freeifaddrs(if_addrs);
-        error(0, 0, "Could not find suitable address for local server");
+        syslog(LOG_ERR, "Could not find suitable address for local server");
         return -1;
     }
     freeifaddrs(if_addrs);
@@ -270,12 +269,12 @@ int main(int argc, char** argv)
         }
     }  
     if( !options.if_name ) {
-        fprintf(stderr, "Please specify interface through the --interface option.\n");
+        syslog(LOG_ERR, "Please specify interface through the --interface option.");
         usage();
         return EXIT_FAILURE;
     }
     if( !options.central_host ) {
-        fprintf(stderr, "Please specify central hostname/IP through the --central-host option.\n");
+        syslog(LOG_ERR, "Please specify central hostname/IP through the --central-host option.");
         usage();
         return EXIT_FAILURE;
     }
@@ -294,9 +293,9 @@ int main(int argc, char** argv)
 
     /* UAV params + UAV run */
     if(uavsrv_create() < 0) 
-        error(EXIT_FAILURE, errno, uavsrv_errstr());
+        syslog(LOG_ERR, "uavsrv_create(): %s\n\terrno: %m", uavsrv_errstr());
     if(uavsrv_run(&uavparams) < 0)
-        error(EXIT_FAILURE, errno, uavsrv_errstr());
+        syslog(LOG_ERR, "uavsrv_run(): %s\n\terrno: %m", uavsrv_errstr());
     uavsrv_destroy();
 
     /* Close Logs */
