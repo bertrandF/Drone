@@ -30,6 +30,7 @@
 
 /* Get interfaces addrs includes */
 #include <netdb.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
 
@@ -40,6 +41,8 @@
 #include <string.h>
 #include <getopt.h>
 #include <syslog.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 /* Local includes */
 #include "config.h"
@@ -230,6 +233,7 @@ int config_interface(struct sockaddr_storage* saddr, socklen_t *slen)
 int main(int argc, char** argv)
 {
     char opt; 
+    int pid, status;
     struct uavsrv_params_s uavparams;
 
     /* Open Logs */
@@ -291,12 +295,39 @@ int main(int argc, char** argv)
     uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
 
 
-    /* UAV params + UAV run */
-    if(uavsrv_create() < 0) 
-        syslog(LOG_ERR, "uavsrv_create(): %s\n\terrno: %m", uavsrv_errstr());
-    if(uavsrv_run(&uavparams) < 0)
-        syslog(LOG_ERR, "uavsrv_run(): %s\n\terrno: %m", uavsrv_errstr());
-    uavsrv_destroy();
+    /* Fork child */
+    while(1) {
+        pid = fork();
+        if(pid<0) {
+            syslog(LOG_ERR, "Could not start child process\n\terrno: %m");
+            return EXIT_FAILURE;
+        }
+
+        if(pid>0) { // Parent
+            syslog(LOG_INFO, "Starting child process: PID=%d", pid);
+            waitpid(pid, &status, 0);
+            if(!WIFEXITED(status)) {
+                syslog(LOG_CRIT, "CHILD CRASHED: status=%x", WEXITSTATUS(status));
+            }
+            if(WIFSIGNALED(status)) {
+                syslog(LOG_CRIT, "CHILD TERMINATED: signal=%d", WTERMSIG(status));
+            }
+        }
+        else if(!pid) { // Child
+            /* UAV params + UAV run */
+            if(uavsrv_create() < 0) {
+                syslog(LOG_ERR, "uavsrv_create(): %s\n\terrno: %m", uavsrv_errstr());
+                return EXIT_FAILURE;
+            }
+            if(uavsrv_run(&uavparams) < 0) {
+                syslog(LOG_ERR, "uavsrv_run(): %s\n\terrno: %m", uavsrv_errstr());
+                uavsrv_destroy();
+                return EXIT_FAILURE;
+            }
+            uavsrv_destroy();
+            break;
+        }
+    }
 
     /* Close Logs */
     closelog();
