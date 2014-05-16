@@ -546,6 +546,7 @@ struct dcp_packet_s* uavsrv_dcp_waitone()
             break;
         default:
             packet = malloc(sizeof(struct dcp_packet_s));
+            packet->dstaddrlen = sizeof(struct sockaddr_storage);
             if(!packet) {
                 uavsrv_err = UAVSRV_ERR_MALLOC;
                 break;
