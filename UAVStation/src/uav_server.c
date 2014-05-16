@@ -628,6 +628,8 @@ int uavsrv_start()
  */
 int uavsrv_run(struct uavsrv_params_s *params) 
 {
+    struct dcp_packet_s* packet;
+
     /* Check configuration */
     if( uavsrv.state != CREATED ) 
     {
@@ -661,6 +663,28 @@ int uavsrv_run(struct uavsrv_params_s *params)
     /* Say hello to central station */
     if( uavsrv_start() < 0 )
         return -1;
+
+
+    /* -- MAIN LOOP -- */
+    while(1) {
+        packet = uavsrv_dcp_waitone();
+        if(!packet) {
+            switch(uavsrv_err) {
+                case UAVSRV_ERR_TIMEDOUT:
+                    syslog(LOG_NOTICE, uavsrv_errstr());
+                    break;
+                case UAVSRV_ERR_SELECT:
+                    syslog(LOG_ERR, uavsrv_errstr());
+                    break;
+                default:
+                    syslog(LOG_NOTICE, "Unkwnon error code from uavsrv_waitone(): %d", uavsrv_err);
+                    break;
+            }
+            continue;
+        }
+        uavsrv.handlers[packet->cmd](packet);
+        dcp_packetfree(packet);
+    }
 
 
     close(uavsrv.sock);
