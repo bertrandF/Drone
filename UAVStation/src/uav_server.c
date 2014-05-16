@@ -314,6 +314,7 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     
     uavsrv.myid             = (char)((packet->data[0]   ) & 0x0F);
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
+    syslog(LOG_INFO, "Registered: myid=%d -- central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
 
     uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_null;
     uavsrv.handlers[DCP_CMDACK] = handler_ack;
