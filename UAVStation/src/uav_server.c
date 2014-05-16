@@ -183,11 +183,12 @@ int handler_null                (struct dcp_packet_s*);
 int handler_ack                 (struct dcp_packet_s*);
 int handler_hellofromcentral    (struct dcp_packet_s*);
 
-void    dcp_packetfree  (struct dcp_packet_s*);
-int     dcp_send        (struct dcp_packet_s*); 
-int     dcp_hello       (struct sockaddr_storage*, char*, int);
-int     dcp_videos      (char*);
-int     dcp_packetack   (struct dcp_packet_s*);
+struct dcp_packet_s*    dcp_packetnew   ();
+void                    dcp_packetfree  (struct dcp_packet_s*);
+int                     dcp_send        (struct dcp_packet_s*); 
+int                     dcp_hello       (struct sockaddr_storage*, char*, int);
+int                     dcp_videos      (char*);
+int                     dcp_packetack   (struct dcp_packet_s*);
 
 const char*             uavsrv_errstr();
 struct dcp_packet_s*    uavsrv_dcp_waitone();
@@ -333,6 +334,30 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
 //  SEND DCP PACKETS
 //-----------------------------------------------------------------------------
 /*!
+ *  \brief  Alloc space for new DCP packet.
+ *
+ *  Allocate space on heap for new DCP packet. You must call dcp_packetfree() once
+ *  you don't need the packet anymore, in order to free the memory space.
+ *  
+ *  \return Pointer to the struct dcp_packet_s on success, NULL on failure.
+ */
+struct dcp_packet_s* dcp_packetnew() 
+{
+    struct dcp_packet_s* packet;
+    packet = malloc(sizeof(struct dcp_packet_s));
+
+    if(!packet)
+        return NULL;
+
+    packet->dstaddrlen  = 0;
+    packet->datalen     = 0;
+    packet->cmd         = 0;
+    packet->next        = NULL;
+
+    return packet;
+}
+
+/*!
  *  \brief  Destroy a previously allocated packet structure.
  *  
  *  Free the memory allocated for a packet; for exmample after a call to 
@@ -391,20 +416,20 @@ int dcp_send(struct dcp_packet_s* packet)
  */
 int dcp_hello(struct sockaddr_storage* dst, char *str, int len) 
 {
-    struct dcp_packet_s packet;
+    struct dcp_packet_s* packet = dcp_packetnew();
 
-    packet.dstaddr      = uavsrv.params.central_addr;
-    packet.dstaddrlen   = uavsrv.params.central_addrlen;
-    packet.cmd          = DCP_CMDHELLOFROMREMOTE;
-    packet.sessid       = DCP_SESSIDCENTRAL;
-    packet.timestamp    = time(NULL)-uavsrv.start_time;
-    memcpy(&(packet.data), str, len);
-    packet.datalen      = len;
+    packet->dstaddr     = uavsrv.params.central_addr;
+    packet->dstaddrlen  = uavsrv.params.central_addrlen;
+    packet->cmd         = DCP_CMDHELLOFROMREMOTE;
+    packet->sessid      = DCP_SESSIDCENTRAL;
+    packet->timestamp   = time(NULL)-uavsrv.start_time;
+    memcpy(&(packet->data), str, len);
+    packet->datalen     = len;
 
-    if(dcp_send(&packet) < 0) {
+    if(dcp_send(packet) < 0) {
         return -1;
     }
-    ackqueue_add(&packet);
+    ackqueue_add(packet);
     return 0;
 }
 
@@ -424,22 +449,22 @@ int dcp_hello(struct sockaddr_storage* dst, char *str, int len)
  */
 int dcp_videos(char* urls)
 {
-    struct dcp_packet_s packet;
+    struct dcp_packet_s* packet = dcp_packetnew();
     int len = strnlen(urls, PDATAMAX);
 
-    packet.dstaddr      = uavsrv.params.central_addr;
-    packet.dstaddrlen   = uavsrv.params.central_addrlen;
-    packet.cmd          = DCP_CMDVIDEOSERVERS;
-    packet.sessid       = uavsrv.central_sessid;
-    packet.timestamp    = time(NULL)-uavsrv.start_time;
-    memcpy(&(packet.data), urls, len);
-    packet.datalen      = len;
+    packet->dstaddr     = uavsrv.params.central_addr;
+    packet->dstaddrlen  = uavsrv.params.central_addrlen;
+    packet->cmd         = DCP_CMDVIDEOSERVERS;
+    packet->sessid      = uavsrv.central_sessid;
+    packet->timestamp   = time(NULL)-uavsrv.start_time;
+    memcpy(&(packet->data), urls, len);
+    packet->datalen     = len;
 
 
-    if(dcp_send(&packet) < 0) {
+    if(dcp_send(packet) < 0) {
         return -1;
     }
-    ackqueue_add(&packet);
+    ackqueue_add(packet);
     return 0;
 }
 
