@@ -422,7 +422,7 @@ int dcp_hello(struct sockaddr_storage* dst, char *str, int len)
     packet->dstaddrlen  = uavsrv.params.central_addrlen;
     packet->cmd         = DCP_CMDHELLOFROMREMOTE;
     packet->sessid      = DCP_SESSIDCENTRAL;
-    packet->timestamp   = time(NULL)-uavsrv.start_time;
+    packet->timestamp   = difftime(time(NULL), uavsrv.start_time);
     memcpy(&(packet->data), str, len);
     packet->datalen     = len;
 
@@ -456,7 +456,7 @@ int dcp_videos(char* urls)
     packet->dstaddrlen  = uavsrv.params.central_addrlen;
     packet->cmd         = DCP_CMDVIDEOSERVERS;
     packet->sessid      = uavsrv.central_sessid;
-    packet->timestamp   = time(NULL)-uavsrv.start_time;
+    packet->timestamp   = difftime(time(NULL), uavsrv.start_time);
     memcpy(&(packet->data), urls, len);
     packet->datalen     = len;
 
