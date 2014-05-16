@@ -602,7 +602,8 @@ int uavsrv_start()
     if(!packet) {
         return -1;
     }
-    dcp_packetack(packet);
+    uavsrv.handlers[packet->cmd](packet);
+    dcp_packetfree(packet);
 
     /* Register videos servers to DB. */
     dcp_videos(uavsrv.params.videos);
