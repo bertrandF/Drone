@@ -388,7 +388,7 @@ void dcp_packetfree(struct dcp_packet_s* packet)
  */
 int dcp_send(struct dcp_packet_s* packet) 
 {
-    char buff[32];
+    char buff[PDATAMAX+4];
     int bsent;
 
     buff[0] = (packet->cmd & 0x0F)<<4 | (packet->sessid & 0x0F);
