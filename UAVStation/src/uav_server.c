@@ -100,7 +100,8 @@ typedef int(*dcp_handler_f)(struct dcp_packet_s* packet);
 enum uavsrv_state_e {
     NONE,       ///< No servers, stopped or not yet created.
     CREATED,    ///< Server created, after call to uavsrv_create().
-    SOCKREADY   ///< Socket created and bound to interface.
+    SOCKREADY,  ///< Socket created and bound to interface.
+    REGISTERED  ///< Said hello to central station and Hello accepted.
 };
 
 /*!
@@ -319,6 +320,8 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
 
     uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_null;
     uavsrv.handlers[DCP_CMDACK] = handler_ack;
+    uavsrv.state = REGISTERED;
+
     dcp_packetack(packet);
 
     return 0;
