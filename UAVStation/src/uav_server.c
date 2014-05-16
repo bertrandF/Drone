@@ -209,6 +209,7 @@ void                    uavsrv_destroy();
  */
 int ackqueue_add(struct dcp_packet_s* packet)
 {
+    packet->next=NULL;
     *(uavsrv.ackqueue_tail) = packet; 
     uavsrv.ackqueue_tail = &(packet->next);
     return 0;
