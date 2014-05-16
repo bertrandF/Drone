@@ -51,10 +51,10 @@
 #include "dcp.h"
 
 /* Defines */
-#define UAVDESC     "DUAV-XFL02648"
-#define UAVDESCLEN  (13)
+#define UAVDESC     "DUAV-XFL02648"     ///< UAV desc string, to be registered in the info field of the stations table in the database.
+#define UAVDESCLEN  (13)                ///< UAV desc string length
 
-#define PDATAMAX    (256)
+#define PDATAMAX    (256)               ///< Max packet data len
 
 
 

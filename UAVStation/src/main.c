@@ -137,8 +137,8 @@ void usage()
  *  The sockaddr will be copied to the memory pointed by the sockaddr parameter;
  *  the length of this structure is copied in len.
  *
- *  \param  sockaddr    Pointer to central station's sockaddr.
- *  \param  len         Pointer central station sockaddr's length.
+ *  \param  saddr   Pointer to central station's sockaddr.
+ *  \param  slen    Pointer central station sockaddr's length.
  *  \return -1 on failure and prints an error message. 0 on sucess.
  */
 int config_central(struct sockaddr_storage *saddr, socklen_t *slen) 
