@@ -51,10 +51,7 @@
 #include "dcp.h"
 
 /* Defines */
-#define UAVDESC     "DUAV-XFL02648"     ///< UAV desc string, to be registered in the info field of the stations table in the database.
-#define UAVDESCLEN  (13)                ///< UAV desc string length
-
-#define PDATAMAX    (256)               ///< Max packet data len
+#define PDATAMAX    (256)   ///< Max packet data len
 
 
 
@@ -596,7 +593,7 @@ int uavsrv_start()
     }
    
     /* Say hello */
-    dcp_hello(&(uavsrv.params.central_addr), UAVDESC, UAVDESCLEN);
+    dcp_hello(&(uavsrv.params.central_addr), uavsrv.params.info, strnlen(uavsrv.params.info, PDATAMAX));
     do {
         packet = uavsrv_dcp_waitone();
     } while(packet!=NULL && packet->cmd!=DCP_CMDHELLOFROMCENTRAL);
