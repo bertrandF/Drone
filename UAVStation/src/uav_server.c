@@ -352,7 +352,8 @@ struct dcp_packet_s* dcp_packetnew()
     if(!packet)
         return NULL;
 
-    packet->dstaddrlen  = 0;
+    memset(&(packet->dstaddrlen), 0, sizeof(struct sockaddr_storage));
+    packet->dstaddrlen = sizeof(struct sockaddr_storage);
     packet->datalen     = 0;
     packet->cmd         = 0;
     packet->next        = NULL;
@@ -545,8 +546,7 @@ struct dcp_packet_s* uavsrv_dcp_waitone()
             uavsrv_err = UAVSRV_ERR_SELECT;
             break;
         default:
-            packet = malloc(sizeof(struct dcp_packet_s));
-            packet->dstaddrlen = sizeof(struct sockaddr_storage);
+            packet = dcp_packetnew();
             if(!packet) {
                 uavsrv_err = UAVSRV_ERR_MALLOC;
                 break;
