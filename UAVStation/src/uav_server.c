@@ -54,6 +54,8 @@
 #define UAVDESC     "DUAV-XFL02648"
 #define UAVDESCLEN  (13)
 
+#define PDATAMAX    (256)
+
 
 
 //-----------------------------------------------------------------------------
@@ -66,14 +68,14 @@
  *  
  */
 struct dcp_packet_s {
-    struct sockaddr_storage dstaddr;    ///< Host from which the packet has been received.
-    socklen_t               dstaddrlen; ///< Length of the dstaddr field.
-    uint8_t                 cmd;        ///< DCP command ID.
-    uint8_t                 sessid;     ///< DCP packet session ID.
-    uint32_t                timestamp;  ///< DCP packet timestmap.
-    char                    data[16];   ///< DCP packet payload.
-    int                     datalen;    ///< DCP packet payload length.
-    struct dcp_packet_s*    next;       ///< For ackqueue, next packet in the queue.
+    struct sockaddr_storage dstaddr;        ///< Host from which the packet has been received.
+    socklen_t               dstaddrlen;     ///< Length of the dstaddr field.
+    uint8_t                 cmd;            ///< DCP command ID.
+    uint8_t                 sessid;         ///< DCP packet session ID.
+    uint32_t                timestamp;      ///< DCP packet timestmap.
+    char                    data[PDATAMAX]; ///< DCP packet payload.
+    int                     datalen;        ///< DCP packet payload length.
+    struct dcp_packet_s*    next;           ///< For ackqueue, next packet in the queue.
 };
 
 
