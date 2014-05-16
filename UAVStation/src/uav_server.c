@@ -182,11 +182,13 @@ int                     ackqueue_delete             (struct dcp_packet_s*);
 struct dcp_packet_s*    ackqueue_findbytimestamp    (uint32_t);
 
 int handler_null                (struct dcp_packet_s*);
+int handler_ack                 (struct dcp_packet_s*);
 int handler_hellofromcentral    (struct dcp_packet_s*);
 
 void    dcp_packetfree  (struct dcp_packet_s*);
 int     dcp_send        (struct dcp_packet_s*); 
 int     dcp_hello       (struct sockaddr_storage*, char*, int);
+int     dcp_videos      (char*);
 int     dcp_packetack   (struct dcp_packet_s*);
 
 const char*             uavsrv_errstr();
@@ -272,6 +274,29 @@ int handler_null(struct dcp_packet_s* packet)
 
 
 /*!
+ *  \brief  Handle Acks.
+ *
+ *  This function find the Acked packet in the ack queue and removes
+ *  it from it.
+ *  
+ *  \param  packet  Ack packet.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_ack(struct dcp_packet_s* packet)
+{
+    struct dcp_packet_s* p;
+    p = ackqueue_findbytimestamp(packet->timestamp);
+    if(p==NULL) {
+        syslog(LOG_NOTICE, "Got ack but no corresponding packet");
+        return 0;
+    }
+    ackqueue_delete(p);
+    return 0;
+}
+
+/*!
  *  \brief  Handle DCP packet hello from central.
  *  
  *  This function handles the HelloFromCentral packet.
@@ -292,6 +317,8 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     uavsrv.myid             = (char)((packet->data[0]   ) & 0x0F);
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
 
+    uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_null;
+    uavsrv.handlers[DCP_CMDACK] = handler_ack;
     dcp_packetack(packet);
 
     return 0;
@@ -379,6 +406,40 @@ int dcp_hello(struct sockaddr_storage* dst, char *str, int len)
     return 0;
 }
 
+
+
+/*!
+ *  \brief  Register video servers to central database.
+ *
+ *  This function send the DCP Video Servers command.
+ *  
+ *  \param  urls    Null terminated string of one or more video
+ *                  servers URLs. See DCP_VIDEOSERVERSSEPARATOR
+ *                  for separator char.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int dcp_videos(char* urls)
+{
+    struct dcp_packet_s packet;
+    int len = strnlen(urls, PDATAMAX);
+
+    packet.dstaddr      = uavsrv.params.central_addr;
+    packet.dstaddrlen   = uavsrv.params.central_addrlen;
+    packet.cmd          = DCP_CMDVIDEOSERVERS;
+    packet.sessid       = uavsrv.central_sessid;
+    packet.timestamp    = time(NULL)-uavsrv.start_time;
+    memcpy(&(packet.data), urls, len);
+    packet.datalen      = len;
+
+
+    if(dcp_send(&packet) < 0) {
+        return -1;
+    }
+    ackqueue_add(&packet);
+    return 0;
+}
 
 
 
@@ -539,9 +600,11 @@ int uavsrv_start()
     if(!packet) {
         return -1;
     }
-
-
     dcp_packetack(packet);
+
+    /* Register videos servers to DB. */
+    dcp_videos(uavsrv.params.videos);
+
     return 0;
 }
 
