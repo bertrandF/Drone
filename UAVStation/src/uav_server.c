@@ -524,14 +524,16 @@ const char* uavsrv_errstr()
 struct dcp_packet_s* uavsrv_dcp_waitone()
 {
     fd_set readset;
+    struct timeval timeout;
     struct dcp_packet_s *packet = NULL;
     int fdnb, bufflen=64, bread;
     char buff[64];
 
     FD_ZERO(&readset);
     FD_SET(uavsrv.sock, &readset);
+    memcpy(&timeout, &(uavsrv.params.timeout), sizeof(struct timeval));
 
-    fdnb = select(uavsrv.sock+1, &readset, NULL, NULL, &(uavsrv.params.timeout));
+    fdnb = select(uavsrv.sock+1, &readset, NULL, NULL, &timeout);
     switch(fdnb) {
         case 0:
             uavsrv_err = UAVSRV_ERR_TIMEDOUT;
