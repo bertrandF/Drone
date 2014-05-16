@@ -61,6 +61,7 @@
 static struct option long_options[] = {
     {"central-host",required_argument,  NULL,   'C'},
     {"help",        no_argument,        NULL,   'h'},
+    {"info",        required_argument,  NULL,   'I'},
     {"interface",   required_argument,  NULL,   'i'},
     {"ipv4",        no_argument,        NULL,   '4'},
     {"ipv6",        no_argument,        NULL,   '6'},
@@ -88,6 +89,7 @@ struct options_s {
     unsigned short          central_port;   ///< Central station port.
     unsigned long           timeout;        ///< Select() timeout in milliseconds.
     char*                   videos;         ///< List of video servers.
+    char*                   info;           ///< UAV's info string to be stored in table stations of DB.
 };
 static struct options_s options = {
     NULL,
@@ -96,6 +98,7 @@ static struct options_s options = {
     NULL,
     5867,
     1000,
+    NULL,
     NULL
 };
 
@@ -120,6 +123,7 @@ void usage()
     printf("  -6, --ipv6         Use IPv6 only.\n");
     printf("  -C, --central-host Central Station host.\n");
     printf("  -h, --help         Prints this help.\n");
+    printf("  -I, --info         UAV's info string to be stored in table stations of DB.\n");
     printf("  -i, --interface    Interface to bind server on.\n");
     printf("  -P, --central-port Central Station port.\n");
     printf("  -p, --port         Port to bind the server on.\n");
@@ -245,7 +249,7 @@ int main(int argc, char** argv)
     openlog(PROGRAM_NAME, LOG_CONS | LOG_PERROR | LOG_PID, LOG_USER);
 
     /* Parse command line arguments */
-    while( (opt=getopt_long(argc, argv, "46C:hi:P:p:t:v:", long_options, NULL)) > 0) {
+    while( (opt=getopt_long(argc, argv, "46C:hI:i:P:p:t:v:", long_options, NULL)) > 0) {
         switch(opt) {
             case '4':
                 options.sin_family = AF_INET;
@@ -259,6 +263,9 @@ int main(int argc, char** argv)
             case 'h':
                 usage();
                 return EXIT_SUCCESS;
+            case 'I':
+                options.info = optarg;
+                break;
             case 'i':
                 options.if_name = optarg;
                 break;
@@ -303,6 +310,8 @@ int main(int argc, char** argv)
     uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
     /* GET video servers */
     uavparams.videos    = options.videos;
+    /* GET infostr */
+    uavparams.info  = options.info;
 
 
     /* Fork child */
