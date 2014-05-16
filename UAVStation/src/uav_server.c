@@ -227,10 +227,10 @@ int ackqueue_add(struct dcp_packet_s* packet)
  */
 int ackqueue_delete(struct dcp_packet_s* packet)
 {
-    struct dcp_packet_s *p, *prev=NULL;
-    for(p=uavsrv.ackqueue ; p!=NULL ; prev=p, p=p->next) {
+    struct dcp_packet_s *p, **prev=&(uavsrv.ackqueue);
+    for(p=uavsrv.ackqueue ; p!=NULL ; prev=&(p->next), p=p->next) {
         if(p == packet) {
-            prev->next = p->next;
+            *prev = p->next;
             break;
         }
     } 
