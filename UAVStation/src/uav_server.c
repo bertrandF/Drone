@@ -293,6 +293,7 @@ int handler_ack(struct dcp_packet_s* packet)
         return 0;
     }
     ackqueue_delete(p);
+    dcp_packetfree(p);
     return 0;
 }
 
@@ -313,6 +314,8 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
        uavsrv_err = UAVSRV_ERR_NOACKPACKET;
        return -1;
     }
+    ackqueue_delete(ack_p);
+    dcp_packetfree(ack_p);
     
     uavsrv.myid             = (char)((packet->data[0]   ) & 0x0F);
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
