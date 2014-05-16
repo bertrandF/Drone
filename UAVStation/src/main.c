@@ -47,6 +47,7 @@
 /* Local includes */
 #include "config.h"
 #include "uav_server.h"
+#include "dcp.h"
 
 
 /*!
@@ -66,6 +67,7 @@ static struct option long_options[] = {
     {"central-port",required_argument,  NULL,   'P'},
     {"port",        required_argument,  NULL,   'p'},
     {"timeout",     required_argument,  NULL,   't'},
+    {"videos",      required_argument,  NULL,   'v'},
     {0,             0,                  NULL,    0 }
 };
 
@@ -85,6 +87,7 @@ struct options_s {
     char                    *central_host;  ///< Central station host.
     unsigned short          central_port;   ///< Central station port.
     unsigned long           timeout;        ///< Select() timeout in milliseconds.
+    char*                   videos;         ///< List of video servers.
 };
 static struct options_s options = {
     NULL,
@@ -92,7 +95,8 @@ static struct options_s options = {
     5868,
     NULL,
     5867,
-    1000
+    1000,
+    NULL
 };
 
 
@@ -120,6 +124,7 @@ void usage()
     printf("  -P, --central-port Central Station port.\n");
     printf("  -p, --port         Port to bind the server on.\n");
     printf("  -t, --timeout      Timeout to receive a packet.\n");
+    printf("  -v, --videos       List of RTSP cam servers (separator='%c').", DCP_VIDEOSERVERSSEPARATOR);
     printf("\n");
 }
 
@@ -240,7 +245,7 @@ int main(int argc, char** argv)
     openlog(PROGRAM_NAME, LOG_CONS | LOG_PERROR | LOG_PID, LOG_USER);
 
     /* Parse command line arguments */
-    while( (opt=getopt_long(argc, argv, "46C:hi:P:p:", long_options, NULL)) > 0) {
+    while( (opt=getopt_long(argc, argv, "46C:hi:P:p:t:v:", long_options, NULL)) > 0) {
         switch(opt) {
             case '4':
                 options.sin_family = AF_INET;
@@ -265,6 +270,9 @@ int main(int argc, char** argv)
                 break;
             case 't':
                 options.timeout = atol(optarg);
+                break;
+            case 'v':
+                options.videos = optarg;
                 break;
             case '?':
                 break;
@@ -293,6 +301,8 @@ int main(int argc, char** argv)
     /* GET timeout */ 
     uavparams.timeout.tv_sec    = options.timeout/1000;
     uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
+    /* GET video servers */
+    uavparams.videos    = options.videos;
 
 
     /* Fork child */

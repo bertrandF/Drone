@@ -60,6 +60,7 @@ struct uavsrv_params_s {
     struct sockaddr_storage central_addr;       ///< Central Station sockaddr.
     socklen_t               central_addrlen;    ///< Central station sockaddr length.
     struct timeval          timeout;            ///< Select() timeout.
+    char*                   videos;             ///< List of video servers. String to be used with the DCP video servers cmd.
 };
 
 
