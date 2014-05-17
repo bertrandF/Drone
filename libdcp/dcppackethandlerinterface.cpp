@@ -479,9 +479,8 @@ void DCPPacketHandlerCentralStation::handleCommandLog(DCPPacket *packet)
 
 void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
 {
-    int remoteId;
-    DCPServerCentral::remote_t *command;
-    DCPServerCentral::remote_t *drone;
+    int station1Id, station2Id;
+    DCPServerCentral::remote_t *station2;
     DCPServerCentral::session_t *sessionCentral;
     DCPServerCentral::session_t *sessionDrone;
     DCPServerCentral *central =
@@ -493,19 +492,30 @@ void DCPPacketHandlerCentralStation::handleCommandBye(DCPPacket *packet)
     if((sessionCentral = central->sessionIsCentral(packet->getSessionID()))
             != NULL)
     {
-        remoteId = (sessionCentral->station1==0) ? sessionCentral->station2 :
+        station1Id = (sessionCentral->station1==0) ? sessionCentral->station2 :
                                                    sessionCentral->station1;
 
         // Is remote connected to something ?
-        if((sessionDrone=central->getDroneSessionForStation(remoteId)) != NULL)
+        if((sessionDrone=central->getDroneSessionForStation(station1Id)) != NULL)
         {
+            station2Id = (sessionDrone->station1==station1Id) ? sessionDrone->station2 :
+                                                                sessionDrone->station1;
+            station2 = central->getStation(station2Id);
             central->deleteSession(sessionDrone->id);
-            // TODO: Send info to other end of the connection
+
+            // Send info to other end of the connection
+            DCPCommandDisconnect *disconn = new DCPCommandDisconnect(
+                        central->getCentralSessionForStation(station2Id)->id
+                        );
+            disconn->setAddrDst(station2->addr);
+            disconn->setPortDst(station2->port);
+            disconn->setTimestamp(central->msecSinceStart());
+            central->sendPacket(disconn);
         }
 
         // If problem while deleting
         if(!central->deleteSession(sessionCentral->id) ||
-                !central->deleteStationById(remoteId))
+                !central->deleteStationById(station1Id))
         {
             // TODO: Handle problem
         }
