@@ -183,6 +183,9 @@ struct dcp_packet_s*    ackqueue_findbytimestamp    (uint32_t);
 
 int handler_null                (struct dcp_packet_s*);
 int handler_ack                 (struct dcp_packet_s*);
+int handler_isalive             (struct dcp_packet_s*);
+int handler_setsessid           (struct dcp_packet_s*);
+int handler_disconnect          (struct dcp_packet_s*);
 int handler_hellofromcentral    (struct dcp_packet_s*);
 
 struct dcp_packet_s*    dcp_packetnew   ();
@@ -345,8 +348,11 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
     syslog(LOG_INFO, "Registered: myid=%d -- central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
 
-    uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_null;
-    uavsrv.handlers[DCP_CMDACK] = handler_ack;
+    uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL]    = handler_null;
+    uavsrv.handlers[DCP_CMDACK]                 = handler_ack;
+    uavsrv.handlers[DCP_CMDISALIVE]             = handler_isalive;
+    uavsrv.handlers[DCP_CMDSETSESSID]           = handler_setsessid;
+    uavsrv.handlers[DCP_CMDDISCONNECT]          = handler_disconnect;
     uavsrv.state = REGISTERED;
 
     dcp_packetack(packet);
