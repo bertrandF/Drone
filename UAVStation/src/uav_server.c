@@ -401,6 +401,7 @@ int handler_setsessid(struct dcp_packet_s* packet)
         return -1;
     }
     uavsrv.command_sessid = packet->data[0];
+    syslog(LOG_INFO, "New command command_sessid=%d", uavsrv.command_sessid);
     dcp_packetack(packet);
     return 0;
 }
@@ -426,6 +427,7 @@ int handler_disconnect(struct dcp_packet_s* packet)
         return -1;
     }
     uavsrv.command_sessid = DCP_IDNULL;
+    syslog(LOG_INFO, "Got disconnect from command station packet");
     dcp_packetack(packet);
     return 0;
 }
