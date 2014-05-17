@@ -401,6 +401,10 @@ int handler_setsessid(struct dcp_packet_s* packet)
  */
 int handler_disconnect(struct dcp_packet_s* packet) 
 {
+    if(packet->sessid != uavsrv.central_sessid) {
+        syslog(LOG_INFO, "disconnect with bad sessid=%d", packet->sessid);
+        return -1;
+    }
     uavsrv.command_sessid = DCP_IDNULL;
     dcp_packetack(packet);
     return 0;
