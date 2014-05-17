@@ -351,6 +351,11 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     ackqueue_delete(ack_p);
     dcp_packetfree(ack_p);
     
+    if(packet->datalen < 1) {
+        syslog(LOG_ERR, "helloFromCentral with bad datalen=%d", packet->datalen);
+        uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        return -1;
+    }
     uavsrv.myid             = (char)((packet->data[0]   ) & 0x0F);
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
     syslog(LOG_INFO, "Registered: myid=%d -- central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
