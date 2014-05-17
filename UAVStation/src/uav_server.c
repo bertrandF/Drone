@@ -308,7 +308,7 @@ int handler_ack(struct dcp_packet_s* packet)
  *  
  *  This function handles the HelloFromCentral packet.
  *
- *  \param  packet  Hello from central packet.
+ *  \param  packet  Packet hello from central.
  *  \return -1 is returned in case of failure and uavsrv_err is set
  *          with the corresponding error code. On Success 0 is
  *          returned.
@@ -346,7 +346,7 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
  *  present in every commands received by the drone and will be checked every time a 
  *  command is received to prevent non autorized access.
  *
- *  \param  packet  SetSessId from central packet.
+ *  \param  packet  Packet setSessId from central.
  *  \return -1 is returned in case of failure and uavsrv_err is set
  *          with the corresponding error code. On Success 0 is
  *          returned.
