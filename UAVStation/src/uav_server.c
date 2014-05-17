@@ -394,6 +394,12 @@ int handler_setsessid(struct dcp_packet_s* packet)
         uavsrv_err = UAVSRV_ERR_BADSESSID;
         return -1;
     }
+
+    if(packet->datalen < 1) {
+        syslog(LOG_ERR, "setSessId with bad datalen=%d", packet->datalen);
+        uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        return -1;
+    }
     uavsrv.command_sessid = packet->data[0];
     dcp_packetack(packet);
     return 0;
