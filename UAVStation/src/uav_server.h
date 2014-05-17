@@ -45,6 +45,7 @@
 #define UAVSRV_ERR_TIMEDOUT     (8)     ///< Waiting has timed out.
 #define UAVSRV_ERR_SELECT       (9)     ///< Error in select() call.
 #define UAVSRV_ERR_NOACKPACKET  (10)    ///< No such packet in ackqueue.
+#define UAVSRV_ERR_BADSESSID    (11)    ///< Unexpected sessid value in packet.
 
 
 /*!

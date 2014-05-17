@@ -169,7 +169,8 @@ const char* errstrs [] = {
     "UAV SRV: requires state SOCKREADY",
     "UAV SRV: timed out",
     "UAV SRV: error in select()",
-    "UAV SRV: no such packet in ackqueue"
+    "UAV SRV: no such packet in ackqueue",
+    "UAV SRV: unexpected sessid value in packet"
 };
 
 
@@ -322,6 +323,7 @@ int handler_isalive(struct dcp_packet_s* packet)
 {
     if(packet->sessid != uavsrv.central_sessid && packet->sessid != uavsrv.command_sessid) {
         syslog(LOG_INFO, "isAlive with bad sessid=%d", packet->sessid);
+        uavsrv_err = UAVSRV_ERR_BADSESSID;
         return -1;
     }
     dcp_packetack(packet);
@@ -383,6 +385,7 @@ int handler_setsessid(struct dcp_packet_s* packet)
 {
     if(packet->sessid != uavsrv.central_sessid) {
         syslog(LOG_INFO, "setSessId with bad sessid=%d", packet->sessid);
+        uavsrv_err = UAVSRV_ERR_BADSESSID;
         return -1;
     }
     uavsrv.command_sessid = packet->data[0];
@@ -407,6 +410,7 @@ int handler_disconnect(struct dcp_packet_s* packet)
 {
     if(packet->sessid != uavsrv.central_sessid) {
         syslog(LOG_INFO, "disconnect with bad sessid=%d", packet->sessid);
+        uavsrv_err = UAVSRV_ERR_BADSESSID;
         return -1;
     }
     uavsrv.command_sessid = DCP_IDNULL;
