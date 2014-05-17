@@ -231,6 +231,9 @@ int ackqueue_delete(struct dcp_packet_s* packet)
     for(p=uavsrv.ackqueue ; p!=NULL ; prev=&(p->next), p=p->next) {
         if(p == packet) {
             *prev = p->next;
+            if(p->next==NULL) {
+                uavsrv.ackqueue_tail = prev;
+            }
             break;
         }
     } 
