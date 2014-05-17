@@ -320,6 +320,10 @@ int handler_ack(struct dcp_packet_s* packet)
  */
 int handler_isalive(struct dcp_packet_s* packet) 
 {
+    if(packet->sessid != uavsrv.central_sessid && packet->sessid != uavsrv.command_sessid) {
+        syslog(LOG_INFO, "isAlive with bad sessid=%d", packet->sessid);
+        return -1;
+    }
     dcp_packetack(packet);
     return 0;
 }
