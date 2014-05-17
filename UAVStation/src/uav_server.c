@@ -117,6 +117,7 @@ struct uavsrv_s {
     struct dcp_packet_s**   ackqueue_tail;  ///< Pointer to next packet pointer; used to insert new packet at the tail of the queue.
     int                     myid;           ///< UAV ID.
     int                     central_sessid; ///< SessID to speak with central station.
+    int                     command_sessid; ///< SessID to speak with command station.
 };
 
 
@@ -134,6 +135,7 @@ static struct uavsrv_s  uavsrv = {
     {},
     NULL,
     NULL,
+    DCP_IDNULL,
     DCP_IDNULL,
     DCP_IDNULL
 };
@@ -335,6 +337,26 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
 }
 
 
+
+/*!
+ *  \brief  Handle setSessId packet from central station.
+ *  
+ *  A setSessId packet is received by a drone when a command station wants to connect to it.
+ *  This function reteive the sessId to speak with the command station. This number will be
+ *  present in every commands received by the drone and will be checked every time a 
+ *  command is received to prevent non autorized access.
+ *
+ *  \param  packet  SetSessId from central packet.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_setsessid(struct dcp_packet_s* packet)
+{
+    uavsrv.command_sessid = packet->data[0];
+    dcp_packetack(packet);
+    return 0;
+}
 
 
 //-----------------------------------------------------------------------------
