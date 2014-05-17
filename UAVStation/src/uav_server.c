@@ -303,6 +303,24 @@ int handler_ack(struct dcp_packet_s* packet)
     return 0;
 }
 
+
+
+/*!
+ *  \brief  Handle packet isAlive.
+ *
+ *  This packet is sent by central station or command stations to check the connection.
+ *  
+ *  \param  packet  Packet isAlive from central/command station.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_isalive(struct dcp_packet_s* packet) 
+{
+    dcp_packetack(packet);
+    return 0;
+}
+
 /*!
  *  \brief  Handle DCP packet hello from central.
  *  
