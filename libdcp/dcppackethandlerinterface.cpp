@@ -441,6 +441,7 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
         {
             DCPCommandHelloFromCentralStation *myHello =
                new DCPCommandHelloFromCentralStation(DCP_SESSIDCENTRAL);
+            myHello->setTimestamp(packet->getTimestamp());
             myHello->setIdRemote(remote->id);
             myHello->setSessIdCentralStation(session->id);
             myHello->setAddrDst(packet->getAddrDst());
