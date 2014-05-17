@@ -377,6 +377,10 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
  */
 int handler_setsessid(struct dcp_packet_s* packet)
 {
+    if(packet->sessid != uavsrv.central_sessid) {
+        syslog(LOG_INFO, "setSessId with bad sessid=%d", packet->sessid);
+        return -1;
+    }
     uavsrv.command_sessid = packet->data[0];
     dcp_packetack(packet);
     return 0;
