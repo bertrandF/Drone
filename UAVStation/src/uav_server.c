@@ -170,7 +170,8 @@ const char* errstrs [] = {
     "UAV SRV: timed out",
     "UAV SRV: error in select()",
     "UAV SRV: no such packet in ackqueue",
-    "UAV SRV: unexpected sessid value in packet"
+    "UAV SRV: unexpected sessid value in packet",
+    "UAV SRV: unexpected datalen in packet"
 };
 
 
