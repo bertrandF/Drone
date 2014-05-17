@@ -326,6 +326,38 @@ DCPServerCentral::getDroneSessionForStation(qint8 id)
     return session;
 }
 
+DCPServerCentral::session_t*
+DCPServerCentral::getCentralSessionForStation(qint8 id)
+{
+    DCPServerCentral::session_t* session = new DCPServerCentral::session_t;
+
+    QSqlQuery query(this->db);
+    query.prepare("SELECT id, station1, station2, date FROM " +
+                  QString(DCP_DBSESSIONS) + " WHERE (station1=? OR station2=?)"
+                  " AND (station1=0 OR station2=0)");
+    query.bindValue(0, id);
+    query.bindValue(1, id);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    if(!query.next())
+    {
+        // TODO: log ?
+        return NULL;
+    }
+
+    session->id = query.value(0).toInt();
+    session->station1 = query.value(1).toInt();
+    session->station2 = query.value(2).toInt();
+    session->date = QDateTime::fromString(query.value(3).toString());
+
+    return session;
+}
+
 DCPServerCentral::remote_t*
 DCPServerCentral::stationIsDrone(qint8 id)
 {
