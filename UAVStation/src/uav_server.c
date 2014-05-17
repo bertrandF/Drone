@@ -359,6 +359,26 @@ int handler_setsessid(struct dcp_packet_s* packet)
 }
 
 
+
+/*!
+ *  \brief  Disconnect drone from command station.
+ *
+ *  This packet is received from central staiton when a command station
+ *  disconnects from the drone.
+ *  
+ *  \param  packet  Packet disconnect from central.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_disconnect(struct dcp_packet_s* packet) 
+{
+    uavsrv.command_sessid = DCP_IDNULL;
+    dcp_packetack(packet);
+    return 0;
+}
+
+
 //-----------------------------------------------------------------------------
 //  SEND DCP PACKETS
 //-----------------------------------------------------------------------------
