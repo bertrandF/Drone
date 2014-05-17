@@ -50,6 +50,8 @@ public:
     inline qint8    getMyId()
         { return this->myID; }
     void            setHandler(DCPPacketHandlerInterface *handler);
+    inline int      msecSinceStart()
+        { return this->time.elapsed(); }
 
 public slots:
     void sendPacket(DCPPacket* packet);
