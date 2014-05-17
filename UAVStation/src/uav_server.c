@@ -109,7 +109,7 @@ enum uavsrv_state_e {
  */
 struct uavsrv_s {
     enum uavsrv_state_e     state;          ///< UAV Server state.
-    time_t                  start_time;     ///< UAV start time (used for timestamps).
+    uint64_t                start_time;     ///< UAV start time (used for timestamps).
     struct uavsrv_params_s  params;         ///< User given configuration structure.
     int                     sock;           ///< Server socket.
     dcp_handler_f           handlers[16];   ///< DCP packets handlers.
@@ -190,12 +190,13 @@ int                     dcp_hello       (struct sockaddr_storage*, char*, int);
 int                     dcp_videos      (char*);
 int                     dcp_packetack   (struct dcp_packet_s*);
 
-const char*             uavsrv_errstr();
-struct dcp_packet_s*    uavsrv_dcp_waitone();
-int                     uavsrv_create();
-int                     uavsrv_start();
-int                     uavsrv_run(struct uavsrv_params_s*);
-void                    uavsrv_destroy();
+const char*             uavsrv_errstr           ();
+uint32_t                uavsrv_msec_sincestart  ();
+struct dcp_packet_s*    uavsrv_dcp_waitone      ();
+int                     uavsrv_create           ();
+int                     uavsrv_start            ();
+int                     uavsrv_run              (struct uavsrv_params_s*);
+void                    uavsrv_destroy          ();
 
 
 //-----------------------------------------------------------------------------
@@ -429,7 +430,7 @@ int dcp_hello(struct sockaddr_storage* dst, char *str, int len)
     packet->dstaddrlen  = uavsrv.params.central_addrlen;
     packet->cmd         = DCP_CMDHELLOFROMREMOTE;
     packet->sessid      = DCP_SESSIDCENTRAL;
-    packet->timestamp   = difftime(time(NULL), uavsrv.start_time);
+    packet->timestamp   = uavsrv_msec_sincestart();;
     memcpy(&(packet->data), str, len);
     packet->datalen     = len;
 
@@ -463,7 +464,7 @@ int dcp_videos(char* urls)
     packet->dstaddrlen  = uavsrv.params.central_addrlen;
     packet->cmd         = DCP_CMDVIDEOSERVERS;
     packet->sessid      = uavsrv.central_sessid;
-    packet->timestamp   = difftime(time(NULL), uavsrv.start_time);
+    packet->timestamp   = uavsrv_msec_sincestart();
     memcpy(&(packet->data), urls, len);
     packet->datalen     = len;
 
@@ -514,6 +515,23 @@ int dcp_packetack(struct dcp_packet_s* packet)
 const char* uavsrv_errstr() 
 {
     return errstrs[uavsrv_err];
+}
+
+
+
+
+/*!
+ *  \brief  Returns the time in msec since drone start.
+ *  
+ *  This function is used to get the value for the timestamp field in the DCP packets.
+ *
+ *  \return Time in millseconds since drone start.
+ */
+uint32_t uavsrv_msec_sincestart() 
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint32_t)((uint64_t)(tv.tv_sec*1000 + tv.tv_usec/1000) - uavsrv.start_time);
 }
 
 
@@ -692,7 +710,9 @@ int uavsrv_run(struct uavsrv_params_s *params)
         return -1;
     }
     uavsrv.state = SOCKREADY;
-    uavsrv.start_time = time(NULL);
+
+    uavsrv.start_time = 0;
+    uavsrv.start_time = uavsrv_msec_sincestart();;
 
     /* Say hello to central station */
     if( uavsrv_start() < 0 )
