@@ -555,15 +555,26 @@ void DCPPacketHandlerCentralStation::handleCommandConnectToDrone(DCPPacket *pack
                 else
                 {
                     sessionDrone = central->addNewSession(remoteId, drone->id);
-                    // TODO: Send info to drone
 
-                    DCPCommandSetSessID *setSess =
+                    // Send to Drone
+                    DCPCommandSetSessID *setSessDrone =
+                            new DCPCommandSetSessID(
+                                central->getCentralSessionForStation(drone->id)->id
+                                );
+                    setSessDrone->setAddrDst(drone->addr);
+                    setSessDrone->setPortDst(drone->port);
+                    setSessDrone->setTimestamp(central->msecSinceStart());
+                    setSessDrone->setDroneSessId(sessionDrone->id);
+                    central->sendPacket(setSessDrone);
+
+                    // Send to Command Station
+                    DCPCommandSetSessID *setSessCmd =
                             new DCPCommandSetSessID(packet->getSessionID());
-                    setSess->setAddrDst(packet->getAddrDst());
-                    setSess->setPortDst(packet->getPortDst());
-                    setSess->setTimestamp(packet->getTimestamp());
-                    setSess->setDroneSessId(sessionDrone->id);
-                    central->sendPacket(setSess);
+                    setSessCmd->setAddrDst(packet->getAddrDst());
+                    setSessCmd->setPortDst(packet->getPortDst());
+                    setSessCmd->setTimestamp(packet->getTimestamp());
+                    setSessCmd->setDroneSessId(sessionDrone->id);
+                    central->sendPacket(setSessCmd);
                 }
             }
         }
