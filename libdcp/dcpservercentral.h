@@ -66,6 +66,7 @@ public:
 
     session_t*  getDroneSessionForStation(qint8 id);
     session_t*  getCentralSessionForStation(qint8 id);
+    remote_t*   getStation(qint8 id);
 
     remote_t*   stationIsDrone(qint8 id);
     remote_t*   stationIsCommand(qint8 id);

@@ -359,6 +359,38 @@ DCPServerCentral::getCentralSessionForStation(qint8 id)
 }
 
 DCPServerCentral::remote_t*
+DCPServerCentral::getStation(qint8 id)
+{
+    DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
+
+    QSqlQuery query(this->db);
+    query.prepare("SELECT type, ip, port, date, info FROM " +
+                  QString(DCP_DBSTATIONS) + " WHERE id=?");
+    query.bindValue(0, id);
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        return NULL;
+    }
+    if(!query.next())
+    {
+        // TODO: log ?
+        return NULL;
+    }
+
+    remote->id      = id;
+    remote->type    = query.value(0).toString();
+    remote->addr    = QHostAddress(query.value(1).toString());
+    remote->port    = query.value(2).toInt();
+    remote->date    = QDateTime::fromString(query.value(3).toString());
+    remote->info    = query.value(4).toString();
+
+    return remote;
+}
+
+DCPServerCentral::remote_t*
 DCPServerCentral::stationIsDrone(qint8 id)
 {
     DCPServerCentral::remote_t* remote = new DCPServerCentral::remote_t;
