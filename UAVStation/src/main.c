@@ -297,6 +297,11 @@ int main(int argc, char** argv)
         usage();
         return EXIT_FAILURE;
     }
+    if( !options.info ) {
+        syslog(LOG_ERR, "Please specify information string on UAV through the --info option.");
+        usage();
+        return EXIT_FAILURE;
+    }
 
 
     /* GET central station sockaddr*/
