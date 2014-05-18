@@ -94,17 +94,20 @@ typedef int(*dcp_handler_f)(struct dcp_packet_s* packet);
 //-----------------------------------------------------------------------------
 //  UAV DATATYPES
 //-----------------------------------------------------------------------------
-
 /*!
  *  \brief  UAV server state enumeration.
  *  
  */
 enum uavsrv_state_e {
-    NONE,       ///< No servers, stopped or not yet created.
-    CREATED,    ///< Server created, after call to uavsrv_create().
-    SOCKREADY,  ///< Socket created and bound to interface.
-    REGISTERED  ///< Said hello to central station and Hello accepted.
+    NONE,           ///< No servers, stopped or not yet created.
+    CREATED,        ///< Server created, after call to uavsrv_create().
+    INITIALIZED,    ///< Basic initilization done.
+    SOCKREADY,      ///< Socket created and bound to interface.
+    REGISTERED,     ///< Said hello to central station and Hello accepted + Not CONNECTED
+    CONNECTED       ///< Connected to command station.
 };
+
+
 
 /*!
  *  \brief  UAV server description structure.
@@ -178,7 +181,8 @@ const char* errstrs [] = {
     "UAV SRV: unexpected sessid value in packet",
     "UAV SRV: unexpected datalen in packet",
     "UAV SRV: recovery failure",
-    "UAV SRV: failed to save backup"
+    "UAV SRV: failed to save backup",
+    "UAV SRV: state initialized required"
 };
 
 
@@ -186,6 +190,7 @@ const char* errstrs [] = {
 //-----------------------------------------------------------------------------
 //  FUNCTIONS DECLARATION
 //-----------------------------------------------------------------------------
+int                     ackqueue_init               ();
 int                     ackqueue_add                (struct dcp_packet_s*);
 int                     ackqueue_delete             (struct dcp_packet_s*);
 struct dcp_packet_s*    ackqueue_findbytimestamp    (uint32_t);
@@ -208,11 +213,15 @@ int                     dcp_log         (char*);
 int                     dcp_packetack   (struct dcp_packet_s*);
 
 const char*             uavsrv_errstr           ();
+int                     uavsrv_setstate         (enum uavsrv_state_e);
+int                     uavsrv_dcphandlers_set  (enum uavsrv_state_e);
 int                     uavsrv_recover          (char*);
 int                     uavsrv_save             ();
 uint32_t                uavsrv_msec_sincestart  ();
 struct dcp_packet_s*    uavsrv_dcp_waitone      ();
 int                     uavsrv_create           ();
+int                     uavsrv_init             ();
+int                     uavsrv_connect          ();
 int                     uavsrv_start            ();
 int                     uavsrv_run              (struct uavsrv_params_s*);
 void                    uavsrv_destroy          ();
@@ -221,6 +230,26 @@ void                    uavsrv_destroy          ();
 //-----------------------------------------------------------------------------
 //  UAV ACK QUEUE HANDLING FUNCTIONS
 //-----------------------------------------------------------------------------
+
+/*!
+ *  \brief  Initialize the ackqueue.
+ *
+ *  Resets the ackqueue values: ackqueue points to NULL and ackqueue_tail
+ *  points to the first place in the queue. Warning: If packets are present in
+ *  the queue they need to be removed first to avoid memory leaks.
+ *  
+ *  \return -1 is returned in case of failure. On Success 0 is
+ *          returned.
+ */
+int ackqueue_init() 
+{
+    uavsrv.ackqueue         = NULL;
+    uavsrv.ackqueue_tail    = &(uavsrv.ackqueue);
+    return 0;
+}
+
+
+
 /*!
  *  \brief  Add new packet to ackqueue.
  *  
@@ -372,14 +401,7 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
     syslog(LOG_INFO, "Registered: myid=%d -- central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
 
-    uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL]    = handler_null;
-    uavsrv.handlers[DCP_CMDACK]                 = handler_ack;
-    uavsrv.handlers[DCP_CMDISALIVE]             = handler_isalive;
-    uavsrv.handlers[DCP_CMDSETSESSID]           = handler_setsessid;
-    uavsrv.handlers[DCP_CMDAILERON]             = handler_ailerons;
-    uavsrv.handlers[DCP_CMDTHROTTLE]            = handler_throttle;
-    uavsrv.handlers[DCP_CMDDISCONNECT]          = handler_disconnect;
-    uavsrv.state = REGISTERED;
+        uavsrv_setstate(REGISTERED);
 
     dcp_packetack(packet);
 
@@ -731,11 +753,77 @@ const char* uavsrv_errstr()
 
 
 /*!
+ *  \brief  Set new state for UAV server.
+ *
+ *  Set the state and install the new handlers.
+ *  
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int uavsrv_setstate(enum uavsrv_state_e state) 
+{
+    uavsrv.state = state;
+    return uavsrv_dcphandlers_set(state);
+}
+
+
+
+/*!
+ *  \brief  Set the DCP packets handlers for the given state.
+ *
+ *  Special state NONE will reset all handlers to handler_null.
+ *  
+ *  \param  state   State for which to set the DCP packet handlers
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int uavsrv_dcphandlers_set(enum uavsrv_state_e state) 
+{    
+    int i;
+    for(i=0 ; i<16 ; ++i) {
+        uavsrv.handlers[i] = handler_null;
+    }
+
+    switch(state) {
+        case NONE:
+            break;
+        case CREATED:
+            break;
+        case INITIALIZED:
+            break;
+        case SOCKREADY:
+            uavsrv.handlers[DCP_CMDACK]                 = handler_ack;
+            uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL]    = handler_hellofromcentral;
+            break;
+        case REGISTERED:
+            uavsrv.handlers[DCP_CMDACK]                 = handler_ack;
+            uavsrv.handlers[DCP_CMDISALIVE]             = handler_isalive;
+            uavsrv.handlers[DCP_CMDSETSESSID]           = handler_setsessid;
+            break;
+        case CONNECTED:
+            uavsrv.handlers[DCP_CMDACK]                 = handler_ack;
+            uavsrv.handlers[DCP_CMDISALIVE]             = handler_isalive;
+            uavsrv.handlers[DCP_CMDAILERON]             = handler_ailerons;
+            uavsrv.handlers[DCP_CMDTHROTTLE]            = handler_throttle;
+            uavsrv.handlers[DCP_CMDDISCONNECT]          = handler_disconnect;
+            break;
+        default:
+            break;
+    }
+    return 0;
+}
+
+
+
+/*!
  *  \brief  Recover from crash by loading previous configuration.
  *  
  *  This funtion will try to load the previous UAVSRV configuration and state
  *  that has been saved to the file backup file. The uavsrv.backup_mode will be set
- *  to 1 so that we know we already failed once.
+ *  to 1 so that we know we already failed once. It also restore the handlers to the
+ *  right values and re-inits the ackqueue.
  *
  *  \param  file    Path to recovery file.
  *  \return -1 is returned in case of failure and uavsrv_err is set
@@ -764,6 +852,8 @@ int uavsrv_recover(char* file)
         }
     }while(rdnb < size);
     
+    ackqueue_init();
+    uavsrv_dcphandlers_set(uavsrv.state);
     uavsrv.params.backup_mode = 1;
     close(fd);
     return 0;
@@ -884,8 +974,7 @@ struct dcp_packet_s* uavsrv_dcp_waitone()
  *
  *  This function allocates space for the uavsrv_s structure.
  *  The uavsrv_destroy() must be called if this function was 
- *  previously called. This fore re-initialization of all
- *  parameters.
+ *  previously called.
  *  
  *  \return -1 is returned in case of failure and uavsrv_err is set
  *          with the corresponding error code. On Success 0 is
@@ -893,47 +982,57 @@ struct dcp_packet_s* uavsrv_dcp_waitone()
  */
 int uavsrv_create() 
 {
-    int i;
-
-    /* Check the server is not already running. */
-    if( uavsrv.state > NONE ) 
-    {
+    if( uavsrv.state > NONE ) {
         uavsrv_err = UAVSRV_ERR_RUNNING;
         return -1;
     }
+    return 0;
+}
 
-    /* Init DCP packet handlers*/
-    for(i=0 ; i<16 ; ++i) {
-        uavsrv.handlers[i] = handler_null;
+
+/*!
+ *  \brief  Init the uav server.
+ *
+ *  Set the state to INITIALIZED, intialize handlers and ackqueue. This
+ *  function requires the state CREATED.
+ *  
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int uavsrv_init() 
+{
+    /* Check the server is not already running. */
+    if( uavsrv.state != CREATED ) {
+        uavsrv_err = UAVSRV_ERR_REQCREATED;
+        return -1;
     }
-    uavsrv.handlers[DCP_CMDHELLOFROMCENTRAL] = handler_hellofromcentral;
 
     /* Ack queue */
-    uavsrv.ackqueue_tail = &(uavsrv.ackqueue);
+    ackqueue_init();
+    
+    /* Set state + handlers */
+    uavsrv_setstate(INITIALIZED);
 
-    uavsrv.state = CREATED;
     return 0;
 }
 
 
 
 /*!
- *  \brief  Go thought the UAV init sequence.
+ *  \brief  Create a socket.
  *
- *  Says Hello to central station and wait for response.
+ *  Create the socket and binds it to the required port. This function requires
+ *  at least the state INITIALIZED.
  *  
  *  \return -1 is returned in case of failure and uavsrv_err is set
  *          with the corresponding error code. On Success 0 is
  *          returned.
  */
-int uavsrv_start()
+int uavsrv_connect() 
 {
-    struct dcp_packet_s *packet;
-    
-    /* Check configuration */
-    if( uavsrv.state != CREATED ) 
-    {
-        uavsrv_err = UAVSRV_ERR_REQCREATED;
+    if( uavsrv.state < INITIALIZED ) {
+        
         return -1;
     }
 
@@ -949,7 +1048,28 @@ int uavsrv_start()
         close(uavsrv.sock);
         return -1;
     }
-    uavsrv.state = SOCKREADY;
+    uavsrv_setstate(SOCKREADY);
+    return 0;
+}
+
+/*!
+ *  \brief  Go thought the UAV init sequence.
+ *
+ *  Says Hello to central station and wait for response.
+ *  
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int uavsrv_start()
+{
+    struct dcp_packet_s *packet;
+
+    /* Check that the socket is ready */
+    if( uavsrv.state != SOCKREADY ) {
+        uavsrv_err = UAVSRV_ERR_REQREADY;
+        return -1;
+    }
 
     /* Set start time */
     uavsrv.start_time = 0;
@@ -961,7 +1081,6 @@ int uavsrv_start()
         packet = uavsrv_dcp_waitone();
     } while(packet!=NULL && packet->cmd!=DCP_CMDHELLOFROMCENTRAL);
     if(!packet) {
-        close(uavsrv.sock);
         return -1;
     }
     uavsrv.handlers[packet->cmd](packet);
@@ -998,23 +1117,27 @@ int uavsrv_run(struct uavsrv_params_s *params)
          * failure IS NOT an option.
          * */
 
-        /* TODO: AUTOPILOT or SOMETHING ??? */
+        /* TODO: start AUTOPILOT or SOMETHING ??? */
 
         /* 
          * params still contains a valid configuration from the user.
          * It might prove to be useful if we need to restart from scratch.
-         * Since it a restart param is not NULL (would have failed on the
+         * Since it a restart, param is not NULL (would have failed on the
          * first launch).
          * */
         /* TODO: use emergency default params instead of that. */
         memcpy(&(uavsrv.params), params, sizeof(struct uavsrv_params_s));
         
-
         while(1) {
             /* Try recover from backup file */
             syslog(LOG_INFO, "Recovering from file '%s' ...", params->backup);
             if(uavsrv_recover(params->backup) >= 0) {
                 syslog(LOG_INFO, "Recovery from file : [ OK ]");
+                /* Second step is to open a socket */
+                while(uavsrv_connect() < 0) { 
+                    usleep(100000); 
+                }
+                /* TODO: set handlers + ackqueue */
                 break;
             }
             syslog(LOG_CRIT, "Recovery from file : [ FAILED ]\n\terrno: %m");
@@ -1043,6 +1166,14 @@ int uavsrv_run(struct uavsrv_params_s *params)
         {
             memcpy(&(uavsrv.params), params, sizeof(struct uavsrv_params_s));
         }
+
+        /* Initialize the drone */
+        if( uavsrv_init() < 0 )
+            return -1;
+
+        /* Create the socket */
+        if( uavsrv_connect() < 0 )
+            return -1;
         
         /* Say hello to central station */
         if( uavsrv_start() < 0 )
@@ -1088,5 +1219,5 @@ int uavsrv_run(struct uavsrv_params_s *params)
 void uavsrv_destroy() 
 {
     close(uavsrv.sock);
-    uavsrv.state = NONE;
+    uavsrv_setstate(NONE);
 }
