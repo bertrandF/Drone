@@ -200,6 +200,7 @@ void                    dcp_packetfree  (struct dcp_packet_s*);
 int                     dcp_send        (struct dcp_packet_s*); 
 int                     dcp_hello       (struct sockaddr_storage*, char*, int);
 int                     dcp_videos      (char*);
+int                     dcp_log         (char*);
 int                     dcp_packetack   (struct dcp_packet_s*);
 
 const char*             uavsrv_errstr           ();
@@ -639,6 +640,39 @@ int dcp_videos(char* urls)
     memcpy(&(packet->data), urls, len);
     packet->datalen     = len;
 
+
+    if(dcp_send(packet) < 0) {
+        return -1;
+    }
+    ackqueue_add(packet);
+    return 0;
+}
+
+
+
+/*!
+ *  \brief  Send logs to central station to be registered in DB.
+ *
+ *  Send log messages to the central station. The message will be registered
+ *  in the DB allong with the time it has been received and the id of the sender.
+ *  
+ *  \param  str Buffer containing the log message.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int dcp_log(char* str) 
+{
+    struct dcp_packet_s* packet = dcp_packetnew();
+    int len = strnlen(str, PDATAMAX);
+
+    packet->dstaddr     = uavsrv.params.central_addr;
+    packet->dstaddrlen  = uavsrv.params.central_addrlen;
+    packet->cmd         = DCP_CMDLOG;
+    packet->sessid      = uavsrv.central_sessid;
+    packet->timestamp   = uavsrv_msec_sincestart();
+    memcpy(&(packet->data), str, len);
+    packet->datalen     = len;
 
     if(dcp_send(packet) < 0) {
         return -1;
