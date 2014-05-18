@@ -54,6 +54,9 @@
 #define PDATAMAX    (256)   ///< Max packet data len
 
 
+#define UNUSED(x)  x __attribute__((unused))    ///< Get rid of warnings on unused variables (temporary)
+
+
 
 //-----------------------------------------------------------------------------
 //  DCP DATATYPES
@@ -187,6 +190,8 @@ int handler_null                (struct dcp_packet_s*);
 int handler_ack                 (struct dcp_packet_s*);
 int handler_isalive             (struct dcp_packet_s*);
 int handler_setsessid           (struct dcp_packet_s*);
+int handler_ailerons            (struct dcp_packet_s*);
+int handler_throttle            (struct dcp_packet_s*);
 int handler_disconnect          (struct dcp_packet_s*);
 int handler_hellofromcentral    (struct dcp_packet_s*);
 
@@ -364,6 +369,8 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     uavsrv.handlers[DCP_CMDACK]                 = handler_ack;
     uavsrv.handlers[DCP_CMDISALIVE]             = handler_isalive;
     uavsrv.handlers[DCP_CMDSETSESSID]           = handler_setsessid;
+    uavsrv.handlers[DCP_CMDAILERON]             = handler_ailerons;
+    uavsrv.handlers[DCP_CMDTHROTTLE]            = handler_throttle;
     uavsrv.handlers[DCP_CMDDISCONNECT]          = handler_disconnect;
     uavsrv.state = REGISTERED;
 
@@ -403,6 +410,74 @@ int handler_setsessid(struct dcp_packet_s* packet)
     uavsrv.command_sessid = packet->data[0];
     syslog(LOG_INFO, "New command command_sessid=%d", uavsrv.command_sessid);
     dcp_packetack(packet);
+    return 0;
+}
+
+
+
+/*!
+ *  \brief  Handle ailerons command.
+ *
+ *  This command is used to navigate the UAV.
+ *  
+ *  \param  packet  Packet ailerons from command station.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_ailerons(struct dcp_packet_s* packet) 
+{
+    int UNUSED(aileronR), UNUSED(aileronL), UNUSED(rudder);
+
+    if(packet->sessid != uavsrv.command_sessid) {
+        syslog(LOG_INFO, "Unauthorized aileron command from sessid=%d", packet->sessid);
+        uavsrv_err = UAVSRV_ERR_BADSESSID;
+        return -1;
+    }
+
+    if(packet->datalen < 3) {
+        syslog(LOG_INFO, "aileron command with bad datalen=%d", packet->datalen);
+        uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        return -1;
+    }
+    aileronL = packet->data[0];
+    aileronR = packet->data[1];
+    rudder   = packet->data[2];
+    
+    return 0;
+}
+
+
+
+/*!
+ *  \brief  Handle the throttle command.
+ *  
+ *  This command is used to set UAV speed.
+ *
+ *  \param  packet  Packet throttle from command station.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int handler_throttle(struct dcp_packet_s* packet) 
+{
+    int UNUSED(motorId), UNUSED(throttle);
+
+    if(packet->sessid != uavsrv.command_sessid) {
+        syslog(LOG_INFO, "Unauthorized throttle command from sessid=%d", packet->sessid);
+        uavsrv_err = UAVSRV_ERR_BADSESSID;
+        return -1;
+    }
+
+    if(packet->datalen < 2) {
+        syslog(LOG_INFO, "throttle command with bad datalen=%d", packet->datalen);
+        uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        return -1;
+    }
+
+    motorId     = packet->data[0];
+    throttle    = packet->data[1];
+
     return 0;
 }
 
