@@ -47,6 +47,9 @@
 #define UAVSRV_ERR_NOACKPACKET  (10)    ///< No such packet in ackqueue.
 #define UAVSRV_ERR_BADSESSID    (11)    ///< Unexpected sessid value in packet.
 #define UAVSRV_ERR_BADDATALEN   (12)    ///< Packet does not have the required data len.
+#define UAVSRV_ERR_FAILRECOVER  (13)    ///< Failed to recover previous configuration.
+#define UAVSRV_ERR_FAILSAVEBACK (14)    ///< Failed to save backup.
+#define UAVSRV_ERR_FAILREADBACK (15)    ///< Failed to read backup file.
 
 
 /*!
@@ -64,6 +67,8 @@ struct uavsrv_params_s {
     struct timeval          timeout;            ///< Select() timeout.
     char*                   videos;             ///< List of video servers. String to be used with the DCP video servers cmd.
     char*                   info;               ///< UAV's info string to be stored in table stations of DB.
+    char*                   backup;             ///< Backup file path. Stores UAV state before crash. Is loaded after a crash.
+    uint8_t                 backup_mode;        ///< 0 : do not try to recover previous state. 1 : recover previous state.
 };
 
 

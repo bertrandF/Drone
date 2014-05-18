@@ -49,6 +49,9 @@
 #include "uav_server.h"
 #include "dcp.h"
 
+/* Defines */
+#define DEFAULT_BACKUP      "/tmp/drone_config_data.bak"
+
 
 /*!
  *  \brief  Available long options
@@ -59,6 +62,7 @@
  *
  */
 static struct option long_options[] = {
+    {"backup",      required_argument,  NULL,   'b'},
     {"central-host",required_argument,  NULL,   'C'},
     {"help",        no_argument,        NULL,   'h'},
     {"info",        required_argument,  NULL,   'I'},
@@ -90,6 +94,7 @@ struct options_s {
     unsigned long           timeout;        ///< Select() timeout in milliseconds.
     char*                   videos;         ///< List of video servers.
     char*                   info;           ///< UAV's info string to be stored in table stations of DB.
+    char*                   backup;         ///< Path to backup file.
 };
 static struct options_s options = {
     NULL,
@@ -98,6 +103,7 @@ static struct options_s options = {
     NULL,
     5867,
     1000,
+    NULL,
     NULL,
     NULL
 };
@@ -121,6 +127,7 @@ void usage()
     printf("Options:\n");
     printf("  -4, --ipv4         Use IPv4 only.\n");
     printf("  -6, --ipv6         Use IPv6 only.\n");
+    printf("  -b, --backup       Path to the backup file.\n");
     printf("  -C, --central-host Central Station host.\n");
     printf("  -h, --help         Prints this help.\n");
     printf("  -I, --info         UAV's info string to be stored in table stations of DB.\n");
@@ -249,13 +256,16 @@ int main(int argc, char** argv)
     openlog(PROGRAM_NAME, LOG_CONS | LOG_PERROR | LOG_PID, LOG_USER);
 
     /* Parse command line arguments */
-    while( (opt=getopt_long(argc, argv, "46C:hI:i:P:p:t:v:", long_options, NULL)) > 0) {
+    while( (opt=getopt_long(argc, argv, "46b:C:hI:i:P:p:t:v:", long_options, NULL)) > 0) {
         switch(opt) {
             case '4':
                 options.sin_family = AF_INET;
                 break;
             case '6':
                 options.sin_family = AF_INET6;
+                break;
+            case 'b':
+                options.backup = optarg;
                 break;
             case 'C':
                 options.central_host = optarg;
@@ -302,6 +312,14 @@ int main(int argc, char** argv)
         usage();
         return EXIT_FAILURE;
     }
+    if( !options.backup ) {
+        options.backup = malloc(strlen(DEFAULT_BACKUP)+1);
+        if( !options.backup ) {
+            syslog(LOG_ERR, "Cannot allocate space for default backup filename.");
+            return EXIT_FAILURE;
+        }
+        memcpy(options.backup, DEFAULT_BACKUP, strlen(DEFAULT_BACKUP)+1);
+    }
 
 
     /* GET central station sockaddr*/
@@ -317,6 +335,9 @@ int main(int argc, char** argv)
     uavparams.videos    = options.videos;
     /* GET infostr */
     uavparams.info  = options.info;
+    /* GET backup file */
+    uavparams.backup        = options.backup;
+    uavparams.backup_mode   = 0;
 
 
     /* Fork child */
@@ -328,6 +349,7 @@ int main(int argc, char** argv)
         }
 
         if(pid>0) { // Parent
+            uavparams.backup_mode = 1;
             syslog(LOG_INFO, "Starting child process: PID=%d", pid);
             waitpid(pid, &status, 0);
             if(!WIFEXITED(status)) {

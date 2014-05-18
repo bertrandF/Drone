@@ -45,6 +45,8 @@
 #include <errno.h>
 #include <time.h>
 #include <syslog.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /* Local includes */
 #include "uav_server.h"
@@ -174,7 +176,9 @@ const char* errstrs [] = {
     "UAV SRV: error in select()",
     "UAV SRV: no such packet in ackqueue",
     "UAV SRV: unexpected sessid value in packet",
-    "UAV SRV: unexpected datalen in packet"
+    "UAV SRV: unexpected datalen in packet",
+    "UAV SRV: recovery failure",
+    "UAV SRV: failed to save backup"
 };
 
 
@@ -204,6 +208,8 @@ int                     dcp_log         (char*);
 int                     dcp_packetack   (struct dcp_packet_s*);
 
 const char*             uavsrv_errstr           ();
+int                     uavsrv_recover          (char*);
+int                     uavsrv_save             ();
 uint32_t                uavsrv_msec_sincestart  ();
 struct dcp_packet_s*    uavsrv_dcp_waitone      ();
 int                     uavsrv_create           ();
@@ -724,6 +730,85 @@ const char* uavsrv_errstr()
 
 
 
+/*!
+ *  \brief  Recover from crash by loading previous configuration.
+ *  
+ *  This funtion will try to load the previous UAVSRV configuration and state
+ *  that has been saved to the file backup file. The uavsrv.backup_mode will be set
+ *  to 1 so that we know we already failed once.
+ *
+ *  \param  file    Path to recovery file.
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int uavsrv_recover(char* file) 
+{
+    int fd;
+    int rdnb=0, size=sizeof(struct uavsrv_s), ret;
+
+    fd = open(file, 0, O_RDONLY);
+    if(fd < 0) {
+        syslog(LOG_ERR, "Could not read backup\n\terrno: %m");
+        uavsrv_err = UAVSRV_ERR_FAILREADBACK;
+        return -1;
+    }
+
+    do {
+        ret = read(fd, &(uavsrv)+rdnb, size-rdnb);
+        if(ret < 0) {
+            syslog(LOG_ERR, "uavsrv_recover: read() failed\n\terrno: %m");
+            close(fd);
+            uavsrv_err = UAVSRV_ERR_FAILREADBACK;
+            return -1;
+        }
+    }while(rdnb < size);
+    
+    uavsrv.params.backup_mode = 1;
+    close(fd);
+    return 0;
+}
+
+
+
+/*!
+ *  \brief  Save UAV configuration and state of UAV to backup file.
+ *
+ *  This will save the UAV configuration and actual state to the backup file
+ *  pointed by uavsrv.backup.
+ *  
+ *  \return -1 is returned in case of failure and uavsrv_err is set
+ *          with the corresponding error code. On Success 0 is
+ *          returned.
+ */
+int uavsrv_save() 
+{
+    int fd;
+    int wrnb=0, size=sizeof(struct uavsrv_s), ret;
+
+    fd = open(uavsrv.params.backup, O_CREAT, O_WRONLY);
+    if(fd < 0) {
+        syslog(LOG_ERR, "Could not create backup\n\terrno: %m");
+        uavsrv_err = UAVSRV_ERR_FAILSAVEBACK;
+        return -1;
+    }
+
+    do {
+        ret += write(fd, &(uavsrv)+wrnb, size-wrnb);
+        if(ret < 0) {
+            syslog(LOG_ERR, "uavsrv_save: write() failed\n\terrno: %m");
+            close(fd);
+            uavsrv_err = UAVSRV_ERR_FAILSAVEBACK;
+            return -1;
+        }
+        wrnb += ret;
+    }while(wrnb < size);
+
+    close(fd);
+    return 0;
+}
+
+
 
 /*!
  *  \brief  Returns the time in msec since drone start.
@@ -844,19 +929,39 @@ int uavsrv_create()
 int uavsrv_start()
 {
     struct dcp_packet_s *packet;
-
-    /* Check required state */
-    if( uavsrv.state != SOCKREADY ) {
-        uavsrv_err = UAVSRV_ERR_REQREADY;
+    
+    /* Check configuration */
+    if( uavsrv.state != CREATED ) 
+    {
+        uavsrv_err = UAVSRV_ERR_REQCREATED;
         return -1;
     }
-   
+
+    /* Create socket+bind */
+    if((uavsrv.sock=socket(uavsrv.params.if_addr.ss_family, SOCK_DGRAM, 0)) < 0)
+    {
+        uavsrv_err = UAVSRV_ERR_SOCKET;
+        return -1;
+    }
+    if(bind(uavsrv.sock, (struct sockaddr*)&(uavsrv.params.if_addr), uavsrv.params.if_addrlen) < 0) 
+    {
+        uavsrv_err = UAVSRV_ERR_BIND;
+        close(uavsrv.sock);
+        return -1;
+    }
+    uavsrv.state = SOCKREADY;
+
+    /* Set start time */
+    uavsrv.start_time = 0;
+    uavsrv.start_time = uavsrv_msec_sincestart();
+
     /* Say hello */
     dcp_hello(&(uavsrv.params.central_addr), uavsrv.params.info, strnlen(uavsrv.params.info, PDATAMAX));
     do {
         packet = uavsrv_dcp_waitone();
     } while(packet!=NULL && packet->cmd!=DCP_CMDHELLOFROMCENTRAL);
     if(!packet) {
+        close(uavsrv.sock);
         return -1;
     }
     uavsrv.handlers[packet->cmd](packet);
@@ -887,41 +992,62 @@ int uavsrv_run(struct uavsrv_params_s *params)
 {
     struct dcp_packet_s* packet;
 
-    /* Check configuration */
-    if( uavsrv.state != CREATED ) 
-    {
-        uavsrv_err = UAVSRV_ERR_REQCREATED;
-        return -1;
-    }
-    if( params == NULL )
-    {
-        uavsrv_err = UAVSRV_ERR_NULLPARAMS;
-        return -1;
-    }
-    else 
-    {
+    if(params->backup_mode) {
+        /*
+         * This is recovery mode, the drone might be in the sky so
+         * failure IS NOT an option.
+         * */
+
+        /* TODO: AUTOPILOT or SOMETHING ??? */
+
+        /* 
+         * params still contains a valid configuration from the user.
+         * It might prove to be useful if we need to restart from scratch.
+         * Since it a restart param is not NULL (would have failed on the
+         * first launch).
+         * */
+        /* TODO: use emergency default params instead of that. */
         memcpy(&(uavsrv.params), params, sizeof(struct uavsrv_params_s));
-    }
+        
 
-    /* Create socket+bind */
-    if((uavsrv.sock=socket(uavsrv.params.if_addr.ss_family, SOCK_DGRAM, 0)) < 0)
-    {
-        uavsrv_err = UAVSRV_ERR_SOCKET;
-        return -1;
+        while(1) {
+            /* Try recover from backup file */
+            syslog(LOG_INFO, "Recovering from file '%s' ...", params->backup);
+            if(uavsrv_recover(params->backup) >= 0) {
+                syslog(LOG_INFO, "Recovery from file : [ OK ]");
+                break;
+            }
+            syslog(LOG_CRIT, "Recovery from file : [ FAILED ]\n\terrno: %m");
+            uavsrv_err = UAVSRV_ERR_FAILRECOVER;
+            
+            /* Try to restart from scratch */
+            syslog(LOG_INFO, "Trying restart from scratch ...");
+            if(uavsrv_start() >=  0) {
+                syslog(LOG_INFO, "Restarted from scratch : [ OK ]");
+                break;
+            }
+            syslog(LOG_CRIT, "Restart from scratch : [ FAILED ]\n\terrno: %m");
+        }
     }
-    if(bind(uavsrv.sock, (struct sockaddr*)&(uavsrv.params.if_addr), uavsrv.params.if_addrlen) < 0) 
-    {
-        uavsrv_err = UAVSRV_ERR_BIND;
-        return -1;
+    else {
+        /* 
+         * Since this is our first start we can assume the UAV is still on the ground
+         * so failure IS an option. 
+         * */
+        if( params == NULL )
+        {
+            uavsrv_err = UAVSRV_ERR_NULLPARAMS;
+            return -1;
+        }
+        else 
+        {
+            memcpy(&(uavsrv.params), params, sizeof(struct uavsrv_params_s));
+        }
+        
+        /* Say hello to central station */
+        if( uavsrv_start() < 0 )
+            return -1;
     }
-    uavsrv.state = SOCKREADY;
-
-    uavsrv.start_time = 0;
-    uavsrv.start_time = uavsrv_msec_sincestart();;
-
-    /* Say hello to central station */
-    if( uavsrv_start() < 0 )
-        return -1;
 
 
     /* -- MAIN LOOP -- */
