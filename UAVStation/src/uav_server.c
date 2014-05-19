@@ -167,22 +167,22 @@ int uavsrv_err=UAVSRV_ERR_NOERR;
  *  
  */
 const char* errstrs [] = {
-    "UAV SRV: no errors",
-    "UAV SRV: srv running",
-    "UAV SRV: cannot alloc mem",
-    "UAV SRV: requires state CREATED",
-    "UAV SRV: params=NULL",
-    "UAV SRV: cannot create socket",
-    "UAV SRV: cannot bind socket",
-    "UAV SRV: requires state SOCKREADY",
-    "UAV SRV: timed out",
-    "UAV SRV: error in select()",
-    "UAV SRV: no such packet in ackqueue",
-    "UAV SRV: unexpected sessid value in packet",
-    "UAV SRV: unexpected datalen in packet",
-    "UAV SRV: recovery failure",
-    "UAV SRV: failed to save backup",
-    "UAV SRV: state initialized required"
+    "no errors",
+    "srv running",
+    "cannot alloc mem",
+    "requires state CREATED",
+    "params=NULL",
+    "cannot create socket",
+    "cannot bind socket",
+    "requires state SOCKREADY",
+    "timed out",
+    "error in select()",
+    "no such packet in ackqueue",
+    "unexpected sessid value in packet",
+    "unexpected datalen in packet",
+    "recovery failure",
+    "failed to save backup",
+    "state initialized required"
 };
 
 
