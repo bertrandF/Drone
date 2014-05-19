@@ -467,7 +467,7 @@ int handler_ailerons(struct dcp_packet_s* packet)
 
     if(packet->datalen < 3) {
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
-        syslog(LOG_INFO, "Ailerons: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
+        syslog(LOG_ERR, "Ailerons: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
         return -1;
     }
     aileronL = packet->data[0];
@@ -501,7 +501,7 @@ int handler_throttle(struct dcp_packet_s* packet)
 
     if(packet->datalen < 2) {
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
-        syslog(LOG_INFO, "Throttle: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
+        syslog(LOG_ERR, "Throttle: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
         return -1;
     }
 
