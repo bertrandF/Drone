@@ -850,6 +850,7 @@ int uavsrv_recover(char* file)
             uavsrv_err = UAVSRV_ERR_FAILREADBACK;
             return -1;
         }
+        rdnb += ret;
     }while(rdnb < size);
     
     ackqueue_init();
