@@ -54,7 +54,7 @@
 
 /* Defines */
 #define PDATAMAX    (256)   ///< Max packet data len
-
+#define MAX_RETRIES (5)     ///< Max numbers of retries before aborting
 
 #define UNUSED(x)  x __attribute__((unused))    ///< Get rid of warnings on unused variables (temporary)
 
@@ -854,7 +854,7 @@ int uavsrv_dcphandlers_set(enum uavsrv_state_e state)
  */
 int uavsrv_recover(char* file) 
 {
-    int fd;
+    int fd, i;
     int rdnb=0, size=sizeof(struct uavsrv_s), ret;
 
     fd = open(file, O_RDONLY);
@@ -872,7 +872,14 @@ int uavsrv_recover(char* file)
         }
         rdnb += ret;
     }while(rdnb < size);
-    
+
+    /* Create socket */
+    for(i=0 ; i<MAX_RETRIES && (uavsrv.sock=socket(uavsrv.params.if_addr.ss_family, SOCK_DGRAM, 0))<0 ; ++i)
+        usleep(200000);
+    /* Bind socket */
+    for(i=0 ; i<MAX_RETRIES && bind(uavsrv.sock, (struct sockaddr*)&(uavsrv.params.if_addr), uavsrv.params.if_addrlen)<0 ; ++i) 
+        usleep(200000);
+
     ackqueue_init();
     uavsrv_dcphandlers_set(uavsrv.state);
     uavsrv.params.backup_mode = 1;
@@ -1154,10 +1161,6 @@ int uavsrv_run(struct uavsrv_params_s *params)
             syslog(LOG_INFO, "Recovering from file '%s' ...", params->backup);
             if(uavsrv_recover(params->backup) >= 0) {
                 syslog(LOG_INFO, "Recovery from file : [ OK ]");
-                /* Second step is to open a socket */
-                while(uavsrv_connect() < 0) { 
-                    usleep(100000); 
-                }
                 break;
             }
             syslog(LOG_ERR, "uavsrv_restore(): %s\n\terrno: %m", uavsrv_errstr());
