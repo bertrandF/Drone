@@ -1092,7 +1092,8 @@ int uavsrv_start()
     dcp_packetfree(packet);
 
     /* Register videos servers to DB. */
-    dcp_videos(uavsrv.params.videos);
+    if(uavsrv.params.videos!=NULL && strnlen(uavsrv.params.videos, PDATAMAX)>0)
+        dcp_videos(uavsrv.params.videos);
 
     return 0;
 }
