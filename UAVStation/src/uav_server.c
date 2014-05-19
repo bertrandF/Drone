@@ -401,7 +401,7 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
     syslog(LOG_INFO, "Registered: myid=%d -- central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
 
-        uavsrv_setstate(REGISTERED);
+    uavsrv_setstate(REGISTERED);
 
     dcp_packetack(packet);
 
@@ -986,6 +986,8 @@ int uavsrv_create()
         uavsrv_err = UAVSRV_ERR_RUNNING;
         return -1;
     }
+
+    uavsrv_setstate(CREATED);
     return 0;
 }
 
@@ -1011,9 +1013,7 @@ int uavsrv_init()
     /* Ack queue */
     ackqueue_init();
     
-    /* Set state + handlers */
     uavsrv_setstate(INITIALIZED);
-
     return 0;
 }
 
@@ -1048,6 +1048,7 @@ int uavsrv_connect()
         close(uavsrv.sock);
         return -1;
     }
+
     uavsrv_setstate(SOCKREADY);
     return 0;
 }
@@ -1137,7 +1138,6 @@ int uavsrv_run(struct uavsrv_params_s *params)
                 while(uavsrv_connect() < 0) { 
                     usleep(100000); 
                 }
-                /* TODO: set handlers + ackqueue */
                 break;
             }
             syslog(LOG_CRIT, "Recovery from file : [ FAILED ]\n\terrno: %m");
@@ -1145,11 +1145,19 @@ int uavsrv_run(struct uavsrv_params_s *params)
             
             /* Try to restart from scratch */
             syslog(LOG_INFO, "Trying restart from scratch ...");
-            if(uavsrv_start() >=  0) {
-                syslog(LOG_INFO, "Restarted from scratch : [ OK ]");
-                break;
+            if(uavsrv_create() >= 0) {
+                if(uavsrv_init() >= 0) {
+                    if(uavsrv_connect() >= 0) {
+                        if(uavsrv_start() >=  0) {
+                            syslog(LOG_INFO, "Restarted from scratch : [ OK ]");
+                            break;
+                        }
+                    
+                    }
+                }
             }
             syslog(LOG_CRIT, "Restart from scratch : [ FAILED ]\n\terrno: %m");
+            uavsrv_destroy();
         }
     }
     else {
