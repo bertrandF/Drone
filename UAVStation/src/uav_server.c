@@ -364,8 +364,8 @@ int handler_ack(struct dcp_packet_s* packet)
 int handler_isalive(struct dcp_packet_s* packet) 
 {
     if(packet->sessid != uavsrv.central_sessid && packet->sessid != uavsrv.command_sessid) {
-        syslog(LOG_INFO, "isAlive with bad sessid=%d", packet->sessid);
         uavsrv_err = UAVSRV_ERR_BADSESSID;
+        syslog(LOG_INFO, "isAlive: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
     dcp_packetack(packet);
@@ -393,13 +393,13 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
     dcp_packetfree(ack_p);
     
     if(packet->datalen < 1) {
-        syslog(LOG_ERR, "helloFromCentral with bad datalen=%d", packet->datalen);
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        syslog(LOG_ERR, "helloFromCentral: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
         return -1;
     }
     uavsrv.myid             = (char)((packet->data[0]   ) & 0x0F);
     uavsrv.central_sessid   = (char)((packet->data[0]>>4) & 0x0F);
-    syslog(LOG_INFO, "Registered: myid=%d -- central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
+    syslog(LOG_INFO, "Registered: myid=%d, central_sessid=%d", uavsrv.myid, uavsrv.central_sessid);
 
     uavsrv_setstate(REGISTERED);
 
@@ -426,18 +426,18 @@ int handler_hellofromcentral(struct dcp_packet_s* packet)
 int handler_setsessid(struct dcp_packet_s* packet)
 {
     if(packet->sessid != uavsrv.central_sessid) {
-        syslog(LOG_INFO, "setSessId with bad sessid=%d", packet->sessid);
         uavsrv_err = UAVSRV_ERR_BADSESSID;
+        syslog(LOG_INFO, "setSessId: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
 
     if(packet->datalen < 1) {
-        syslog(LOG_ERR, "setSessId with bad datalen=%d", packet->datalen);
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        syslog(LOG_ERR, "setSessId: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
         return -1;
     }
     uavsrv.command_sessid = packet->data[0];
-    syslog(LOG_INFO, "New command command_sessid=%d", uavsrv.command_sessid);
+    syslog(LOG_INFO, "Connected: command_sessid=%d", uavsrv.command_sessid);
     uavsrv_save();
     dcp_packetack(packet);
     return 0;
@@ -460,14 +460,14 @@ int handler_ailerons(struct dcp_packet_s* packet)
     int UNUSED(aileronR), UNUSED(aileronL), UNUSED(rudder);
 
     if(packet->sessid != uavsrv.command_sessid) {
-        syslog(LOG_INFO, "Unauthorized aileron command from sessid=%d", packet->sessid);
         uavsrv_err = UAVSRV_ERR_BADSESSID;
+        syslog(LOG_INFO, "Ailerons: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
 
     if(packet->datalen < 3) {
-        syslog(LOG_INFO, "aileron command with bad datalen=%d", packet->datalen);
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        syslog(LOG_INFO, "Ailerons: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
         return -1;
     }
     aileronL = packet->data[0];
@@ -494,14 +494,14 @@ int handler_throttle(struct dcp_packet_s* packet)
     int UNUSED(motorId), UNUSED(throttle);
 
     if(packet->sessid != uavsrv.command_sessid) {
-        syslog(LOG_INFO, "Unauthorized throttle command from sessid=%d", packet->sessid);
         uavsrv_err = UAVSRV_ERR_BADSESSID;
+        syslog(LOG_INFO, "Throttle: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
 
     if(packet->datalen < 2) {
-        syslog(LOG_INFO, "throttle command with bad datalen=%d", packet->datalen);
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
+        syslog(LOG_INFO, "Throttle: %s (datalen=%d)", uavsrv_errstr(), packet->datalen);
         return -1;
     }
 
@@ -527,12 +527,12 @@ int handler_throttle(struct dcp_packet_s* packet)
 int handler_disconnect(struct dcp_packet_s* packet) 
 {
     if(packet->sessid != uavsrv.central_sessid) {
-        syslog(LOG_INFO, "disconnect with bad sessid=%d", packet->sessid);
         uavsrv_err = UAVSRV_ERR_BADSESSID;
+        syslog(LOG_INFO, "Disconnect: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
     uavsrv.command_sessid = DCP_IDNULL;
-    syslog(LOG_INFO, "Got disconnect from command station packet");
+    syslog(LOG_INFO, "Disconnected");
     uavsrv_save();
     dcp_packetack(packet);
     return 0;
@@ -1156,18 +1156,18 @@ int uavsrv_run(struct uavsrv_params_s *params)
                             break;
                         }
                         else
-                            syslog(LOG_ERR, "Could not start server");
+                            syslog(LOG_ERR, "uavsrv_start(): %s", uavsrv_errstr());
                     }
                     else
-                        syslog(LOG_ERR, "Could not create socket");
+                        syslog(LOG_ERR, "uavsrv_connect(): %s", uavsrv_errstr());
                 }
                 else 
-                    syslog(LOG_ERR, "Could not initialize server");
+                    syslog(LOG_ERR, "uavsrv_init(): %s", uavsrv_errstr());
             }
             else
-                syslog(LOG_ERR, "Could not create server");
+                syslog(LOG_ERR, "uavsrv_create(): %s", uavsrv_errstr());
             syslog(LOG_ERR, "\terrno: %m");
-            syslog(LOG_CRIT, "Restart from scratch : [ FAILED ]\n\terrno: %m");
+            syslog(LOG_CRIT, "Restart from scratch : [ FAILED ]");
             uavsrv_destroy();
         }
     }
