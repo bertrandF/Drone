@@ -438,6 +438,7 @@ int handler_setsessid(struct dcp_packet_s* packet)
     }
     uavsrv.command_sessid = packet->data[0];
     syslog(LOG_INFO, "New command command_sessid=%d", uavsrv.command_sessid);
+    uavsrv_save();
     dcp_packetack(packet);
     return 0;
 }
