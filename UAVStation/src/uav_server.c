@@ -835,7 +835,7 @@ int uavsrv_recover(char* file)
     int fd;
     int rdnb=0, size=sizeof(struct uavsrv_s), ret;
 
-    fd = open(file, 0, O_RDONLY);
+    fd = open(file, O_RDONLY);
     if(fd < 0) {
         syslog(LOG_ERR, "Could not read backup\n\terrno: %m");
         uavsrv_err = UAVSRV_ERR_FAILREADBACK;
@@ -876,7 +876,7 @@ int uavsrv_save()
     int fd;
     int wrnb=0, size=sizeof(struct uavsrv_s), ret;
 
-    fd = open(uavsrv.params.backup, O_CREAT, O_WRONLY);
+    fd = open(uavsrv.params.backup, O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR);
     if(fd < 0) {
         syslog(LOG_ERR, "Could not create backup\n\terrno: %m");
         uavsrv_err = UAVSRV_ERR_FAILSAVEBACK;
