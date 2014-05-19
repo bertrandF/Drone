@@ -52,6 +52,7 @@
 #define UAVSRV_ERR_FAILREADBACK (15)    ///< Failed to read backup file.
 #define UAVSRV_ERR_FAILOPENBACK (16)    ///< Failed to open backup file.
 #define UAVSRV_ERR_REQINIT      (17)    ///< State INITIALIZED required.
+#define UAVSRV_ERR_BADTIMESTAMP (18)    ///< More recent packet already received.
 
 
 /*!

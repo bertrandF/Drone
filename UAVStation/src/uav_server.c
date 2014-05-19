@@ -183,7 +183,8 @@ const char* errstrs [] = {
     "recovery failure",
     "failed to save backup",
     "failed to open backup"
-    "state initialized required"
+    "state initialized required",
+    "timestamp too old"
 };
 
 
@@ -460,12 +461,20 @@ int handler_setsessid(struct dcp_packet_s* packet)
 int handler_ailerons(struct dcp_packet_s* packet) 
 {
     int UNUSED(aileronR), UNUSED(aileronL), UNUSED(rudder);
+    static uint32_t last_timestamp=0;
 
     if(packet->sessid != uavsrv.command_sessid) {
         uavsrv_err = UAVSRV_ERR_BADSESSID;
         syslog(LOG_INFO, "Ailerons: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
+
+    if(packet->timestamp < last_timestamp) {
+       uavsrv_err = UAVSRV_ERR_BADTIMESTAMP;
+       syslog(LOG_INFO, "Ailreons: %s", uavsrv_errstr());
+       return -1;
+    }
+    last_timestamp = packet->timestamp;
 
     if(packet->datalen < 3) {
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
@@ -494,12 +503,20 @@ int handler_ailerons(struct dcp_packet_s* packet)
 int handler_throttle(struct dcp_packet_s* packet) 
 {
     int UNUSED(motorId), UNUSED(throttle);
+    static uint32_t last_timestamp=0;
 
     if(packet->sessid != uavsrv.command_sessid) {
         uavsrv_err = UAVSRV_ERR_BADSESSID;
         syslog(LOG_INFO, "Throttle: %s (sessid=%d)", uavsrv_errstr(), packet->sessid);
         return -1;
     }
+
+    if(packet->timestamp < last_timestamp) {
+       uavsrv_err = UAVSRV_ERR_BADTIMESTAMP;
+       syslog(LOG_INFO, "Throttle: %s", uavsrv_errstr());
+       return -1;
+    }
+    last_timestamp = packet->timestamp;
 
     if(packet->datalen < 2) {
         uavsrv_err = UAVSRV_ERR_BADDATALEN;
