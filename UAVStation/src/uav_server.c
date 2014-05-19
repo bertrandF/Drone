@@ -1195,6 +1195,9 @@ int uavsrv_run(struct uavsrv_params_s *params)
         /* Say hello to central station */
         if( uavsrv_start() < 0 )
             return -1;
+
+        /* Save state */
+       uavsrv_save();
     }
 
 
