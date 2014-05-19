@@ -1153,10 +1153,18 @@ int uavsrv_run(struct uavsrv_params_s *params)
                             syslog(LOG_INFO, "Restarted from scratch : [ OK ]");
                             break;
                         }
-                    
+                        else
+                            syslog(LOG_ERR, "Could not start server");
                     }
+                    else
+                        syslog(LOG_ERR, "Could not create socket");
                 }
+                else 
+                    syslog(LOG_ERR, "Could not initialize server");
             }
+            else
+                syslog(LOG_ERR, "Could not create server");
+            syslog(LOG_ERR, "\terrno: %m");
             syslog(LOG_CRIT, "Restart from scratch : [ FAILED ]\n\terrno: %m");
             uavsrv_destroy();
         }
