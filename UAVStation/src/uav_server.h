@@ -50,7 +50,8 @@
 #define UAVSRV_ERR_FAILRECOVER  (13)    ///< Failed to recover previous configuration.
 #define UAVSRV_ERR_FAILSAVEBACK (14)    ///< Failed to save backup.
 #define UAVSRV_ERR_FAILREADBACK (15)    ///< Failed to read backup file.
-#define UAVSER_ERR_REQINIT      (16)    ///< State INITIALIZED required.
+#define UAVSRV_ERR_FAILOPENBACK (16)    ///< Failed to open backup file.
+#define UAVSRV_ERR_REQINIT      (17)    ///< State INITIALIZED required.
 
 
 /*!

@@ -182,6 +182,7 @@ const char* errstrs [] = {
     "unexpected datalen in packet",
     "recovery failure",
     "failed to save backup",
+    "failed to open backup"
     "state initialized required"
 };
 
@@ -839,17 +840,17 @@ int uavsrv_recover(char* file)
 
     fd = open(file, O_RDONLY);
     if(fd < 0) {
-        syslog(LOG_ERR, "Could not read backup\n\terrno: %m");
-        uavsrv_err = UAVSRV_ERR_FAILREADBACK;
+        uavsrv_err = UAVSRV_ERR_FAILOPENBACK;
+        syslog(LOG_ERR, "uavsrv_restore(): %s\n\terrno: %m", uavsrv_errstr());
         return -1;
     }
 
     do {
         ret = read(fd, &(uavsrv)+rdnb, size-rdnb);
         if(ret < 0) {
-            syslog(LOG_ERR, "uavsrv_recover: read() failed\n\terrno: %m");
             close(fd);
             uavsrv_err = UAVSRV_ERR_FAILREADBACK;
+            syslog(LOG_ERR, "uavsrv_restore(): %s\n\terrno: %m", uavsrv_errstr());
             return -1;
         }
         rdnb += ret;
@@ -881,17 +882,17 @@ int uavsrv_save()
 
     fd = open(uavsrv.params.backup, O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR);
     if(fd < 0) {
-        syslog(LOG_ERR, "Could not create backup\n\terrno: %m");
-        uavsrv_err = UAVSRV_ERR_FAILSAVEBACK;
+        uavsrv_err = UAVSRV_ERR_FAILOPENBACK;
+        syslog(LOG_ERR, "uavsrv_save(): %s\n\terrno: %m", uavsrv_errstr());
         return -1;
     }
 
     do {
         ret += write(fd, &(uavsrv)+wrnb, size-wrnb);
         if(ret < 0) {
-            syslog(LOG_ERR, "uavsrv_save: write() failed\n\terrno: %m");
             close(fd);
             uavsrv_err = UAVSRV_ERR_FAILSAVEBACK;
+            syslog(LOG_ERR, "uavsrv_save(): %s\n\terrno: %m", uavsrv_errstr());
             return -1;
         }
         wrnb += ret;
@@ -1143,7 +1144,7 @@ int uavsrv_run(struct uavsrv_params_s *params)
                 }
                 break;
             }
-            syslog(LOG_CRIT, "Recovery from file : [ FAILED ]\n\terrno: %m");
+            syslog(LOG_CRIT, "Recovery from file : [ FAILED ]");
             uavsrv_err = UAVSRV_ERR_FAILRECOVER;
             
             /* Try to restart from scratch */
