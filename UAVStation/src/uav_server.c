@@ -1036,7 +1036,7 @@ int uavsrv_init()
 int uavsrv_connect() 
 {
     if( uavsrv.state < INITIALIZED ) {
-        
+        uavsrv_err = UAVSRV_ERR_REQINIT; 
         return -1;
     }
 
