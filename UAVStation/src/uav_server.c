@@ -532,6 +532,7 @@ int handler_disconnect(struct dcp_packet_s* packet)
     }
     uavsrv.command_sessid = DCP_IDNULL;
     syslog(LOG_INFO, "Got disconnect from command station packet");
+    uavsrv_save();
     dcp_packetack(packet);
     return 0;
 }
