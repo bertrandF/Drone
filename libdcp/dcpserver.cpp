@@ -32,19 +32,19 @@ DCPServer::DCPServer(QUdpSocket *sock) :
 
 void DCPServer::sendPacket(DCPPacket *packet)
 {
-    connect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
-
     QByteArray *datagram = packet->packetToData();
     int err = this->sock->writeDatagram(datagram->data(), packet->getLenght(),
                                 packet->getAddrDst(), packet->getPortDst());
 
     if(err >= 0)
     {
-        packet->start();
         qDebug() << "Send success for:";
         qDebug() << packet->toString();
         if(packet->getCommandID() != DCP_CMDACK)
+        {
             this->moveToAckQueue(packet);
+            packet->start();
+        }
     }
     else
     {
@@ -71,7 +71,6 @@ void DCPServer::resendPacket(DCPPacket *packet)
     {
         qDebug() << "RE-send failure for (Aborting resends): timestamp="
                  << packet->getTimestamp();
-        disconnect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
         removeFromAckQueue(packet);
     }
 
@@ -109,7 +108,6 @@ void DCPServer::dcpResponseTimeout()
     {
         qDebug() << "Max resends done (Aborting resends): timestamp="
                  << packet->getTimestamp();
-        disconnect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
         removeFromAckQueue(packet);
     }
 }
@@ -123,6 +121,7 @@ void DCPServer::moveToAckQueue(DCPPacket *packet)
 {
     this->ackMutex.lock();
     this->ackQueue.append(packet);
+    connect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
     this->ackMutex.unlock();
 }
 
@@ -130,6 +129,7 @@ void DCPServer::removeFromAckQueue(DCPPacket *packet)
 {
     this->ackMutex.lock();
     this->ackQueue.removeOne(packet);
+    disconnect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
     this->ackMutex.unlock();
 }
 
