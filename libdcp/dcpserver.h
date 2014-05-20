@@ -56,6 +56,7 @@ public:
 public slots:
     void sendPacket(DCPPacket* packet);
     void receiveDatagram();
+    void dcpResponseTimeout();
 
 protected:
     QUdpSocket      *sock;
@@ -66,6 +67,9 @@ protected:
 
     QMutex                  ackMutex;
     QLinkedList<DCPPacket*> ackQueue;
+
+private:
+    void resendPacket(DCPPacket* packet);
 };
 
 

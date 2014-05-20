@@ -21,10 +21,15 @@
 #include "dcppacket.h"
 
 DCPPacket::DCPPacket(qint8 cmdID, qint8 sessID, qint32 timestamp) :
+    QTimer(),
+    nbResend(0),
+    __needResend(true),
     cmdID(cmdID),
     sessID(sessID),
     timestamp(timestamp)
 {
+    this->setSingleShot(true);
+    this->setInterval(DCP_TIMEOUT);
 }
 
 void DCPPacket::buildFromData(char *data, int len)

@@ -22,6 +22,8 @@
 #define DCPPACKETINTERFACE_H
 
 #include <QtGlobal>
+#include <QObject>
+#include <QTimer>
 #include <QByteArray>
 #include <QHostAddress>
 
@@ -31,8 +33,10 @@
 
 
 
-class DCPPacket
+class DCPPacket : public QTimer
 {
+    Q_OBJECT
+
     friend class DCPPacketFactory;
 
 public:
@@ -46,6 +50,7 @@ public:
     inline QHostAddress getAddrDst()    { return this->addrDst;     }
     inline quint16      getPortDst()    { return this->portDst;     }
     int                 getLenght();
+    inline bool         needResend()    { return this->__needResend;}
 
     bool            setTimestamp(qint32 timestamp);
     inline void     setAddrDst(QHostAddress addr)   { this->addrDst = addr; }
@@ -58,8 +63,12 @@ public:
 
     virtual QString toString();
 
+    int         nbResend;
+
 protected:
     QByteArray  payload;
+    bool        __needResend;
+
 
     virtual QByteArray  buildPayload();
     virtual void        unbuildPayload();

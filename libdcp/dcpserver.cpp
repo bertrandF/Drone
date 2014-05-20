@@ -32,12 +32,15 @@ DCPServer::DCPServer(QUdpSocket *sock) :
 
 void DCPServer::sendPacket(DCPPacket *packet)
 {
+    connect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
+
     QByteArray *datagram = packet->packetToData();
     int err = this->sock->writeDatagram(datagram->data(), packet->getLenght(),
                                 packet->getAddrDst(), packet->getPortDst());
 
     if(err >= 0)
     {
+        packet->start();
         qDebug() << "Send success for:";
         qDebug() << packet->toString();
         if(packet->getCommandID() != DCP_CMDACK)
@@ -47,6 +50,29 @@ void DCPServer::sendPacket(DCPPacket *packet)
     {
         qDebug() << "Send failure for:";
         qDebug() << packet->toString();
+    }
+
+    return;
+}
+
+void DCPServer::resendPacket(DCPPacket *packet)
+{
+    QByteArray *datagram = packet->packetToData();
+    int err = this->sock->writeDatagram(datagram->data(), packet->getLenght(),
+                                packet->getAddrDst(), packet->getPortDst());
+
+    if(err >= 0)
+    {
+        qDebug() << "Resending packet: timestamp=" << packet->getTimestamp();
+        packet->start();
+        packet->nbResend++;
+    }
+    else
+    {
+        qDebug() << "RE-send failure for (Aborting resends): timestamp="
+                 << packet->getTimestamp();
+        disconnect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
+        removeFromAckQueue(packet);
     }
 
     return;
@@ -69,6 +95,23 @@ void DCPServer::receiveDatagram()
     qDebug() << "Got packet: ";
     qDebug() << packet->toString();
     packet->handle(this->handler);
+}
+
+void DCPServer::dcpResponseTimeout()
+{
+    DCPPacket *packet = dynamic_cast<DCPPacket*>(QObject::sender());
+
+    if(packet->nbResend < DCP_MAXRESEND && packet->needResend())
+    {
+        this->resendPacket(packet);
+    }
+    else
+    {
+        qDebug() << "Max resends done (Aborting resends): timestamp="
+                 << packet->getTimestamp();
+        disconnect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
+        removeFromAckQueue(packet);
+    }
 }
 
 void DCPServer::setMyId(qint8 myID)

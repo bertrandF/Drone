@@ -25,6 +25,10 @@
 /* --- DCP Header length --- */
 #define DCP_HEADERSIZE      (4)
 
+/* --- DCP Resend --- */
+#define DCP_TIMEOUT         (2000)
+#define DCP_MAXRESEND       (2)
+
 /* --- Commands --- */
 #define DCP_CMDACK                  ((char)0x00)
 #define DCP_CMDISALIVE              ((char)0x01)
