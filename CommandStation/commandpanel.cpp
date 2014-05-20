@@ -75,6 +75,8 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
 
     /* ----- VIDEO FEED ----- */
     foreach (QString video, cmdP->droneVideos) {
+        if(video.isEmpty())
+            continue;
         VideoTab *tab = new VideoTab(video);
         ui->videosTabWidget->addTab(tab, video);
     }
