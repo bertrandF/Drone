@@ -37,3 +37,8 @@ add_executable(
     ${SRC_FILES}
 	)
 
+# Linking
+target_link_libraries(
+    ${PROJECT_NAME}
+    lua
+    )

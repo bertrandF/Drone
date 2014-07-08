@@ -68,9 +68,9 @@ struct uavsrv_params_s {
     struct sockaddr_storage central_addr;       ///< Central Station sockaddr.
     socklen_t               central_addrlen;    ///< Central station sockaddr length.
     struct timeval          timeout;            ///< Select() timeout.
-    char*                   videos;             ///< List of video servers. String to be used with the DCP video servers cmd.
-    char*                   info;               ///< UAV's info string to be stored in table stations of DB.
-    char*                   backup;             ///< Backup file path. Stores UAV state before crash. Is loaded after a crash.
+    const char*             videos;             ///< List of video servers. String to be used with the DCP video servers cmd.
+    const char*             info;               ///< UAV's info string to be stored in table stations of DB.
+    const char*             backup;             ///< Backup file path. Stores UAV state before crash. Is loaded after a crash.
     uint8_t                 backup_mode;        ///< 0 : do not try to recover previous state. 1 : recover previous state.
 };
 

@@ -209,15 +209,15 @@ int handler_hellofromcentral    (struct dcp_packet_s*);
 struct dcp_packet_s*    dcp_packetnew   ();
 void                    dcp_packetfree  (struct dcp_packet_s*);
 int                     dcp_send        (struct dcp_packet_s*); 
-int                     dcp_hello       (struct sockaddr_storage*, char*, int);
-int                     dcp_videos      (char*);
+int                     dcp_hello       (struct sockaddr_storage*, const char*, int);
+int                     dcp_videos      (const char*);
 int                     dcp_log         (char*);
 int                     dcp_packetack   (struct dcp_packet_s*);
 
 const char*             uavsrv_errstr           ();
 int                     uavsrv_setstate         (enum uavsrv_state_e);
 int                     uavsrv_dcphandlers_set  (enum uavsrv_state_e);
-int                     uavsrv_recover          (char*);
+int                     uavsrv_recover          (const char*);
 int                     uavsrv_save             ();
 uint32_t                uavsrv_msec_sincestart  ();
 struct dcp_packet_s*    uavsrv_dcp_waitone      ();
@@ -644,7 +644,7 @@ int dcp_send(struct dcp_packet_s* packet)
  *          with the corresponding error code. On Success 0 is
  *          returned.
  */
-int dcp_hello(struct sockaddr_storage* dst, char *str, int len) 
+int dcp_hello(struct sockaddr_storage* dst, const char *str, int len) 
 {
     struct dcp_packet_s* packet = dcp_packetnew();
 
@@ -677,7 +677,7 @@ int dcp_hello(struct sockaddr_storage* dst, char *str, int len)
  *          with the corresponding error code. On Success 0 is
  *          returned.
  */
-int dcp_videos(char* urls)
+int dcp_videos(const char* urls)
 {
     struct dcp_packet_s* packet = dcp_packetnew();
     int len = strnlen(urls, PDATAMAX);
@@ -852,7 +852,7 @@ int uavsrv_dcphandlers_set(enum uavsrv_state_e state)
  *          with the corresponding error code. On Success 0 is
  *          returned.
  */
-int uavsrv_recover(char* file) 
+int uavsrv_recover(const char* file) 
 {
     int fd, i;
     int rdnb=0, size=sizeof(struct uavsrv_s), ret;

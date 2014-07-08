@@ -28,6 +28,11 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* Lua */
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+
 /* Get interfaces addrs includes */
 #include <netdb.h>
 #include <sys/types.h>
@@ -53,30 +58,6 @@
 #define DEFAULT_BACKUP      "/tmp/drone_config_data.bak"
 
 
-/*!
- *  \brief  Available long options
- *  
- *  This structure is meant to be given as an argument to
- *  the getopt_long() function for reading the command line
- *  options.
- *
- */
-static struct option long_options[] = {
-    {"backup",      required_argument,  NULL,   'b'},
-    {"central-host",required_argument,  NULL,   'C'},
-    {"help",        no_argument,        NULL,   'h'},
-    {"info",        required_argument,  NULL,   'I'},
-    {"interface",   required_argument,  NULL,   'i'},
-    {"ipv4",        no_argument,        NULL,   '4'},
-    {"ipv6",        no_argument,        NULL,   '6'},
-    {"central-port",required_argument,  NULL,   'P'},
-    {"port",        required_argument,  NULL,   'p'},
-    {"timeout",     required_argument,  NULL,   't'},
-    {"videos",      required_argument,  NULL,   'v'},
-    {0,             0,                  NULL,    0 }
-};
-
-
 
 /*!
  *  \brief  Stores the command line options.
@@ -86,15 +67,15 @@ static struct option long_options[] = {
  *  
  */
 struct options_s {
-    char                    *if_name;       ///< Interface name.
+    const char*             if_name;       ///< Interface name.
     int                     sin_family;     ///< User required sock family (IPv4 or IPv6).
     unsigned short          sin_port;       ///< Listening port of the server.
-    char                    *central_host;  ///< Central station host.
+    const char*             central_host;  ///< Central station host.
     unsigned short          central_port;   ///< Central station port.
     unsigned long           timeout;        ///< Select() timeout in milliseconds.
     char*                   videos;         ///< List of video servers.
-    char*                   info;           ///< UAV's info string to be stored in table stations of DB.
-    char*                   backup;         ///< Path to backup file.
+    const char*             info;           ///< UAV's info string to be stored in table stations of DB.
+    const char*             backup;         ///< Path to backup file.
 };
 static struct options_s options = {
     NULL,
@@ -122,21 +103,217 @@ void usage()
 {
     printf("%s version %i.%i.\n", PROGRAM_NAME, PROGRAM_VERSION_MAJOR, PROGRAM_VERSION_MINOR);
     printf("UAV's server to receive commands and send reports.\n");
-    printf("Usage: %s [options]\n", PROGRAM_NAME);
+    printf("Usage: %s <configuration_file>\n", PROGRAM_NAME);
     printf("\n");
-    printf("Options:\n");
-    printf("  -4, --ipv4         Use IPv4 only.\n");
-    printf("  -6, --ipv6         Use IPv6 only.\n");
-    printf("  -b, --backup       Path to the backup file.\n");
-    printf("  -C, --central-host Central Station host.\n");
-    printf("  -h, --help         Prints this help.\n");
-    printf("  -I, --info         UAV's info string to be stored in table stations of DB.\n");
-    printf("  -i, --interface    Interface to bind server on.\n");
-    printf("  -P, --central-port Central Station port.\n");
-    printf("  -p, --port         Port to bind the server on.\n");
-    printf("  -t, --timeout      Timeout to receive a packet.\n");
-    printf("  -v, --videos       List of RTSP cam servers (separator='%c').", DCP_VIDEOSERVERSSEPARATOR);
-    printf("\n");
+}
+
+
+
+/*!
+ *  \brief Parse a configuraition file.
+ *
+ *  Open the given configuration file and fills in the options structure.
+ *
+ *  \param  filename    Path to the configuration file.
+ *  \return -1 on failure, 0 on success.
+ */
+#define CONF_TAB_UAV        "uav"
+#define CONF_TAB_SRV        "server"
+#define CONF_TAB_CENTRAL    "central"
+#define CONF_TAB_VIDEOS     "videos"
+
+#define CONF_KEY_IPV        "ip_version"
+#define CONF_KEY_BACKUP     "backup_file"
+#define CONF_KEY_PORT       "port"
+#define CONF_KEY_HOST       "host"
+#define CONF_KEY_IF         "interface"
+#define CONF_KEY_TIMEOUT    "timeout"
+#define CONF_KEY_INFO       "info"
+#define CONF_KEY_URL        "url"
+
+int parse_conf_file(char* filename) 
+{
+    int ret=-1;
+    lua_State *L;
+    int len=0, total_len=0, videos_size=0;
+    const char* video;
+
+    /* Init lua */
+    L = luaL_newstate();
+    luaL_openlibs(L);
+
+    /* Open configuration file */
+    if( luaL_dofile(L, filename)!=0 ) {
+        fprintf(stderr, "Cannot open configuration file: '%s'\n", filename);
+        goto end;
+    }
+
+    /* --------------------- MAIN TABLE ------------------- */
+    /* Get main table */
+    lua_getglobal(L, CONF_TAB_UAV);
+    if( !lua_istable(L, -1) ) {
+        fprintf(stderr, "Configuration file does not have a valid '%s' table.\n", CONF_TAB_UAV);
+        goto end;
+    }
+
+    /* Get ip version */
+    lua_pushstring(L, CONF_KEY_IPV);
+    lua_gettable(L, -2);
+    if( !lua_isnumber(L, -1) ) {
+        fprintf(stderr, "Bad value for '%s'\n", CONF_KEY_IPV);
+        goto end;
+    }
+    options.sin_family = (lua_tonumber(L, -1)==4) ? AF_INET : AF_INET6; 
+    lua_pop(L, 1);
+
+    /* Get backup file */
+    lua_pushstring(L, CONF_KEY_BACKUP);
+    lua_gettable(L, -2);
+    if( !lua_isstring(L, -1) ) {
+        fprintf(stdout, "No '%s' found. Defaulting to '%s'\n", CONF_KEY_BACKUP, DEFAULT_BACKUP);
+        options.backup = malloc(sizeof(DEFAULT_BACKUP)+1);
+        if( !options.backup ) {
+            fprintf(stderr, "Cannot allocate space for default backup filename\n");
+            goto end;
+        }
+    } else {
+        options.backup = lua_tostring(L, -1);
+    }
+    lua_pop(L, 1);
+
+    /* --------------------- SERVER TABLE ----------------- */
+    /* Get server table */
+    lua_pushstring(L, CONF_TAB_SRV);
+    lua_gettable(L, -2);
+    if( !lua_istable(L, -1) ) {
+        fprintf(stderr, "Table '%s' does not have a '%s' table.", CONF_TAB_UAV, CONF_TAB_SRV);
+        goto end;
+    }
+    
+    /* Get server port */
+    lua_pushstring(L, CONF_KEY_PORT);
+    lua_gettable(L, -2);
+    if( !lua_isnumber(L, -1) ) {
+        fprintf(stdout, "Table '%s' does not have a valid '%s' key. Defaulting to %u\n", 
+                CONF_TAB_SRV, CONF_KEY_PORT, options.sin_port);
+    } else {
+        options.sin_port = (unsigned short)lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+
+    /* Get server timeout */
+    lua_pushstring(L, CONF_KEY_TIMEOUT);
+    lua_gettable(L, -2);
+    if( !lua_isnumber(L, -1) ) { 
+        fprintf(stdout, "Table '%s' does not have a valid '%s' key. Defaulting to %lu\n", 
+                CONF_TAB_SRV, CONF_KEY_TIMEOUT, options.timeout);
+    } else {
+        options.timeout = (unsigned long)lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+
+    /* Get server info */
+    lua_pushstring(L, CONF_KEY_INFO);
+    lua_gettable(L, -2);
+    if( !lua_isstring(L, -1) ) {
+        fprintf(stderr, "Bad value for '%s' in '%s' table.\n", CONF_KEY_INFO, CONF_TAB_SRV);
+        goto end;
+    }
+    options.info = lua_tostring(L, -1);
+    lua_pop(L, 1);
+
+    /* Get server listening interface */
+    lua_pushstring(L, CONF_KEY_IF);
+    lua_gettable(L, -2);
+    if( !lua_isstring(L, -1) ) {
+        fprintf(stderr, "Bad value for '%s' in '%s' table.\n", CONF_KEY_IF, CONF_TAB_SRV);
+        goto end;
+    }
+    options.if_name = lua_tostring(L, -1);
+    lua_pop(L, 1);
+
+    /* --------------------- CENTRAL TABLE ---------------- */
+    lua_pop(L, 1);
+    /* Get central table */
+    lua_pushstring(L, CONF_TAB_CENTRAL);
+    lua_gettable(L, -2);
+    if( !lua_istable(L, -1) ) {
+        fprintf(stderr, "Table '%s' doea not have a table '%s'.\n", 
+                CONF_TAB_UAV, CONF_TAB_CENTRAL);
+        goto end;
+    }
+
+    /* Get central host */
+    lua_pushstring(L, CONF_KEY_HOST);
+    lua_gettable(L, -2);
+    if( !lua_isstring(L, -1) ) {
+        fprintf(stderr, "Table '%s' does not have a '%s' key.\n", 
+                CONF_TAB_CENTRAL, CONF_KEY_HOST);
+        goto end;
+    }
+    options.central_host = lua_tostring(L, -1);
+    lua_pop(L, 1);
+
+    /* Get central port */
+    lua_pushstring(L, CONF_KEY_PORT);
+    lua_gettable(L, -2);
+    if( !lua_isnumber(L, -1) ) {
+        fprintf(stdout, "Table '%s' does not have a valid '%s' key. Defaulting to %u\n", 
+                CONF_TAB_CENTRAL, CONF_KEY_PORT, options.central_port);
+    } else {
+        options.central_port = (unsigned short)lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+
+    /* --------------------- VIDEOS TABLE ----------------- */
+    lua_pop(L, 1);
+    /* Get video table */
+    lua_pushstring(L, CONF_TAB_VIDEOS);
+    lua_gettable(L, -2);
+    if( !lua_istable(L, -1) ) {
+        fprintf(stderr, "Table '%s' does not have a table '%s'.\n", 
+                CONF_TAB_UAV, CONF_TAB_VIDEOS);
+        goto end;
+    }
+
+    /* For each video in the table */
+    lua_pushnil(L);
+    options.videos = (char*)malloc(2048);
+    videos_size=2048;
+    if( !options.videos ) {
+        fprintf(stderr, "Cannot allocate space for videos string.\n");
+        goto end;
+    }
+    while( lua_next(L, -1)!=0 ) {
+        if( lua_istable(L, -1) ) {
+            lua_pushstring(L, CONF_KEY_URL);
+            lua_gettable(L, -2);
+            if( !lua_isstring(L, -1) ) {
+                fprintf(stderr, "Bad value for key '%s' in '%s' table.\n",
+                        CONF_KEY_URL, CONF_TAB_VIDEOS);
+                goto end;
+            }
+            video = lua_tostring(L, -1);
+            len = strlen(video)+1;
+            while(total_len+len > videos_size) {
+                videos_size += 2048;
+                options.videos = (char*)malloc(videos_size);
+                if( !options.videos ) {
+                    fprintf(stderr, "Cannot increase videos buffer size.\n");
+                    goto end;
+                }
+            }
+            strcat(options.videos, "$");
+            strcat(options.videos, video);
+            lua_pop(L, 1);
+        }
+        lua_pop(L, 1);
+    }
+
+    ret=0;
+end:
+    lua_close(L);
+    return ret;
 }
 
 
@@ -248,79 +425,19 @@ int config_interface(struct sockaddr_storage* saddr, socklen_t *slen)
  */
 int main(int argc, char** argv)
 {
-    char opt; 
     int pid, status;
     struct uavsrv_params_s uavparams;
 
     /* Open Logs */
     openlog(PROGRAM_NAME, LOG_CONS | LOG_PERROR | LOG_PID, LOG_USER);
-
-    /* Parse command line arguments */
-    while( (opt=getopt_long(argc, argv, "46b:C:hI:i:P:p:t:v:", long_options, NULL)) > 0) {
-        switch(opt) {
-            case '4':
-                options.sin_family = AF_INET;
-                break;
-            case '6':
-                options.sin_family = AF_INET6;
-                break;
-            case 'b':
-                options.backup = optarg;
-                break;
-            case 'C':
-                options.central_host = optarg;
-                break;
-            case 'h':
-                usage();
-                return EXIT_SUCCESS;
-            case 'I':
-                options.info = optarg;
-                break;
-            case 'i':
-                options.if_name = optarg;
-                break;
-            case 'P':
-                options.central_port = atoi(optarg);
-                break;
-            case 'p':
-                options.sin_port = atoi(optarg);
-                break;
-            case 't':
-                options.timeout = atol(optarg);
-                break;
-            case 'v':
-                options.videos = optarg;
-                break;
-            case '?':
-                break;
-            default:
-                break;
-        }
-    }  
-    if( !options.if_name ) {
-        syslog(LOG_ERR, "Please specify interface through the --interface option.");
+    
+    if(argc < 2) {
+        fprintf(stderr, "Please specify configuration file.\n");
         usage();
         return EXIT_FAILURE;
     }
-    if( !options.central_host ) {
-        syslog(LOG_ERR, "Please specify central hostname/IP through the --central-host option.");
-        usage();
+    if(parse_conf_file(argv[1]) < 0)
         return EXIT_FAILURE;
-    }
-    if( !options.info ) {
-        syslog(LOG_ERR, "Please specify information string on UAV through the --info option.");
-        usage();
-        return EXIT_FAILURE;
-    }
-    if( !options.backup ) {
-        options.backup = malloc(strlen(DEFAULT_BACKUP)+1);
-        if( !options.backup ) {
-            syslog(LOG_ERR, "Cannot allocate space for default backup filename.");
-            return EXIT_FAILURE;
-        }
-        memcpy(options.backup, DEFAULT_BACKUP, strlen(DEFAULT_BACKUP)+1);
-    }
-
 
     /* GET central station sockaddr*/
     if(config_central(&(uavparams.central_addr), &(uavparams.central_addrlen)) < 0)
