@@ -872,18 +872,23 @@ int uavsrv_recover(const char* file)
         }
         rdnb += ret;
     }while(rdnb < size);
+    close(fd);
 
     /* Create socket */
     for(i=0 ; i<MAX_RETRIES && (uavsrv.sock=socket(uavsrv.params.if_addr.ss_family, SOCK_DGRAM, 0))<0 ; ++i)
         usleep(200000);
+    if( i>=MAX_RETRIES )
+        return -1;
+
     /* Bind socket */
     for(i=0 ; i<MAX_RETRIES && bind(uavsrv.sock, (struct sockaddr*)&(uavsrv.params.if_addr), uavsrv.params.if_addrlen)<0 ; ++i) 
         usleep(200000);
+    if( i>=MAX_RETRIES )
+        return -1;
 
     ackqueue_init();
     uavsrv_dcphandlers_set(uavsrv.state);
     uavsrv.params.backup_mode = 1;
-    close(fd);
     return 0;
 }
 
