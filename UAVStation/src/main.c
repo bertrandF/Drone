@@ -472,7 +472,6 @@ int main(int argc, char** argv)
                 break;
         }
     }
-    printf("%d\n", optind);
     if( optind>=argc || optind<0 ) {
         fprintf(stderr, "Please specify path to configuration file.\n");
         usage();
