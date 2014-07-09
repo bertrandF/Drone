@@ -11,7 +11,7 @@ set(MYPROG_VERSION_MINOR 1)
 
 # Compiler flags
 if(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -g")
 endif()
 
 # Generate list of source files
