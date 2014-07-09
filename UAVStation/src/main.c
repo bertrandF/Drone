@@ -91,6 +91,20 @@ static struct options_s options = {
 
 
 /*!
+ *  \brief Avaliable long options.
+ *
+ * This structure is meant to be given as an argument to
+ * the getopt_long() function for reading the command line
+ * options.
+ */
+static struct option long_options[] = {
+    {"help",    no_argument,        NULL,   'h'},
+    {"test",    no_argument,        NULL,   't'},
+    {0,         0,                  NULL,    0 }
+};
+
+
+/*!
  *  \brief  Prints program's help.
  *
  *  Displays the version of the program and 
@@ -103,7 +117,11 @@ void usage()
 {
     printf("%s version %i.%i.\n", PROGRAM_NAME, PROGRAM_VERSION_MAJOR, PROGRAM_VERSION_MINOR);
     printf("UAV's server to receive commands and send reports.\n");
-    printf("Usage: %s <configuration_file>\n", PROGRAM_NAME);
+    printf("Usage: %s [options] <configuration_file>\n", PROGRAM_NAME);
+    printf("\n");
+    printf("Options:\n");
+    printf("  -h, --help        Prints this help.\n");
+    printf("  -t, --test        Check configuration file.\n");
     printf("\n");
 }
 
@@ -425,26 +443,56 @@ int config_interface(struct sockaddr_storage* saddr, socklen_t *slen)
  */
 int main(int argc, char** argv)
 {
-    int pid, status;
+    char opt;
+    int pid, status, itsjustatest=0;
     struct uavsrv_params_s uavparams;
+    char* conffile;
+    int ret=EXIT_FAILURE;
 
     /* Open Logs */
     openlog(PROGRAM_NAME, LOG_CONS | LOG_PERROR | LOG_PID, LOG_USER);
     
     if(argc < 2) {
-        fprintf(stderr, "Please specify configuration file.\n");
         usage();
         return EXIT_FAILURE;
     }
-    if(parse_conf_file(argv[1]) < 0)
-        return EXIT_FAILURE;
+    while( (opt=getopt_long(argc, argv, "ht", long_options, NULL))>0 ) {
+        switch(opt) {
+            case 'h':
+                usage();
+                ret=EXIT_SUCCESS;
+                goto end;
+            case 't':
+                itsjustatest=1;
+                break;
+            case '?':
+                usage();
+                goto end;
+            default:
+                break;
+        }
+    }
+    printf("%d\n", optind);
+    if( optind>=argc || optind<0 ) {
+        fprintf(stderr, "Please specify path to configuration file.\n");
+        usage();
+        goto end;
+    }
+    conffile = argv[optind];
+
+    if(parse_conf_file(conffile) < 0)
+        goto end;
+    else if( itsjustatest ) {
+        ret=EXIT_SUCCESS;
+        goto end;
+    }
 
     /* GET central station sockaddr*/
     if(config_central(&(uavparams.central_addr), &(uavparams.central_addrlen)) < 0)
-        return EXIT_FAILURE;
+        goto end;
     /* GET interface sockaddr */
     if(config_interface(&(uavparams.if_addr), &(uavparams.if_addrlen)) < 0)
-        return EXIT_FAILURE;
+        goto end;
     /* GET timeout */ 
     uavparams.timeout.tv_sec    = options.timeout/1000;
     uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
@@ -462,7 +510,7 @@ int main(int argc, char** argv)
         pid = fork();
         if(pid<0) {
             syslog(LOG_ERR, "Could not start child process\n\terrno: %m");
-            return EXIT_FAILURE;
+            goto end;
         }
 
         if(pid>0) { // Parent
@@ -480,21 +528,22 @@ int main(int argc, char** argv)
             /* UAV params + UAV run */
             if(uavsrv_create() < 0) {
                 syslog(LOG_ERR, "uavsrv_create(): %s\n\terrno: %m", uavsrv_errstr());
-                return EXIT_FAILURE;
+                goto end;
             }
             if(uavsrv_run(&uavparams) < 0) {
                 syslog(LOG_ERR, "uavsrv_run(): %s\n\terrno: %m", uavsrv_errstr());
                 uavsrv_destroy();
-                return EXIT_FAILURE;
+                goto end;
             }
             uavsrv_destroy();
             break;
         }
     }
+    ret=EXIT_SUCCESS;
 
+end:
     /* Close Logs */
     closelog();
-
-    return EXIT_SUCCESS;
+    return ret;
 }
 
