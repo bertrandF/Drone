@@ -284,7 +284,7 @@ int parse_conf_file(char* filename)
         fprintf(stderr, "Cannot allocate space for videos string.\n");
         goto end;
     }
-    while( lua_next(L, -1)!=0 ) {
+    while( lua_next(L, -2)!=0 ) {
         if( lua_istable(L, -1) ) {
             lua_pushstring(L, CONF_KEY_URL);
             lua_gettable(L, -2);
