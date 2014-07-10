@@ -1,6 +1,6 @@
 /*
  *  This file is part of the CommandStation Project
- *  Copyright (C) 15/04/2014 -- mplayerwidget.h -- bertrand
+ *  Copyright (C) 15/04/2014 -- sdlplayerwidget.h -- bertrand
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,20 +18,20 @@
  *
  * */
 
-#ifndef MPLAYERWIDGET_H
-#define MPLAYERWIDGET_H
+#ifndef SDLPLAYERWIDGET_H
+#define SDLPLAYERWIDGET_H
 
 #include <QWidget>
 #include <QUrl>
 #include <QStringList>
 #include <QProcess>
 
-class MPlayerWidget : public QWidget
+class SDLPlayerWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit    MPlayerWidget(QWidget *parent = 0);
-    ~MPlayerWidget();
+    explicit    SDLPlayerWidget(QWidget *parent = 0);
+    ~SDLPlayerWidget();
 
     void        setMediaFile(QUrl url);
     void        start();
@@ -54,8 +54,8 @@ public slots:
 private:
     QUrl        mediaFileURL;
     QStringList args;
-    QProcess    mplayer;
+    QProcess    SDLplayer;
 
 };
 
-#endif // MPLAYERWIDGET_H
+#endif // SDLPLAYERWIDGET_H

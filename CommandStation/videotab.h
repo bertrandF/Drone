@@ -23,7 +23,7 @@
 
 #include <QWidget>
 
-#include "mplayerwidget.h"
+#include "sdlplayerwidget.h"
 
 namespace Ui {
 class videoTab;
@@ -37,15 +37,15 @@ public:
     explicit VideoTab(QString mediaFile, QWidget *parent = 0);
     ~VideoTab();
 
-    MPlayerWidget   *player;
+    SDLPlayerWidget *player;
     QString         mediaFile;
 
 public slots:
-    void    mplayerProcessFinished  (int exitCode,
+    void    playerProcessFinished   (int exitCode,
                                      QProcess::ExitStatus exitStatus);
-    void    mplayerProcessError     (QProcess::ProcessError err);
-    void    mplayerReadyReadError   ();
-    void    mplayerReadyReadOutput  ();
+    void    playerProcessError      (QProcess::ProcessError err);
+    void    playerReadyReadError    ();
+    void    playerReadyReadOutput   ();
 
 private:
     Ui::videoTab *ui;

@@ -33,13 +33,12 @@ VideoTab::VideoTab(QString mediaFile, QWidget *parent) :
     player = ui->videoWidget;
 
     connect(this->player, SIGNAL(error(QProcess::ProcessError)), this,\
-            SLOT(mplayerProcessError(QProcess::ProcessError)));
+            SLOT(playerProcessError(QProcess::ProcessError)));
     connect(this->player, SIGNAL(finished(int,QProcess::ExitStatus)), this,\
-            SLOT(mplayerProcessFinished(int,QProcess::ExitStatus)));
+            SLOT(playerProcessFinished(int,QProcess::ExitStatus)));
     connect(this->player, SIGNAL(readyReadStandardError()), this,\
-            SLOT(mplayerReadyReadError()));
-    // The following line spams the log text box, so unconnected.
-    //connect(this->mpw, SIGNAL(readyReadStandardOutput()), this, SLOT(mplayerReadyReadOutput()));
+            SLOT(playerReadyReadError()));
+    connect(this->player, SIGNAL(readyReadStandardOutput()), this, SLOT(playerReadyReadOutput()));
 
     player->setMediaFile(mediaFile);
     player->start();
@@ -51,7 +50,7 @@ VideoTab::~VideoTab()
 }
 
 
-void VideoTab::mplayerReadyReadError()
+void VideoTab::playerReadyReadError()
 {
     QTextEdit*  log = this->ui->logBox;
     QByteArray  line;
@@ -67,7 +66,7 @@ void VideoTab::mplayerReadyReadError()
     log->setTextColor(prevColor);
 }
 
-void VideoTab::mplayerReadyReadOutput()
+void VideoTab::playerReadyReadOutput()
 {
     QTextEdit*  log = this->ui->logBox;
     QByteArray  line;
@@ -83,49 +82,49 @@ void VideoTab::mplayerReadyReadOutput()
     log->setTextColor(prevColor);
 }
 
-void VideoTab::mplayerProcessError(QProcess::ProcessError err)
+void VideoTab::playerProcessError(QProcess::ProcessError err)
 {
     switch (err) {
     case QProcess::Crashed:
-        qWarning("WARN: MPlayer Crashed. Attempting restart...");
+        qWarning("WARN: player Crashed. Attempting restart...");
         this->player->start();
         break;
     case QProcess::FailedToStart:
-        qWarning("WARN: MPlayer Failed to start. Attempting restart...");
+        qWarning("WARN:  Failed to start. Attempting restart...");
         this->player->start();
         break;
     case QProcess::ReadError:
     case QProcess::WriteError:
-        qWarning("WARN: MPlayer IO error.");
+        qWarning("WARN: player IO error.");
         break;
     case QProcess::Timedout:
-        qWarning("WARN: MPlayer start timed out. Attempting restart...");
+        qWarning("WARN: player start timed out. Attempting restart...");
         this->player->start();
         break;
     case QProcess::UnknownError:
-        qWarning("WARN: MPlayer unknown error.");
+        qWarning("WARN: player unknown error.");
         break;
     default:
-        qWarning() << "WARN: MPlayer unknown QProcessError (" \
+        qWarning() << "WARN: player unknown QProcessError (" \
                    << QString::number(err) << ")." << endl;
         break;
     }
 }
 
-void VideoTab::mplayerProcessFinished(int exitCode, \
+void VideoTab::playerProcessFinished(int exitCode, \
                                             QProcess::ExitStatus exitStatus)
 {
     switch (exitStatus) {
     case QProcess::NormalExit:
-        qWarning("WARN: MPlayer Stopped.");
+        qWarning("WARN: player Stopped.");
         break;
     case QProcess::CrashExit:
-        qWarning("WARN: MPlayer crash exited.");
+        qWarning("WARN: player crash exited.");
         break;
     default:
-        qWarning() << "WARN: MPlayer unknown ExitStatus (" << exitStatus \
+        qWarning() << "WARN: player unknown ExitStatus (" << exitStatus \
                    << ")." << endl;
         break;
     }
-    qWarning() << "WARN: MPlayer exit code: (" << exitCode << ")." << endl;
+    qWarning() << "WARN: player exit code: (" << exitCode << ")." << endl;
 }

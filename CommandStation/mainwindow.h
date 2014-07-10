@@ -28,7 +28,7 @@
 #include "configurationpanel.h"
 #include "commandstationparameters.h"
 #include "commandpanel.h"
-#include "mplayerwidget.h"
+#include "sdlplayerwidget.h"
 
 namespace Ui {
 class MainWindow;

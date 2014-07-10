@@ -16,16 +16,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     configurationpanel.cpp \
     commandpanel.cpp \
-    mplayerwidget.cpp \
-    videotab.cpp
+    videotab.cpp \
+    sdlplayerwidget.cpp
 
 HEADERS  += mainwindow.h \
     configurationpanel.h \
     commandpanel.h \
-    mplayerwidget.h \
     commandstationparameters.h \
     constants.h \
-    videotab.h
+    videotab.h \
+    sdlplayerwidget.h
 
 FORMS    += mainwindow.ui \
     configurationpanel.ui \
