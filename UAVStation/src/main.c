@@ -279,7 +279,7 @@ int parse_conf_file(char* filename)
         fprintf(stdout, "Table '%s' does not have a valid '%s' key. Defaulting to %u\n", 
                 CONF_TAB_CENTRAL, CONF_KEY_PORT, options.central_port);
     } else {
-        options.central_port = (unsigned short)lua_tonumber(L, -1);
+        options.central_port = (unsigned short)lua_tointeger(L, -1);
     }
     lua_pop(L, 1);
 
@@ -359,8 +359,8 @@ int config_central(struct sockaddr_storage *saddr, socklen_t *slen)
     hints.ai_flags      = 0;                    /*  */
     hints.ai_protocol   = 0;                    /* Any protocol */
     
-    sprintf(portstr, "%d", options.central_port);
-    
+    sprintf(portstr, "%hu", options.central_port);
+
     err = getaddrinfo(options.central_host, portstr, &hints, &res);
     if(err!=0) { 
         syslog(LOG_ERR, "getaddrinfo(): %s", gai_strerror(err));
