@@ -38,6 +38,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
+#include <arpa/inet.h>
 
 /* Other includes */
 #include <stdio.h>
@@ -502,6 +503,17 @@ int main(int argc, char** argv)
     /* GET backup file */
     uavparams.backup        = options.backup;
     uavparams.backup_mode   = 0;
+
+
+    /* Dump configuration */
+    /*printf("CENTRAl ADDR: %s -- FAMILY: %d -- PORT: %hu\n", 
+            inet_ntoa(((struct sockaddr_in*)&(uavparams.central_addr))->sin_addr), 
+            ((struct sockaddr_in*)&(uavparams.central_addr))->sin_family,
+            ntohs(((struct sockaddr_in*)&(uavparams.central_addr))->sin_port));
+    printf("IF ADDR: %s -- FAMILY: %d -- PORT: %hu\n", 
+            inet_ntoa(((struct sockaddr_in*)&(uavparams.if_addr))->sin_addr), 
+            ((struct sockaddr_in*)&(uavparams.if_addr))->sin_family,
+            ((struct sockaddr_in*)&(uavparams.if_addr))->sin_port);*/
 
 
     /* Fork child */
