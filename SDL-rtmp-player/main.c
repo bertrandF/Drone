@@ -490,8 +490,8 @@ main(int argc, char** argv )
             }
             av_free_packet(&packet);
     
-            fprintf(stdout, "\rframes=%d", i); 
-            fflush(stdout);
+            /*fprintf(stdout, "\rframes=%d", i); 
+            fflush(stdout);*/
     
             // Regulate FPS
             if(1000.0/frameRate > SDL_GetTicks()-loop_start) {
