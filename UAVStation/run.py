@@ -15,7 +15,7 @@ VERSION_MINOR="1"
 
 ffmpeg_cmd="LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libv4l/v4l1compat.so ffmpeg " +\
             "-f video4linux2 -vcodec rawvideo -video_size 352x288 -r 10 -i /dev/video0 " +\
-            "-f flv -metadata streamName=livestream -an tcp://127.0.0.1:6666/"
+            "-f flv -metadata streamName=livestream -an tcp://127.0.0.1:6666/ > /dev/null 2>&1"
 
 modules=[
     { 
@@ -32,16 +32,19 @@ progs_start=[
     {
         'name':'crtmpserver',
         'cmd':'/etc/init.d/crtmpserver stop',
+        'dofork':False,
         'exit-on-fail':False
     },
     {
         'name':'crtmpserver',
         'cmd':'/etc/init.d/crtmpserver start',
+        'dofork':False,
         'exit-on-fail':True
     },
     {
         'name':'ffmpeg',
         'cmd':ffmpeg_cmd,
+        'dofork':True,
         'exit-on-fail':True
     }
 ]
@@ -50,11 +53,13 @@ progs_stop=[
     {
         'name':'crtmpserver',
         'cmd':'/etc/init.d/crtmpserver stop',
+        'dofork':False,
         'exit-on-fail':False
     },
     {
         'name':'ffmpeg',
         'cmd':'killall ffmpeg',
+        'dofork':False,
         'exit-on-fail':False
     }
 ]
@@ -64,18 +69,45 @@ progs_stop=[
 #   UTILS
 #
 def __progsExec(progs):
+    # Start all progs
     for p in progs:
         print ""
         print "Executing '" + p['cmd'] + "' ... "
-        if os.system(p['cmd']) != 0:
-            print ""
-            print ">>> " + clr.Fore.RED + "LAST COMMAND FAILED: "+ clr.Fore.RESET + p['cmd']
-            if p['exit-on-fail']:
-                print "Exiting ..."
-                sys.exit(-1)
-            else:
+
+        if p['dofork']:
+            # Forking
+            pid = os.fork()
+            if pid == -1:
+                # Error
                 print ""
+                print ">>> " + clr.Fore.RED + "LAST COMMAND FAILED: "+ clr.Fore.RESET + p['cmd']
+                print ">>> " + clr.Fore.RED + "An error occured while forking process." + clr.Fore.RESET
+                if p['exit-on-fail']:
+                    print "Exiting ..."
+                    sys.exit(-1)
+                else:
+                    continue
+            elif pid == 0:
+                # Child process
+                if os.system(p['cmd']) != 0:
+                    print ""
+                    print ">>> " + clr.Fore.RED + "LAST COMMAND FAILED: " + clr.Fore.RESET + p['cmd']
+                    print ">>> " + clr.Fore.RED + "Last command reported failure." + clr.Fore.RESET
+                    sys.exit(-1)
+            else:
+                # Parent process
                 continue
+        else:
+            # No Forking
+            if os.system(p['cmd']) != 0:
+                print ""
+                print ">>> " + clr.Fore.RED + "LAST COMMAND FAILED: " + clr.Fore.RESET + p['cmd']
+                print ">>> " + clr.Fore.RED + "Last command reported failure." + clr.Fore.RESET
+                if p['exit-on-fail']:
+                    print "Exiting ..."
+                    sys.exit(-1)
+                else:
+                    continue
 
 
 def __loadModules():
