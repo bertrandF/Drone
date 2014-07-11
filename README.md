@@ -39,3 +39,20 @@ Scripts to quickly create/drop/dump/fill with dummy data the db OR deploy the wh
 
 - SDL-rtmp-player ( C ):
 This is the player used to read RTMP streams from the drones. It need rtmpdump which it starts as a child process and pipe its output to stdin from where it gets the video frames. The frames are processed with libav and displayed with SDL.
+
+How to Run:
+=====
+  1- Copy the SDLplayer executable to the same directory as CommandStation.
+  
+  2- Start your postgresql deamon.
+  
+  3- run ./tests/test.sh db drop to clean the drone DB.
+  
+  4- run ./tests/test.sh db create to create the drone DB.
+  
+  5- Start your CentralStation ( 1st arg is IP of interface to listen to, 2nd arg is port). It will register itself on the DB.
+  
+  6- Start your UAVStation. There is my sample configuration file conf.lua, you might want to change the IP for the RTMP stream and some other things.
+  
+  7- Run the CommandStation. Select the drone from the DB.
+  
