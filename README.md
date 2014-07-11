@@ -51,8 +51,10 @@ How to Run:
   4- run ./tests/test.sh db create to create the drone DB.
   
   5- Start your CentralStation ( 1st arg is IP of interface to listen to, 2nd arg is port). It will register itself on the DB.
+
+  6- Start your RTMP server and ffmpeg to send the video to it. You can use the UAVStation/run.py script to do that.
   
-  6- Start your UAVStation. There is my sample configuration file conf.lua, you might want to change the IP for the RTMP stream and some other things.
+  7- Start your UAVStation.  There is my sample configuration file conf.lua, you might want to change the IP for the RTMP stream and some other things.
   
-  7- Run the CommandStation. Select the drone from the DB.
+  8- Run the CommandStation. Select the drone from the DB.
   
