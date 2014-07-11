@@ -26,7 +26,8 @@ DCPServerCommand::DCPServerCommand(QUdpSocket *sock) :
     droneId(DCP_IDNULL),
     sessIdDrone(DCP_IDNULL),
     sessIdCentralStation(DCP_SESSIDCENTRAL),
-    status(Init)
+    status(Init),
+    delayIsAlive(3000)
 {
     this->handler = new DCPPacketHandlerCommandStationHello(this);
 }
@@ -48,6 +49,9 @@ void DCPServerCommand::setDroneHost(QHostAddress addr, quint16 port)
 void DCPServerCommand::setSessionIdDrone(qint8 sessID)
 {
     this->sessIdDrone = sessID;
+    connect(&(this->timerIsAlive), SIGNAL(timeout()),
+            this, SLOT(timeoutIsAlive()));
+    this->timerIsAlive.start(this->delayIsAlive);
 }
 
 void DCPServerCommand::setSessionIdCentralStation(
@@ -100,6 +104,10 @@ void DCPServerCommand::disconnectFromDrone()
 {
     if(this->getStatus() != Connected) return;
 
+    disconnect(&(this->timerIsAlive), SIGNAL(timeout()),
+            this, SLOT(timeoutIsAlive()));
+    this->timerIsAlive.stop();
+
     this->setStatus(Disconnecting);
     DCPCommandDisconnect *disc = new DCPCommandDisconnect(
                 this->sessIdCentralStation);
@@ -107,6 +115,7 @@ void DCPServerCommand::disconnectFromDrone()
     disc->setPortDst(this->portCentralStation);
     disc->setTimestamp(this->time.elapsed());
     this->sendPacket(disc);
+
 }
 
 void DCPServerCommand::sayByeBye()
@@ -134,4 +143,12 @@ void DCPServerCommand::log(DCPCommandLog::logLevel level, QString msg)
     log->setMsg(msg);
     log->setTimestamp(this->time.elapsed());
     this->sendPacket(log);
+}
+
+void DCPServerCommand::timeoutIsAlive() {
+    DCPCommandIsAlive *isAlive = new DCPCommandIsAlive(this->sessIdDrone);
+    isAlive->setAddrDst(this->addrDrone);
+    isAlive->setPortDst(this->portDrone);
+    isAlive->setTimestamp(this->time.elapsed());
+    this->sendPacket(isAlive);
 }

@@ -26,6 +26,7 @@
 #include <QString>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QTimer>
 
 #include <dcpserver.h>
 #include <dcpcommands.h>
@@ -85,6 +86,13 @@ protected:
 
     enum DCPServerCommandStatus status;
     QMutex                      statusMutex;
+
+private:
+    int     delayIsAlive;
+    QTimer  timerIsAlive;
+
+private slots:
+    void    timeoutIsAlive();
 };
 
 #endif // DCPSERVERCOMMAND_H
