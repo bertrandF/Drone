@@ -37,3 +37,5 @@ Most important part of the project: the logo !!!
 - test (bash, sql): 
 Scripts to quickly create/drop/dump/fill with dummy data the db OR deploy the whole system in one command.
 
+- SDL-rtmp-player ( C ):
+This is the player used to read RTMP streams from the drones. It need rtmpdump which it starts as a child process and pipe its output to stdin from where it gets the video frames. The frames are processed with libav and displayed with SDL.
