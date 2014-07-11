@@ -17,7 +17,7 @@ uav = {
 
     videos = {
         {
-            url="rtmp://IP:1935/flvplayback/livestream",
+            url="rtmp://192.168.0.148:1935/flvplayback/livestream",
             info="Front video",
         },
     },
