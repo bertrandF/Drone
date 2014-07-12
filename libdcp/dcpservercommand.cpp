@@ -152,3 +152,18 @@ void DCPServerCommand::timeoutIsAlive() {
     isAlive->setTimestamp(this->time.elapsed());
     this->sendPacket(isAlive);
 }
+
+void DCPServerCommand::sendCommandAilerons(qint8 aileronRight,
+                                           qint8 aileronLeft, qint8 rudder)
+{
+    if(this->getStatus() != Connected) return;
+
+    DCPCommandAilerons *aileron = new DCPCommandAilerons(this->sessIdDrone);
+    aileron->setAddrDst(this->addrDrone);
+    aileron->setPortDst(this->portDrone);
+    aileron->setTimestamp(this->time.elapsed());
+    aileron->setAileronRight(aileronRight);
+    aileron->setAileronLeft(aileronLeft);
+    aileron->setRudder(rudder);
+    this->sendPacket(aileron);
+}

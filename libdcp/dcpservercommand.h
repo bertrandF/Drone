@@ -71,6 +71,8 @@ public:
     void            disconnectFromDrone();
     void            sayByeBye();
     void            log(DCPCommandLog::logLevel level, QString msg);
+    void            sendCommandAilerons(qint8 aileronRight, qint8 aileronLeft,
+                                        qint8 rudder);
 
 signals:
     void statusChanged(enum DCPServerCommandStatus status);

@@ -48,12 +48,17 @@ public slots:
     void    serverStatusChanged (enum DCPServerCommandStatus status);
     void    quit();
 
+protected:
+    void mouseMoveEvent(QMouseEvent *event);
+
 private:
     Ui::CommandPanel            *ui;
     QTextEdit                   *logBox;
     CommandStationParameters    *cmdP;
     QSqlDatabase                db;
     DCPServerCommand            *commandServer;
+
+    QPoint                      initPos;
 };
 
 #endif // COMMANDPANEL_H

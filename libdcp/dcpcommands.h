@@ -42,6 +42,13 @@ public:
     DCPCommandAilerons(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
 
+    inline void setAileronRight (qint8 value)
+            { this->aileronRight = value; }
+    inline void setAileronLeft  (qint8 value)
+            { this->aileronLeft = value; }
+    inline void setRudder       (qint8 value)
+            { this->rudder = value; }
+
 protected:
     QByteArray  buildPayload();
     void        unbuildPayload();

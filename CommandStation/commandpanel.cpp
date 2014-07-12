@@ -31,6 +31,7 @@
 #include <QThread>
 #include <QtSql/QSqlDatabase>
 #include <QSqlError>
+#include <QMessageBox>
 
 #include <dcpservercommand.h>
 
@@ -81,11 +82,38 @@ CommandPanel::CommandPanel(CommandStationParameters *cmdP, QWidget *parent) :
         ui->videosTabWidget->addTab(tab, video);
     }
 
+    /* ----- MOUSE POS ----- */
+    this->initPos = QCursor::pos();
+
+    /* ----- WARNING ----- */
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setMaximumWidth(1000);
+    msgBox.setWindowTitle("!!! WARNING !!!");
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.setDefaultButton(QMessageBox::Close);
+    msgBox.setInformativeText("Implementation of aileron command from mouse pos"
+                              "is FALSE. Must re-implement.");
 }
 
 CommandPanel::~CommandPanel()
 {
     delete ui;
+}
+
+#define MOUSE_MOV_STEP  (10)
+void CommandPanel::mouseMoveEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::RightButton) {
+        QPoint currMov = this->initPos - event->globalPos();
+        currMov /= MOUSE_MOV_STEP;
+
+        /* TODO: MAKE A REAL IMPLEMENTATION */
+        qint8 aileronR = currMov.x() + currMov.y();
+        qint8 aileronL = -currMov.x() + currMov.y();
+
+        this->commandServer->sendCommandAilerons(aileronR, aileronL, 0);
+    }
 }
 
 
