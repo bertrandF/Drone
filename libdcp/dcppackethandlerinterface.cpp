@@ -435,6 +435,12 @@ void DCPPacketHandlerCentralStation::handleCommandHelloFromRemote(DCPPacket *pac
             return; // Abort
         }
 
+        if(!remote)
+        {
+            // Could not add remote
+            return;
+        }
+
         // If session Id is available
         if((session = central->addNewSession(central->getMyId(), remote->id))
                 != NULL)
