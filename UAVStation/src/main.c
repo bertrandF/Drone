@@ -68,15 +68,15 @@
  *  
  */
 struct options_s {
-    const char*             if_name;       ///< Interface name.
+    char*                   if_name;        ///< Interface name.
     int                     sin_family;     ///< User required sock family (IPv4 or IPv6).
     unsigned short          sin_port;       ///< Listening port of the server.
-    const char*             central_host;  ///< Central station host.
+    char*                   central_host;   ///< Central station host.
     unsigned short          central_port;   ///< Central station port.
     unsigned long           timeout;        ///< Select() timeout in milliseconds.
     char*                   videos;         ///< List of video servers.
-    const char*             info;           ///< UAV's info string to be stored in table stations of DB.
-    const char*             backup;         ///< Path to backup file.
+    char*                   info;           ///< UAV's info string to be stored in table stations of DB.
+    char*                   backup;         ///< Path to backup file.
 };
 static struct options_s options = {
     NULL,
@@ -154,8 +154,8 @@ int parse_conf_file(char* filename)
 {
     int ret=-1;
     lua_State *L;
-    int len=0, total_len=0, videos_size=0;
-    const char* video;
+    size_t len=0, videos_size=-1;
+    const char *tmp;
 
     /* Init lua */
     L = luaL_newstate();
@@ -196,7 +196,14 @@ int parse_conf_file(char* filename)
             goto end;
         }
     } else {
-        options.backup = lua_tostring(L, -1);
+        tmp = lua_tolstring(L, -1, &len);
+        options.backup = (char*)malloc(len+1);
+        if(options.backup == NULL) {
+            fprintf(stderr, "Cannot allocate memory for backup file string\n");
+            goto end;
+        }
+        memcpy(options.backup, tmp, len);
+        options.backup[len] = '\0';
     }
     lua_pop(L, 1);
 
@@ -237,8 +244,16 @@ int parse_conf_file(char* filename)
     if( !lua_isstring(L, -1) ) {
         fprintf(stderr, "Bad value for '%s' in '%s' table.\n", CONF_KEY_INFO, CONF_TAB_SRV);
         goto end;
+    } else {
+        tmp = lua_tolstring(L, -1, &len);
+        options.info = (char*)malloc(len+1);
+        if(options.info == NULL) {
+            fprintf(stderr, "Cannot allocate memory for drone info string.\n");
+            goto end;
+        }
+        memcpy(options.info, tmp, len);
+        options.info[len] = '\0';
     }
-    options.info = lua_tostring(L, -1);
     lua_pop(L, 1);
 
     /* Get server listening interface */
@@ -247,8 +262,16 @@ int parse_conf_file(char* filename)
     if( !lua_isstring(L, -1) ) {
         fprintf(stderr, "Bad value for '%s' in '%s' table.\n", CONF_KEY_IF, CONF_TAB_SRV);
         goto end;
+    } else {
+        tmp = lua_tolstring(L, -1, &len);
+        options.if_name = (char*)malloc(len+1);
+        if(options.if_name == NULL) {
+            fprintf(stderr, "Cannot allocate memory for interface name string.\n");
+            goto end;
+        }
+        memcpy(options.if_name, tmp, len);
+        options.if_name[len] = '\0';
     }
-    options.if_name = lua_tostring(L, -1);
     lua_pop(L, 1);
 
     /* --------------------- CENTRAL TABLE ---------------- */
@@ -269,8 +292,16 @@ int parse_conf_file(char* filename)
         fprintf(stderr, "Table '%s' does not have a '%s' key.\n", 
                 CONF_TAB_CENTRAL, CONF_KEY_HOST);
         goto end;
+    } else {
+        tmp = lua_tolstring(L, -1, &len);
+        options.central_host = (char*)malloc(len+1);
+        if(options.central_host == NULL) {
+            fprintf(stderr, "Cannot allocate memory for central hostname/IP string.\n");
+            goto end;
+        }
+        memcpy(options.central_host, tmp, len);
+        options.central_host[len] = '\0';
     }
-    options.central_host = lua_tostring(L, -1);
     lua_pop(L, 1);
 
     /* Get central port */
@@ -297,13 +328,8 @@ int parse_conf_file(char* filename)
 
     /* For each video in the table */
     lua_pushnil(L);
-    options.videos = (char*)malloc(2048);
-    videos_size=2048;
-    if( !options.videos ) {
-        fprintf(stderr, "Cannot allocate space for videos string.\n");
-        goto end;
-    }
     while( lua_next(L, -2)!=0 ) {
+        ++videos_size;
         if( lua_istable(L, -1) ) {
             lua_pushstring(L, CONF_KEY_URL);
             lua_gettable(L, -2);
@@ -312,22 +338,22 @@ int parse_conf_file(char* filename)
                         CONF_KEY_URL, CONF_TAB_VIDEOS);
                 goto end;
             }
-            video = lua_tostring(L, -1);
-            len = strlen(video)+1;
-            while(total_len+len > videos_size) {
-                videos_size += 2048;
-                options.videos = (char*)malloc(videos_size);
-                if( !options.videos ) {
-                    fprintf(stderr, "Cannot increase videos buffer size.\n");
-                    goto end;
-                }
+
+            tmp = lua_tolstring(L, -1, &len);
+            options.videos = (char*)realloc(options.videos, videos_size+len+1);
+            if(options.videos == NULL) {
+                fprintf(stderr, "Cannot increase videos buffer size.\n");
+                goto end;
             }
-            strcat(options.videos, "$");
-            strcat(options.videos, video);
+            memcpy(options.videos+videos_size, tmp, len);
+            options.videos[videos_size+len] = '$'; // Separator with next video
+            videos_size += len;
+
             lua_pop(L, 1);
         }
         lua_pop(L, 1);
     }
+    options.videos[videos_size] = '\0';
 
     ret=0;
 end:
@@ -514,7 +540,6 @@ int main(int argc, char** argv)
             inet_ntoa(((struct sockaddr_in*)&(uavparams.if_addr))->sin_addr), 
             ((struct sockaddr_in*)&(uavparams.if_addr))->sin_family,
             ((struct sockaddr_in*)&(uavparams.if_addr))->sin_port);*/
-
 
     /* Fork child */
     while(1) {
