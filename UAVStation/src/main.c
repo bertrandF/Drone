@@ -57,6 +57,7 @@
 
 /* Defines */
 #define DEFAULT_BACKUP      "/tmp/drone_config_data.bak"
+#define STRREPLACE_IP       "<IP>"
 
 
 
@@ -126,6 +127,55 @@ void usage()
     printf("\n");
 }
 
+
+/*!
+ *  \brief  Replace a substring by a specified one.
+ *
+ *  Replace in str the string whatstr by the string bystr. The resulting
+ *  string is copied in a malloced buffer and return as a parameter. 
+ *  The user need to free this memory space.
+ *
+ *  \param  str         The string in which to replace the string.
+ *  \param  out         Address of pointer that will point to the new string.
+ *  \param  whatstr     The string to replace.
+ *  \param  bystr       The string by which to replace.
+ *
+ * \return   0 on success, -1 on failure and out is set to NULL.
+ *
+ */
+int str_replace(const char* str, char** out, const char* whatstr, const char* bystr) 
+{
+    const char* index=NULL;
+    char* tmp;  
+    int len=0, total_len=0, len_whatstr=strlen(whatstr), len_bystr=strlen(bystr);
+
+    while( (index=strstr(str, whatstr)) ) {
+        len = index-str;
+        tmp = (char*)realloc(*out, total_len+len+len_bystr);
+        if(!tmp) {
+            free(*out);
+            *out = NULL;
+            return -1;
+        }
+        *out = tmp;
+        memcpy(*out+total_len, str, len);
+        memcpy(*out+total_len+len, bystr, len_bystr);
+        str=index+len_whatstr;
+        total_len += len+len_bystr;
+    } 
+
+    len = strlen(str);
+    tmp = (char*)realloc(*out, total_len+len+1);
+    if(!tmp) {
+        free(*out);
+        *out = NULL;
+        return -1;
+    }
+    *out=tmp;
+    memcpy(*out+total_len, str, len+1);
+
+    return 0;
+}
 
 
 /*!
@@ -473,7 +523,7 @@ int main(int argc, char** argv)
     char opt;
     int pid, status, itsjustatest=0;
     struct uavsrv_params_s uavparams;
-    char* conffile;
+    char* conffile, *tmpvideos=NULL;
     int ret=EXIT_FAILURE;
 
     /* Open Logs */
@@ -519,6 +569,15 @@ int main(int argc, char** argv)
     /* GET interface sockaddr */
     if(config_interface(&(uavparams.if_addr), &(uavparams.if_addrlen)) < 0)
         goto end;
+    /* In videos string, insert in URLs the IP address of rtmp server */
+    if( str_replace(options.videos, &tmpvideos, STRREPLACE_IP, 
+            inet_ntoa(((struct sockaddr_in*)&(uavparams.central_addr))->sin_addr))<0 ) {
+        fprintf(stderr, "Cannot generate URLs string for videos.\n");
+        return EXIT_FAILURE;
+    }
+    free(options.videos);
+    options.videos = tmpvideos;
+
     /* GET timeout */ 
     uavparams.timeout.tv_sec    = options.timeout/1000;
     uavparams.timeout.tv_usec   = (options.timeout%1000)*1000;
