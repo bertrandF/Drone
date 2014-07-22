@@ -27,6 +27,7 @@
 #include <QString>
 #include <QUdpSocket>
 #include <QDateTime>
+#include <QTimer>
 
 #include <dcp.h>
 #include <dcpserver.h>
@@ -74,8 +75,12 @@ public:
     remote_t*   stationIsCommand(qint8 id);
     session_t*  sessionIsCentral(qint8 id);
 
+public slots:
+    void        pingDrones();
+
 private:
-    QSqlDatabase db;
+    QSqlDatabase    db;
+    QTimer          pingDronesTimer;
 };
 
 #endif // DCPSERVERCENTRAL_H

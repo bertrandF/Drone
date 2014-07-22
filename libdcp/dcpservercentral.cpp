@@ -25,6 +25,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+#define PINGDRONES_TIMEOUT      (3000)
 
 DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db) :
     DCPServer(sock),
@@ -32,6 +33,9 @@ DCPServerCentral::DCPServerCentral(QUdpSocket *sock, QSqlDatabase db) :
 {
     this->myID = DCP_IDCENTRAL;
     this->handler = new DCPPacketHandlerCentralStation(this);
+    this->pingDronesTimer.start(PINGDRONES_TIMEOUT);
+    connect(&(this->pingDronesTimer), SIGNAL(timeout()),
+            this, SLOT(pingDrones()));
 }
 
 DCPServerCentral::remote_t*
@@ -483,4 +487,35 @@ DCPServerCentral::sessionIsCentral(qint8 id)
     session->date       = QDateTime::fromString(query.value(2).toString());
 
     return session;
+}
+
+void DCPServerCentral::pingDrones()
+{
+    QHostAddress addr;
+    qint16 port;
+
+    QSqlQuery query(this->db);
+    query.prepare("SELECT id, type, ip, port FROM " +
+                  QString(DCP_DBSTATIONS) +
+                  " WHERE id!=0");
+    if(!query.exec())
+    {
+        qWarning() << query.lastError().driverText() << endl;
+        qWarning() << query.lastError().databaseText() << endl;
+        qWarning() << query.lastQuery();
+        qWarning() << "Error while trying to ping drones" << endl;
+        return;
+    }
+
+    while(query.next()) {
+            addr = QHostAddress(query.value(2).toString());
+            port = query.value(3).toInt();
+
+            DCPCommandIsAlive *isalive =
+                    new DCPCommandIsAlive(DCP_SESSIDCENTRAL,
+                                          this->msecSinceStart());
+            isalive->setAddrDst(addr);
+            isalive->setPortDst(port);
+            this->sendPacket(isalive);
+    }
 }
