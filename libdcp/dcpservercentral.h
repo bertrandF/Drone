@@ -35,6 +35,8 @@
 
 class DCPServerCentral : public DCPServer
 {
+    Q_OBJECT
+
 public:
     DCPServerCentral(QUdpSocket *socket, QSqlDatabase db);
 
