@@ -556,13 +556,9 @@ int main(int argc, char** argv)
     }
     conffile = argv[optind];
 
+    /* Parse configuration file */
     if(parse_conf_file(conffile) < 0)
         goto end;
-    else if( itsjustatest ) {
-        ret=EXIT_SUCCESS;
-        goto end;
-    }
-
     /* GET central station sockaddr*/
     if(config_central(&(uavparams.central_addr), &(uavparams.central_addrlen)) < 0)
         goto end;
@@ -589,18 +585,23 @@ int main(int argc, char** argv)
     uavparams.backup        = options.backup;
     uavparams.backup_mode   = 0;
 
-
-    /* Dump configuration */
-    /*printf("CENTRAl ADDR: %s -- FAMILY: %d -- PORT: %hu\n", 
+    /* If test run, drop configuration */
+    if( itsjustatest ) {
+        printf("CENTRAl ADDR: %s -- FAMILY: %d -- PORT: %hu\n", 
             inet_ntoa(((struct sockaddr_in*)&(uavparams.central_addr))->sin_addr), 
             ((struct sockaddr_in*)&(uavparams.central_addr))->sin_family,
             ntohs(((struct sockaddr_in*)&(uavparams.central_addr))->sin_port));
-    printf("IF ADDR: %s -- FAMILY: %d -- PORT: %hu\n", 
+        printf("IF ADDR: %s -- FAMILY: %d -- PORT: %hu\n", 
             inet_ntoa(((struct sockaddr_in*)&(uavparams.if_addr))->sin_addr), 
             ((struct sockaddr_in*)&(uavparams.if_addr))->sin_family,
-            ((struct sockaddr_in*)&(uavparams.if_addr))->sin_port);*/
+            ((struct sockaddr_in*)&(uavparams.if_addr))->sin_port);
+        printf("VIDEOS URLS: '%s'\n", uavparams.videos);
 
-    /* Fork child */
+        ret=EXIT_SUCCESS;
+        goto end;
+    }
+
+        /* Fork child */
     while(1) {
         pid = fork();
         if(pid<0) {
