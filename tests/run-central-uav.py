@@ -2,6 +2,7 @@
 
 import sys
 import os
+import time
 
 
 def run():
@@ -14,6 +15,7 @@ def run():
         sys.exit()
     else:
         print "CentralStation PID: ", str(pid)
+        time.sleep(3)
 
     os.system("./UAVStation/bin/Debug/UAVStation ./UAVStation/conf.lua")
 
