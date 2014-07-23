@@ -546,6 +546,8 @@ int main(int argc, char** argv)
                 usage();
                 goto end;
             default:
+                printf("Unhandled return value of getopt_long(): 0x%x ('%c')\n", 
+                        opt, (char)opt);
                 break;
         }
     }
