@@ -492,12 +492,17 @@ DCPServerCentral::sessionIsCentral(qint8 id)
 void DCPServerCentral::pingDrones()
 {
     QHostAddress addr;
-    qint16 port;
+    qint16 port, sessId;
 
     QSqlQuery query(this->db);
-    query.prepare("SELECT id, type, ip, port FROM " +
-                  QString(DCP_DBSTATIONS) +
-                  " WHERE id!=0");
+    query.prepare(
+    "SELECT DISTINCT tmp1.ip, tmp1.port, tmp2.id"
+    "FROM (SELECT * FROM " + QString(DCP_DBSTATIONS) +
+                " WHERE type!='central') AS tmp1 " +
+    "LEFT OUTER JOIN (SELECT * FROM " + QString(DCP_DBSESSIONS) +
+                    "WHERE station1=0 OR station2=0) AS tmp "
+    "ON tmp.station1=tmp1.id OR tmp.station2=tmp1.id" );
+
     if(!query.exec())
     {
         qWarning() << query.lastError().driverText() << endl;
@@ -508,12 +513,13 @@ void DCPServerCentral::pingDrones()
     }
 
     while(query.next()) {
-            addr = QHostAddress(query.value(2).toString());
-            port = query.value(3).toInt();
+            addr = QHostAddress(query.value(0).toString());
+            port = query.value(1).toInt();
+            sessId = query.value(2).toInt();
+
 
             DCPCommandIsAlive *isalive =
-                    new DCPCommandIsAlive(DCP_SESSIDCENTRAL,
-                                          this->msecSinceStart());
+                    new DCPCommandIsAlive(sessId, this->msecSinceStart());
             isalive->setAddrDst(addr);
             isalive->setPortDst(port);
             this->sendPacket(isalive);
