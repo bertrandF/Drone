@@ -520,7 +520,7 @@ int config_interface(struct sockaddr_storage* saddr, socklen_t *slen)
  */
 int main(int argc, char** argv)
 {
-    char opt;
+    int16_t opt;
     int pid, status, itsjustatest=0;
     struct uavsrv_params_s uavparams;
     char* conffile, *tmpvideos=NULL;
