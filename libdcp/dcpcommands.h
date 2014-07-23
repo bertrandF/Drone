@@ -49,6 +49,8 @@ public:
     inline void setRudder       (qint8 value)
             { this->rudder = value; }
 
+    QString toString();
+
 protected:
     QByteArray  buildPayload();
     void        unbuildPayload();
@@ -68,6 +70,8 @@ class DCPCommandIsAlive : public DCPPacket
 public:
     DCPCommandIsAlive(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
+
+    QString toString();
 };
 
 /*
@@ -94,6 +98,8 @@ class DCPCommandThrottle : public DCPPacket
 public:
     DCPCommandThrottle(qint8 sessID=DCP_SESSIDCENTRAL, qint32 timestamp=0);
     void handle(DCPPacketHandlerInterface *handler);
+
+    QString toString();
 
 protected:
     QByteArray  buildPayload();

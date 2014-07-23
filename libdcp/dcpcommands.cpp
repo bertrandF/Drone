@@ -63,6 +63,20 @@ void DCPCommandAilerons::unbuildPayload()
     this->rudder        = data[2];
 }
 
+QString DCPCommandAilerons::toString()
+{
+    QString str("--- DCPCommandAilerons ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+
+    text << "Left Aileron: " << this->aileronLeft << endl;
+    text << "Right Aileron: " << this->aileronRight << endl;
+    text << "Rudder: " << this->rudder << endl;
+
+    return str;
+}
+
 
 /*
  * DCP -- Check if remote drone is alive.
@@ -74,6 +88,16 @@ DCPCommandIsAlive::DCPCommandIsAlive(qint8 sessID, qint32 timestamp) :
 void DCPCommandIsAlive::handle(DCPPacketHandlerInterface *handler)
 {
     handler->handleCommandIsAlive(this);
+}
+
+QString DCPCommandIsAlive::toString()
+{
+    QString str("--- DCPCommandIsAlive ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+
+    return str;
 }
 
 
@@ -126,6 +150,19 @@ void DCPCommandThrottle::unbuildPayload()
     char* data      = this->payload.data();
     this->motor     = data[0];
     this->throttle  = data[1];
+}
+
+QString DCPCommandThrottle::toString()
+{
+    QString str("--- DCPCommandThrottle ---");
+    QTextStream text(&str);
+    text << endl;
+    text << DCPPacket::toString();
+
+    text << "Motor: " << this->motor << endl;
+    text << "Throttle: " << this->throttle << endl;
+
+    return str;
 }
 
 
