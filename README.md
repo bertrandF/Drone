@@ -42,7 +42,7 @@ This is the player used to read RTMP streams from the drones. It need rtmpdump w
 
 How to Run:
 =====
-  1- Copy the SDLplayer executable to the same directory as CommandStation.
+  1- Copy the SDLplayer executable to a directory in your PATH.
   
   2- Start your postgresql deamon.
   

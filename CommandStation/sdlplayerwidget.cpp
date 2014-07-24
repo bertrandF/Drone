@@ -60,7 +60,7 @@ void SDLPlayerWidget::setMediaFile(QUrl url)
 void SDLPlayerWidget::start()
 {
     this->args << this->mediaFileURL.toDisplayString(QUrl::PreferLocalFile);
-    this->SDLplayer.start("./SDLplayer", this->args);
+    this->SDLplayer.start("SDLplayer", this->args, QIODevice::ReadOnly);
 }
 
 QByteArray SDLPlayerWidget::readAllStandardError()
