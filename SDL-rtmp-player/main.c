@@ -58,7 +58,6 @@ static struct option long_options[] = {
 #define DEFAULT_FRAMERATE   (10)
 #define DEFAULT_FRAMEWIDTH  (352)
 #define DEFAULT_FRAMEHEIGHT (288)
-#define DEFAULT_LOOPS       (50)
 #define DEFAULT_OUTFCC      (CV_FOURCC('M', 'P', '4', 'V'))
 #define DEFAULT_INFILE      "/dev/stdin"
 
@@ -67,7 +66,6 @@ static struct {
     int width;
     int height;
 } inSize = { DEFAULT_FRAMEWIDTH, DEFAULT_FRAMEHEIGHT };
-static int  loops       = DEFAULT_LOOPS;
 static char *outfile    = NULL;
 static int  sleepTime   = 1000000 / DEFAULT_FRAMERATE;
 static char *url        = NULL;
@@ -109,7 +107,6 @@ usage(char* name)
     fprintf(stdout, "Options:\n");
     fprintf(stdout, "  -h, --help            Prints this help\n");
     fprintf(stdout, "\n");
-    fprintf(stdout, "  -l, --loops <n>       Number of loops (defaults to %d)\n", DEFAULT_LOOPS);
     fprintf(stdout, "  -o, --output <file>   Save output to file\n");
     fprintf(stdout, "  -r, --framerate <n>   Set framerate (defaults to %d)\n", DEFAULT_FRAMERATE);
     fprintf(stdout, "  -w, --winid <n>       Window ID to draw SDL_Surface on.\n");
@@ -269,8 +266,8 @@ int
 main(int argc, char** argv )
 {
     char opt;
-    int i=0, end=0, status;
-    uint32_t start=0, loop_start=0;
+    int end=0, status;
+    uint32_t loop_start=0;
     struct sigaction sig_act;
     long winid=0;
     char buffer[64] = "NONE";
@@ -292,9 +289,6 @@ main(int argc, char** argv )
             case 'h':
                 usage(argv[0]);
                 return 0;
-                break;
-            case 'l':
-                loops = atol(optarg);
                 break;
             case 'o':
                 outfile = optarg;
@@ -321,10 +315,9 @@ main(int argc, char** argv )
     
     // Dump configuration
     fprintf(stdout, "framerate=%d\n",   frameRate);
-    fprintf(stdout, "loops=%d\n",       loops);
     fprintf(stdout, "sleeptime=%d\n",   sleepTime);
     fprintf(stdout, "URL=%s\n",         url);
-    fprintf(stdout, "winid=%s\n", buffer);
+    fprintf(stdout, "winid=%s\n",       buffer);
 
     
     // --------------------- Install signal handlers ----------------
@@ -424,8 +417,7 @@ main(int argc, char** argv )
          * The loop is exited uppon end of stream or if and av_* function
          * returned and error.
          * */
-        start = SDL_GetTicks();
-        for(i=i ; i<loops && !end ; ++i) {
+        while( !end ) {
             // For FPS
             loop_start = SDL_GetTicks();
     
@@ -491,15 +483,12 @@ main(int argc, char** argv )
             }
             av_free_packet(&packet);
     
-            /*fprintf(stdout, "\rframes=%d", i); 
-            fflush(stdout);*/
     
             // Regulate FPS
             if(1000.0/frameRate > SDL_GetTicks()-loop_start) {
                 SDL_Delay(1000.0/frameRate - (SDL_GetTicks()-loop_start));
             }
         }
-        fprintf(stdout, "\n"); // new line after "frames=xx"
 
         // Why did we exited from the for loop ?
         if( HAS_SIG(sigs_received, FLAG_SIGINT) ) { // SIGINT
@@ -516,8 +505,6 @@ main(int argc, char** argv )
             if( input_media_open()!=0 ) {
                 fprintf(stderr, "Failed to open input media, EXITING.\n");
             }
-        } else if( i>=loops ) { // read all frames
-            break;
         } else if( end ) { // SDL quit
             break;
         } else { // Unknown
@@ -526,7 +513,6 @@ main(int argc, char** argv )
         }
     
     } while(1);
-    fprintf(stdout, "GOT %d frames in %d ms\n", i, (SDL_GetTicks()-start));
 
     input_media_close();
     av_free(frame);
