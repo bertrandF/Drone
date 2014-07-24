@@ -496,12 +496,12 @@ void DCPServerCentral::pingDrones()
 
     QSqlQuery query(this->db);
     query.prepare(
-    "SELECT DISTINCT tmp1.ip, tmp1.port, tmp2.id"
+    "SELECT DISTINCT tmp1.ip, tmp1.port, tmp2.id "
     "FROM (SELECT * FROM " + QString(DCP_DBSTATIONS) +
                 " WHERE type!='central') AS tmp1 " +
     "LEFT OUTER JOIN (SELECT * FROM " + QString(DCP_DBSESSIONS) +
-                    "WHERE station1=0 OR station2=0) AS tmp "
-    "ON tmp.station1=tmp1.id OR tmp.station2=tmp1.id" );
+                    " WHERE station1=0 OR station2=0) AS tmp2 "
+    "ON tmp2.station1=tmp1.id OR tmp2.station2=tmp1.id" );
 
     if(!query.exec())
     {
