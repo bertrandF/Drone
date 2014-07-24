@@ -130,6 +130,7 @@ void DCPServer::removeFromAckQueue(DCPPacket *packet)
     this->ackMutex.lock();
     this->ackQueue.removeOne(packet);
     disconnect(packet, SIGNAL(timeout()), this, SLOT(dcpResponseTimeout()));
+    delete packet;
     this->ackMutex.unlock();
 }
 
