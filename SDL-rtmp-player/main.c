@@ -304,7 +304,7 @@ main(int argc, char** argv )
                 sleepTime = 1000000 / frameRate;
                 break;
             case 'w':
-                winid=atoi(optarg);
+                winid=atol(optarg);
                 sprintf(buffer, "0x%lx", winid);
                 break;
             default:
