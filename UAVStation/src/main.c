@@ -569,7 +569,7 @@ int main(int argc, char** argv)
         goto end;
     /* In videos string, insert in URLs the IP address of rtmp server */
     if( str_replace(options.videos, &tmpvideos, STRREPLACE_IP, 
-            inet_ntoa(((struct sockaddr_in*)&(uavparams.central_addr))->sin_addr))<0 ) {
+            inet_ntoa(((struct sockaddr_in*)&(uavparams.if_addr))->sin_addr))<0 ) {
         fprintf(stderr, "Cannot generate URLs string for videos.\n");
         return EXIT_FAILURE;
     }
