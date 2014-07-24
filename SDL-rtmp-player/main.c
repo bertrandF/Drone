@@ -365,6 +365,7 @@ main(int argc, char** argv )
     
     // Open AV media
     if( input_media_open()!=0 ) {
+        fprintf(stderr, "Cannot open input media.\n");
         exit(-1);
     }
     atexit(input_media_close);
