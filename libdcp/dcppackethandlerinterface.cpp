@@ -340,6 +340,22 @@ void DCPPacketHandlerCommandStationConnected::handleCommandAck(DCPPacket *packet
             command->removeFromAckQueue(ackedPacket);
         }
     }
+    else if(packet->getSessionID() == command->getSessionIdDrone())
+    {
+        DCPPacket* ackedPacket =
+                command->findInAckQueue(packet->getTimestamp());
+        if(ackedPacket != NULL)
+        {
+            switch(ackedPacket->getCommandID())
+            {
+            case DCP_CMDISALIVE:
+                break;
+            default:
+                break;
+            }
+            command->removeFromAckQueue(ackedPacket);
+        }
+    }
 }
 
 void DCPPacketHandlerCommandStationConnected::handleCommandThrottle(DCPPacket *packet)
